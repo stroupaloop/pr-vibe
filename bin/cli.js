@@ -193,7 +193,8 @@ program
           
           if (!options.dryRun) {
             await commentPoster.replyToComment(prNumber, mainComment, replyText, {
-              reaction: analysis.action
+              reaction: analysis.action,
+              action: analysis.action
             });
             console.log(chalk.green('  ✅ Reply posted'));
           } else {

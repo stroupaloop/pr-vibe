@@ -292,7 +292,8 @@ program
           
           if (!options.dryRun) {
             await commentPoster.replyToComment(prNumber, mainComment, replyText, {
-              reaction: analysis.action
+              reaction: analysis.action,
+              action: analysis.action
             });
             console.log(chalk.green('  ✅ Reply posted'));
           } else {
@@ -605,7 +606,7 @@ program
           await commentPoster.replyToComment(prNumber, 
             { id: decision.commentId }, 
             decision.reply,
-            { reaction: decision.reaction }
+            { reaction: decision.reaction, action: decision.action }
           );
           console.log(chalk.blue(`  💬 Reply posted`));
         } else if (decision.reply && options.dryRun) {
