@@ -4,7 +4,9 @@ import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import updateNotifier from 'update-notifier';
 import { analyzeGitHubPR } from '../lib/github.js';
 import { analyzeComment } from '../lib/decision-engine.js';
 import { createLLMService } from '../lib/llm-integration.js';
@@ -13,6 +15,41 @@ import { createCommentPoster } from '../lib/comment-poster.js';
 import { GitHubProvider } from '../lib/providers/github-provider.js';
 import { displayThread } from '../lib/ui.js';
 import { patternManager } from '../lib/pattern-manager.js';
+
+// Check for updates
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
+const notifier = updateNotifier({ 
+  pkg,
+  updateCheckInterval: 1000 * 60 * 60 * 24 // Check once per day
+});
+
+// Show update notification with custom message
+if (notifier.update) {
+  const { current, latest } = notifier.update;
+  console.log(chalk.yellow(`
+🎵 pr-vibe ${latest} available! (you have ${current})
+✨ What's new: ${getUpdateHighlight(current, latest)}
+Run: ${chalk.cyan('npm update -g pr-vibe')}
+`));
+}
+
+function getUpdateHighlight(current, latest) {
+  // Simple version comparison for highlight messages
+  const [currMajor, currMinor] = current.split('.').map(Number);
+  const [latestMajor, latestMinor] = latest.split('.').map(Number);
+  
+  if (latestMajor > currMajor) {
+    return 'Major update with new features!';
+  } else if (latestMinor > currMinor) {
+    // Specific highlights for known versions
+    if (latest.startsWith('0.2')) {
+      return 'Human review support with --experimental flag';
+    }
+    return 'New features and improvements';
+  }
+  return 'Bug fixes and improvements';
+}
 
 const program = new Command();
 
@@ -503,6 +540,57 @@ escalation_rules:
     } catch (error) {
       console.error(chalk.red(`Failed: ${error.message}`));
     }
+  });
+
+program
+  .command('changelog')
+  .description('Show recent changes and updates')
+  .option('--full', 'show full changelog')
+  .action(async (options) => {
+    console.log(chalk.bold('\n🎵 pr-vibe Changelog\n'));
+    
+    if (options.full) {
+      // Show full changelog
+      try {
+        const changelogPath = join(__dirname, '../CHANGELOG.md');
+        const changelog = readFileSync(changelogPath, 'utf-8');
+        console.log(changelog);
+      } catch (error) {
+        console.log(chalk.yellow('Full changelog not available in this version.'));
+      }
+    } else {
+      // Show recent highlights
+      console.log(chalk.cyan('## Version 0.2.0 (Coming Soon)'));
+      console.log('  ✨ Human review support with --experimental flag');
+      console.log('  🔔 Automatic update notifications');
+      console.log('  🐛 Case-insensitive bot detection');
+      console.log('  📊 Pattern learning from team feedback\n');
+      
+      console.log(chalk.cyan('## Version 0.1.2 (Current)'));
+      console.log('  🚀 Initial public release');
+      console.log('  🤖 CodeRabbit and DeepSource support');
+      console.log('  🧠 Pattern learning system');
+      console.log('  ⚡ Auto-fix common issues\n');
+      
+      console.log(chalk.gray('Run with --full to see complete changelog'));
+    }
+  });
+
+program
+  .command('update')
+  .description('Check for updates')
+  .action(() => {
+    const update = notifier.update;
+    
+    if (update) {
+      console.log(chalk.yellow(`\n🎵 Update available: ${update.current} → ${update.latest}`));
+      console.log(chalk.cyan(`\nRun: npm update -g pr-vibe\n`));
+    } else {
+      console.log(chalk.green('\n✅ You are running the latest version of pr-vibe!\n'));
+    }
+    
+    // Force check for updates
+    notifier.notify({ defer: false });
   });
 
 program.parse();
