@@ -1,0 +1,27 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "stroupaloop",
+      "name": "Andrew Stroup",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1234567?v=4",
+      "profile": "https://github.com/stroupaloop",
+      "contributions": [
+        "code",
+        "doc",
+        "design",
+        "ideas"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "pr-vibe",
+  "projectOwner": "stroupaloop",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}

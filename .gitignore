@@ -26,6 +26,10 @@ build/
 # Project specific
 .pr-review/
 !templates/.pr-review/
+.pr-bot/
+!examples/.pr-bot/
+pr-*-review.json
+decisions.json
 
 # Logs
 logs/

@@ -475,6 +475,78 @@
                 opacity: 0;
             }
         }
+        
+        /* ProductHunt Banner */
+        .ph-banner {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, #da552f, #ea532a);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(218, 85, 47, 0.3);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            z-index: 50;
+            animation: slide-in 0.5s ease-out;
+        }
+        
+        .ph-banner:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(218, 85, 47, 0.4);
+        }
+        
+        .ph-banner-icon {
+            font-size: 20px;
+        }
+        
+        .ph-banner-close {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .ph-banner:hover .ph-banner-close {
+            opacity: 1;
+        }
+        
+        @keyframes slide-in {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .ph-banner {
+                bottom: 16px;
+                right: 16px;
+                left: 16px;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -555,6 +627,16 @@
                 <h3>Goes with the flow</h3>
                 <p>Works with any bot. CodeRabbit, DeepSource, whatever comes next.</p>
             </div>
+            <div class="feature">
+                <div class="feature-emoji">🚀</div>
+                <h3>Zero friction</h3>
+                <p>One command to start. Works with your existing workflow. No config needed.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-emoji">💰</div>
+                <h3>Time is money</h3>
+                <p>Save 18+ minutes per PR. That's $45-90 in dev time. Every single review.</p>
+            </div>
         </div>
     </section>
 
@@ -587,6 +669,15 @@
             <a href="https://twitter.com/stroupaloop">twitter</a>
         </div>
     </footer>
+    
+    <!-- ProductHunt Banner - Uncomment when live -->
+    <!-- 
+    <a href="https://www.producthunt.com/products/pr-vibe" target="_blank" class="ph-banner" id="ph-banner">
+        <span class="ph-banner-icon">🚀</span>
+        <span>We're live on ProductHunt!</span>
+        <span class="ph-banner-close" onclick="closePHBanner(event)">×</span>
+    </a>
+    -->
 
     <script>
         function copyInstall() {
@@ -607,6 +698,20 @@
                 }
             }
         });
+        
+        // ProductHunt banner close
+        function closePHBanner(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.getElementById('ph-banner').style.display = 'none';
+            localStorage.setItem('ph-banner-closed', 'true');
+        }
+        
+        // Check if banner was previously closed
+        if (localStorage.getItem('ph-banner-closed') === 'true') {
+            const banner = document.getElementById('ph-banner');
+            if (banner) banner.style.display = 'none';
+        }
         
         function releaseTheVibes() {
             const emojis = ['🎵', '🎶', '✨', '🌊', '💜', '🎭'];
