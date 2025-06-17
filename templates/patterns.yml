@@ -14,7 +14,7 @@ valid_patterns:
     reason: "We use console.log for CloudWatch logging in Lambda functions"
     confidence: 1.0
     auto_reply: |
-      Thanks for the feedback! We intentionally use console.log in our Lambda functions 
+      Thanks for the feedback! We intentionally use console.log in our Lambda functions
       as it's the standard way to send logs to CloudWatch.
 
   - id: any-types-webhooks
@@ -24,7 +24,7 @@ valid_patterns:
     reason: "Webhook payloads from external services don't have stable types"
     confidence: 0.9
     auto_reply: |
-      Webhook payloads from external services can change without notice, 
+      Webhook payloads from external services can change without notice,
       so we use 'any' types here to prevent runtime errors.
 
   - id: todo-comments
@@ -86,7 +86,6 @@ team_preferences:
       over: "let"
     - prefer: "template literals"
       over: "string concatenation"
-  
   libraries:
     preferred:
       - lodash: "for utility functions"

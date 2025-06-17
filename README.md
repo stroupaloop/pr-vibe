@@ -77,8 +77,9 @@ npx pr-vibe@latest demo
    
    pr-vibe automatically detects tokens from:
    - ✅ GitHub CLI (`gh auth login`)
-   - ✅ Environment variables
+   - ✅ Environment variables (GITHUB_TOKEN, GH_TOKEN)
    - ✅ VS Code GitHub extension
+   - ✅ Git config (github.token)
    
    No token? Run `pr-vibe auth` for guided setup.
 
@@ -96,7 +97,7 @@ That's it! pr-vibe learns from every decision you make.
 pr-vibe demo
 
 # Check your auth status
-pr-vibe auth
+pr-vibe auth status
 
 # Review bot comments interactively
 pr-vibe pr 42

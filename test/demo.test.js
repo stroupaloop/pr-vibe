@@ -63,28 +63,28 @@ describe('Demo Mode', () => {
 
   describe('Demo Execution', () => {
     test('should run demo without errors', async () => {
-      await expect(runDemo()).resolves.not.toThrow();
-    }, 10000); // Increase timeout to 10 seconds for demo
+      await expect(runDemo({ fast: true })).resolves.not.toThrow();
+    });
 
     test('should display welcome message', async () => {
-      await runDemo();
+      await runDemo({ fast: true });
       
       const output = mockConsoleLog.mock.calls.map(call => call.join(' ')).join('\n');
       expect(output).toContain('Welcome to pr-vibe!');
       expect(output).toContain('Let\'s see how it handles bot comments');
-    }, 10000);
+    });
 
     test('should show PR information', async () => {
-      await runDemo();
+      await runDemo({ fast: true });
       
       const output = mockConsoleLog.mock.calls.map(call => call.join(' ')).join('\n');
       expect(output).toContain('PR #42');
       expect(output).toContain(demoPRData.title);
       expect(output).toContain('awesome-app/backend');
-    }, 10000);
+    });
 
     test('should display all bot comments', async () => {
-      await runDemo();
+      await runDemo({ fast: true });
       
       const output = mockConsoleLog.mock.calls.map(call => call.join(' ')).join('\n');
       demoPRData.comments.forEach(comment => {
@@ -92,36 +92,36 @@ describe('Demo Mode', () => {
         // Check that at least part of the comment body is shown
         expect(output).toContain(comment.body.substring(0, 30));
       });
-    }, 10000);
+    });
 
     test('should show decision outcomes', async () => {
-      await runDemo();
+      await runDemo({ fast: true });
       
       const output = mockConsoleLog.mock.calls.map(call => call.join(' ')).join('\n');
       expect(output).toContain('AUTO_FIX');
       expect(output).toContain('REJECT');
       expect(output).toContain('DEFER');
       expect(output).toContain('ESCALATE');
-    }, 10000);
+    });
 
     test('should display summary statistics', async () => {
-      await runDemo();
+      await runDemo({ fast: true });
       
       const output = mockConsoleLog.mock.calls.map(call => call.join(' ')).join('\n');
       expect(output).toContain('Time saved: 18 minutes');
       expect(output).toContain('Auto-fixed: 1');
       expect(output).toContain('Explained: 2');
       expect(output).toContain('Patterns learned: 2');
-    }, 10000);
+    });
 
     test('should show call to action', async () => {
-      await runDemo();
+      await runDemo({ fast: true });
       
       const output = mockConsoleLog.mock.calls.map(call => call.join(' ')).join('\n');
       expect(output).toContain('Ready to try on your own PRs?');
       expect(output).toContain('npm install -g pr-vibe');
       expect(output).toContain('pr-vibe auth');
       expect(output).toContain('pr-vibe pr <number>');
-    }, 10000);
+    });
   });
 });
