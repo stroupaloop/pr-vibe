@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pr-vibe Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0a;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px;
+            overflow: hidden;
+        }
+        
+        .flow-container {
+            max-width: 1000px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .flow-title {
+            text-align: center;
+            color: #fafafa;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, #fafafa 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .flow-step {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #333;
+            border-radius: 16px;
+            padding: 30px;
+            width: 200px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+        
+        .flow-step:hover {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: #a855f7;
+            transform: translateY(-4px);
+        }
+        
+        .step-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .step-title {
+            color: #fafafa;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .step-desc {
+            color: #999;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .flow-arrow {
+            position: absolute;
+            top: 50%;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #a855f7 50%, transparent 100%);
+            z-index: 1;
+        }
+        
+        .arrow-1 {
+            left: 200px;
+        }
+        
+        .arrow-2 {
+            left: 420px;
+        }
+        
+        .arrow-3 {
+            left: 640px;
+        }
+        
+        .vibe-waves {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            opacity: 0.3;
+        }
+        
+        .wave {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #a855f7 0%, transparent 70%);
+            filter: blur(60px);
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .wave-1 {
+            top: -100px;
+            left: -50px;
+            animation-delay: 0s;
+        }
+        
+        .wave-2 {
+            bottom: -100px;
+            right: -50px;
+            animation-delay: 5s;
+        }
+        
+        .wave-3 {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -10px) scale(1.1); }
+            50% { transform: translate(-10px, 20px) scale(0.9); }
+            75% { transform: translate(10px, -5px) scale(1.05); }
+        }
+        
+        .stats-bar {
+            margin-top: 80px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            color: #a855f7;
+            font-size: 28px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .pr-vibe-badge {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #a855f7;
+            font-size: 18px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="vibe-waves">
+        <div class="wave wave-1"></div>
+        <div class="wave wave-2"></div>
+        <div class="wave wave-3"></div>
+    </div>
+    
+    <div class="flow-container">
+        <h1 class="flow-title">How pr-vibe creates harmony</h1>
+        
+        <div class="flow-diagram">
+            <div class="flow-step">
+                <div class="step-icon">🤖</div>
+                <div class="step-title">Claude Code</div>
+                <div class="step-desc">Orchestrates the review process</div>
+            </div>
+            
+            <div class="flow-arrow arrow-1"></div>
+            
+            <div class="flow-step">
+                <div class="step-icon">🎵</div>
+                <div class="step-title">pr-vibe</div>
+                <div class="step-desc">Learns patterns & applies fixes</div>
+            </div>
+            
+            <div class="flow-arrow arrow-2"></div>
+            
+            <div class="flow-step">
+                <div class="step-icon">🐰</div>
+                <div class="step-title">Review Bots</div>
+                <div class="step-desc">Get smart responses</div>
+            </div>
+            
+            <div class="flow-arrow arrow-3"></div>
+            
+            <div class="flow-step">
+                <div class="step-icon">💜</div>
+                <div class="step-title">Developer</div>
+                <div class="step-desc">Stays in creative flow</div>
+            </div>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-value">2min</span>
+                <span class="stat-label">Average PR time</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">95%</span>
+                <span class="stat-label">Bot accuracy</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">0</span>
+                <span class="stat-label">Context switches</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">∞</span>
+                <span class="stat-label">Vibes</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="pr-vibe-badge">pr-vibe</div>
+</body>
+</html>

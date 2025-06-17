@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pr-vibe Hero Shot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0a;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .terminal {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            width: 800px;
+            border: 1px solid #333;
+        }
+        
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #28ca42; }
+        
+        .terminal-body {
+            padding: 24px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .prompt { color: #a855f7; font-weight: 600; }
+        .success { color: #22c55e; }
+        .comment { color: #666; }
+        .highlight { color: #fbbf24; font-weight: 600; }
+        .error { color: #ef4444; }
+        .fix { color: #60a5fa; }
+        
+        .line {
+            margin-bottom: 8px;
+        }
+        
+        .indent {
+            padding-left: 20px;
+        }
+        
+        .stats-line {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #333;
+        }
+        
+        .vibe-logo {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #a855f7;
+            font-size: 18px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+        </div>
+        <div class="terminal-body">
+            <div class="line"><span class="prompt">$</span> pr-vibe apply 123</div>
+            <div class="line"><span class="comment"># Analyzing 19 bot comments from CodeRabbit...</span></div>
+            <div class="line">&nbsp;</div>
+            <div class="line"><span class="success">✓</span> Applying learned patterns...</div>
+            <div class="line">&nbsp;</div>
+            <div class="line indent"><span class="fix">🔧</span> Fixing: <span class="error">hardcoded API key</span> → <span class="success">process.env.API_KEY</span></div>
+            <div class="line indent"><span class="fix">🔧</span> Fixing: <span class="error">console.log statements</span> → <span class="success">logger.info()</span></div>
+            <div class="line indent"><span class="fix">🔧</span> Fixing: <span class="error">magic number 404</span> → <span class="success">HTTP_STATUS.NOT_FOUND</span></div>
+            <div class="line">&nbsp;</div>
+            <div class="line"><span class="success">✓</span> Auto-replying to valid patterns:</div>
+            <div class="line indent"><span class="comment">• "console.log valid for CloudWatch in Lambda" (3 occurrences)</span></div>
+            <div class="line indent"><span class="comment">• "any types acceptable in webhook handlers" (2 occurrences)</span></div>
+            <div class="line indent"><span class="comment">• "TODOs tracked in Jira, not removed" (4 occurrences)</span></div>
+            <div class="line">&nbsp;</div>
+            <div class="line"><span class="success">✓</span> Committing fixes...</div>
+            <div class="line"><span class="success">✓</span> Posting responses...</div>
+            <div class="line">&nbsp;</div>
+            <div class="stats-line">
+                <div class="line"><span class="highlight">⚡ Completed in 1m 47s</span></div>
+                <div class="line"><span class="highlight">📊 19 comments handled automatically</span></div>
+                <div class="line"><span class="highlight">⏱️  Saved ~18 minutes of manual work</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="vibe-logo">pr-vibe</div>
+</body>
+</html>

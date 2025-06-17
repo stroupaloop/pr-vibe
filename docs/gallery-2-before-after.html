@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pr-vibe Before vs After</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0a;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .side {
+            background: #111;
+            border-radius: 12px;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+        
+        .side-header {
+            padding: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .before .side-header {
+            background: #991b1b;
+            color: #fecaca;
+        }
+        
+        .after .side-header {
+            background: #14532d;
+            color: #bbf7d0;
+        }
+        
+        .content {
+            padding: 24px;
+        }
+        
+        .pr-comment {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .bot-name {
+            color: #fbbf24;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .bot-icon {
+            width: 20px;
+            height: 20px;
+            background: #fbbf24;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .comment-text {
+            color: #e5e5e5;
+            line-height: 1.5;
+        }
+        
+        .code-snippet {
+            background: #000;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-family: monospace;
+            font-size: 13px;
+            color: #60a5fa;
+        }
+        
+        .blur {
+            filter: blur(2px);
+            opacity: 0.6;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #14532d 0%, #166534 100%);
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            color: #bbf7d0;
+        }
+        
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .success-stats {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .vibe-watermark {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #a855f7;
+            font-size: 16px;
+            font-weight: 700;
+            opacity: 0.6;
+        }
+        
+        .before-label, .after-label {
+            position: absolute;
+            top: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.5;
+        }
+        
+        .before-label {
+            left: 20px;
+            color: #ef4444;
+        }
+        
+        .after-label {
+            right: 20px;
+            color: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="before-label">Before pr-vibe</div>
+    <div class="after-label">After pr-vibe</div>
+    
+    <div class="container">
+        <div class="side before">
+            <div class="side-header">😩 20 minutes of repetitive feedback</div>
+            <div class="content">
+                <div class="pr-comment">
+                    <div class="bot-name">
+                        <span class="bot-icon">🐰</span> CodeRabbit
+                    </div>
+                    <div class="comment-text">
+                        Remove console.log statement
+                        <div class="code-snippet">console.log('User authenticated:', userId);</div>
+                    </div>
+                </div>
+                
+                <div class="pr-comment">
+                    <div class="bot-name">
+                        <span class="bot-icon">🐰</span> CodeRabbit
+                    </div>
+                    <div class="comment-text">
+                        Avoid using 'any' type
+                        <div class="code-snippet">const handleWebhook = (payload: any) => {</div>
+                    </div>
+                </div>
+                
+                <div class="pr-comment">
+                    <div class="bot-name">
+                        <span class="bot-icon">🐰</span> CodeRabbit
+                    </div>
+                    <div class="comment-text">
+                        Replace magic number with constant
+                        <div class="code-snippet">if (response.status === 404) {</div>
+                    </div>
+                </div>
+                
+                <div class="pr-comment blur">
+                    <div class="bot-name">
+                        <span class="bot-icon">🐰</span> CodeRabbit
+                    </div>
+                    <div class="comment-text">
+                        Hardcoded API endpoint detected...
+                    </div>
+                </div>
+                
+                <div class="pr-comment blur">
+                    <div class="bot-name">
+                        <span class="bot-icon">🐰</span> CodeRabbit
+                    </div>
+                    <div class="comment-text">
+                        Consider extracting this to a utility function...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="side after">
+            <div class="side-header">✨ 2 minutes with pr-vibe</div>
+            <div class="content">
+                <div class="success-message">
+                    <div class="success-icon">🎵</div>
+                    <div class="success-title">All bot feedback handled automatically</div>
+                    <div class="success-stats">
+                        19 comments processed<br>
+                        6 auto-fixes applied<br>
+                        13 patterns recognized<br>
+                        <br>
+                        <strong>You stayed in flow the entire time</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="vibe-watermark">pr-vibe</div>
+</body>
+</html>
