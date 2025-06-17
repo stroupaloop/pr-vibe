@@ -303,15 +303,16 @@
             to { opacity: 1; }
         }
         
-        /* Interactive demo animations - looping */
+        /* Interactive demo animations - looping with pause */
         @keyframes demo-sequence {
-            0%, 100% { opacity: 0; }
-            10%, 90% { opacity: 1; }
+            0% { opacity: 0; }
+            5%, 65% { opacity: 1; }
+            70%, 100% { opacity: 0; }
         }
         
         .interactive-demo .terminal-line {
             opacity: 0;
-            animation: demo-sequence 8s infinite;
+            animation: demo-sequence 10s infinite;
         }
         
         .interactive-demo > div > div > div:first-child .terminal-line:nth-child(1) { animation-delay: 0.5s; }
