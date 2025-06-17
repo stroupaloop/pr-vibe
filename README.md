@@ -65,6 +65,8 @@ npx pr-vibe review 42
    export GITHUB_TOKEN=your_github_token
    # Get one at: https://github.com/settings/tokens
    ```
+   
+   > **🔐 Security Note**: Never commit tokens to the repository. See [SECURITY.md](SECURITY.md) for best practices.
 
 3. **Initialize in your project:**
    ```bash
