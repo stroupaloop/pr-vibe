@@ -17,9 +17,11 @@ I need help writing a blog post about launching my new tool pr-vibe on ProductHu
 2. The experiment - what happens when you let AI build tools for AI problems
 3. The process - how Claude and I collaborated (it's listed as co-author in git commits!)
 4. The surprising parts - Claude's design opinions, the "vibe" philosophy
-5. The results - 95% reduction in manual bot handling, saves ~18 minutes per PR
-6. The bigger picture - what this means for human-AI collaboration
-7. Call to action - try pr-vibe and share your human-AI collaboration stories
+5. The feedback loop - how pr-vibe gets smarter through human-AI collaboration
+6. Real metrics - 95% reduction in manual bot handling, saves ~18 minutes per PR
+7. The philosophy - creating systems where human creativity and AI capability amplify each other
+8. Future vision - what happens when we embrace true AI collaboration
+9. Call to action - try pr-vibe and share your human-AI collaboration stories
 
 **Tone:**
 - Authentic and conversational
@@ -64,6 +66,18 @@ Can you help me write this blog post that captures both the technical achievemen
 - First tool designed specifically for AI-to-AI collaboration
 - Makes the point that as AI tools proliferate, they need to work together better
 - The name changed from "pr-bot-responder" to "pr-vibe" at Claude's insistence
+
+## The Feedback Loop Focus:
+Please emphasize the continuous improvement aspect:
+- Every PR makes pr-vibe smarter
+- Human decisions train AI understanding
+- AI insights improve human workflows  
+- The compound effect over time (20 min/week → 2+ hours/week saved)
+- How team knowledge gets encoded into patterns
+- The philosophy that human creativity + AI capability = amplified productivity
+
+## Include This Quote:
+"What if the future isn't AI replacing developers, but AI and developers building feedback loops that make everyone faster? pr-vibe is our experiment in making that future real."
 
 ## Technical Details to Weave In:
 - Built with Node.js and Commander.js

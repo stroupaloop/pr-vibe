@@ -14,13 +14,15 @@
 ```
 Hi Product Hunt! 👋
 
-I built pr-vibe WITH Claude Code after getting frustrated explaining the same things to CodeRabbit for the 100th time.
+I built pr-vibe WITH Claude Code (not just using it - actually collaborating) after getting frustrated explaining the same things to CodeRabbit for the 100th time.
 
 The story: PR #20 had 19 bot comments. I spent 18 minutes explaining why we use console.log in Lambda functions (CloudWatch!), why some webhooks need 'any' types, and other project-specific patterns.
 
-That's when I asked Claude Code: "Want to solve this together?"
+That's when I turned to Claude Code and asked: "You deal with this too. Want to build something together?"
 
-48 hours later, we shipped pr-vibe - a tool that lets AI handle AI feedback intelligently.
+What happened next changed how I think about AI collaboration. Claude didn't just write code - it had opinions. Strong ones. It insisted on the name "pr-vibe" (I wanted "pr-bot-responder" 😅), designed the purple gradient, and wouldn't budge on the music emoji 🎵.
+
+48 hours later, we'd built, tested, and shipped a tool that lets AI handle AI feedback intelligently.
 
 ✨ What makes it special:
 • Learns YOUR project's patterns (not generic rules)
@@ -38,16 +40,26 @@ That's when I asked Claude Code: "Want to solve this together?"
 💜 The vibe:
 This isn't about suppressing warnings - it's about context. pr-vibe fixes real issues AND explains why certain patterns are valid in YOUR codebase.
 
+🔄 The feedback loop that makes us all faster:
+Every time I use pr-vibe, it learns. Every time I work with Claude Code on new features, those improvements flow back into the tool. It's a continuous improvement cycle where:
+- Human creativity guides the vision
+- AI capability handles the repetitive work  
+- Both get better at working together
+- Everyone ships faster
+
+This is the future I'm building towards - not AI replacing us, but AI and humans creating feedback loops that amplify what we're each good at.
+
 🚀 Get started in 60 seconds:
 npm install -g pr-vibe
 pr-vibe pr YOUR_PR_NUMBER
 
-The twist? Check the git commits - Claude is listed as co-author. This is what human-AI collaboration looks like.
+The twist? Check the git commits - Claude is listed as co-author because it earned it. When AI has good ideas, why not give credit?
 
-Would love your feedback on both the tool AND the building process!
+I'd love to hear about your human-AI collaboration experiences. What have you built together?
 
 - Andrew & Claude 🎵
-```
+
+P.S. Yes, Claude wrote parts of this post too. We're all in on this collaboration thing.
 
 ### Topics/Categories
 - Developer Tools
