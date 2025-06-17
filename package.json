@@ -1,0 +1,65 @@
+{
+  "name": "pr-review-assistant",
+  "version": "0.1.0",
+  "description": "AI-powered pull request review assistant supporting multiple LLMs",
+  "keywords": [
+    "ai",
+    "pr",
+    "pull-request",
+    "code-review",
+    "claude",
+    "gpt-4",
+    "github",
+    "gitlab",
+    "cli",
+    "developer-tools"
+  ],
+  "author": "Andrew Stroup <andrew@stroup.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stroupaloop/pr-review-assistant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stroupaloop/pr-review-assistant/issues"
+  },
+  "homepage": "https://github.com/stroupaloop/pr-review-assistant#readme",
+  "type": "module",
+  "bin": {
+    "pr-review": "./bin/cli.js",
+    "pra": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "templates/"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/",
+    "build": "tsc",
+    "prepublishOnly": "npm run test && npm run lint",
+    "dev": "node --watch bin/cli.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
+    "@octokit/rest": "^20.0.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "cosmiconfig": "^9.0.0",
+    "dotenv": "^16.4.5",
+    "inquirer": "^9.2.15",
+    "openai": "^4.28.0",
+    "ora": "^8.0.1",
+    "p-limit": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "typescript": "^5.3.0"
+  }
+}
