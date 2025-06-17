@@ -37,14 +37,14 @@
             top: 0;
             left: 0;
             z-index: -1;
-            opacity: 0.3;
+            opacity: 0.15;
         }
         
         .vibe-circle {
             position: absolute;
             border-radius: 50%;
             filter: blur(100px);
-            animation: vibe-float 20s infinite ease-in-out;
+            animation: vibe-float 30s infinite ease-in-out;
         }
         
         .vibe-1 {
@@ -77,14 +77,14 @@
         
         @keyframes vibe-float {
             0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(50px, -30px) scale(1.1); }
-            50% { transform: translate(-30px, 20px) scale(0.9); }
-            75% { transform: translate(20px, -10px) scale(1.05); }
+            25% { transform: translate(30px, -20px) scale(1.05); }
+            50% { transform: translate(-20px, 15px) scale(0.95); }
+            75% { transform: translate(15px, -10px) scale(1.02); }
         }
         
         /* Content */
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 0 24px;
             position: relative;
@@ -131,16 +131,16 @@
         
         /* Hero */
         .hero {
-            padding: 120px 0 80px;
+            padding: 100px 0 60px;
             text-align: center;
         }
         
         .hero h1 {
-            font-size: clamp(48px, 8vw, 96px);
+            font-size: clamp(48px, 8vw, 80px);
             font-weight: 900;
             letter-spacing: -2px;
-            line-height: 0.9;
-            margin-bottom: 24px;
+            line-height: 1.1;
+            margin-bottom: 20px;
             background: linear-gradient(135deg, var(--text) 0%, var(--vibe-light) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -153,21 +153,24 @@
         }
         
         .hero p {
-            font-size: 20px;
+            font-size: 18px;
             opacity: 0.7;
-            margin-bottom: 48px;
-            line-height: 1.6;
+            margin-bottom: 32px;
+            line-height: 1.5;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .install-cmd {
             display: inline-block;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 16px 32px;
+            padding: 14px 28px;
             border-radius: 12px;
             font-family: ui-monospace, monospace;
-            font-size: 18px;
-            margin-bottom: 16px;
+            font-size: 16px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -204,17 +207,18 @@
         
         /* Demo Section */
         .demo {
-            padding: 80px 0;
+            padding: 60px 0;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 64px;
+            gap: 48px;
             align-items: center;
         }
         
         .demo-text h2 {
-            font-size: 36px;
-            margin-bottom: 24px;
+            font-size: 32px;
+            margin-bottom: 20px;
             font-weight: 700;
+            line-height: 1.2;
         }
         
         .demo-text p {
@@ -270,8 +274,8 @@
         .dot-3 { background: #28ca42; }
         
         .terminal-body {
-            padding: 24px;
-            min-height: 300px;
+            padding: 20px;
+            min-height: 250px;
         }
         
         .terminal-line {
@@ -300,13 +304,14 @@
         
         /* Features */
         .features {
-            padding: 80px 0;
+            padding: 60px 0;
             text-align: center;
         }
         
         .features h2 {
-            font-size: 36px;
-            margin-bottom: 48px;
+            font-size: 32px;
+            margin-bottom: 36px;
+            font-weight: 700;
         }
         
         .feature-grid {
@@ -319,8 +324,13 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 32px;
+            padding: 28px 24px;
             transition: all 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
         
         .feature:hover {
@@ -343,35 +353,37 @@
             opacity: 0.7;
             font-size: 14px;
             line-height: 1.5;
+            margin: 0;
         }
         
         /* Vibes Section */
         .vibes {
-            padding: 80px 0;
+            padding: 60px 24px;
             text-align: center;
             background: rgba(168, 85, 247, 0.05);
             border-radius: 24px;
-            margin: 0 24px;
+            margin: 40px 24px;
         }
         
         .vibes h2 {
-            font-size: 36px;
-            margin-bottom: 24px;
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 700;
         }
         
         .vibe-quote {
-            font-size: 24px;
+            font-size: 20px;
             font-style: italic;
             opacity: 0.8;
             max-width: 600px;
-            margin: 0 auto 48px;
+            margin: 0 auto 32px;
             line-height: 1.4;
         }
         
         .vibe-stats {
             display: flex;
             justify-content: center;
-            gap: 64px;
+            gap: 48px;
             flex-wrap: wrap;
         }
         
@@ -393,7 +405,7 @@
         
         /* Footer */
         footer {
-            padding: 80px 0 40px;
+            padding: 60px 0 40px;
             text-align: center;
             opacity: 0.6;
         }
@@ -411,10 +423,33 @@
         
         /* Mobile */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 48px; }
-            .demo { grid-template-columns: 1fr; }
+            .hero {
+                padding: 80px 0 40px;
+            }
+            .hero h1 { 
+                font-size: 48px;
+                margin-bottom: 16px;
+            }
+            .hero p {
+                font-size: 16px;
+                padding: 0 20px;
+            }
+            .demo { 
+                grid-template-columns: 1fr;
+                gap: 32px;
+                padding: 40px 0;
+            }
             .nav-links { display: none; }
             .vibe-stats { gap: 32px; }
+            .features, .vibes {
+                padding: 40px 20px;
+            }
+            .terminal {
+                font-size: 12px;
+            }
+            .pain-points li {
+                font-size: 14px;
+            }
         }
         
         /* Easter egg */
@@ -452,9 +487,9 @@
 
     <section class="hero container">
         <h1>AI tools<br>vibing together</h1>
-        <p>When Claude Code and CodeRabbit work together,<br>magic happens. Let the bots handle the boring stuff.</p>
+        <p>When Claude Code and CodeRabbit work together, magic happens.<br>Let the bots handle the boring stuff.</p>
         <div class="install-cmd" onclick="copyInstall()">npm install -g pr-vibe</div>
-        <p style="font-size: 14px; opacity: 0.5;">Built for AI developers, by AI developers</p>
+        <p style="font-size: 14px; opacity: 0.5; margin-top: 16px;">Built for AI developers, by AI developers</p>
     </section>
 
     <section class="demo container">
