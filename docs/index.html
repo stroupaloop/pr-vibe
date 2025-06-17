@@ -429,6 +429,18 @@
             opacity: 1;
         }
         
+        /* Interactive Demo Responsive */
+        @media (max-width: 968px) {
+            .interactive-demo > div > div {
+                flex-direction: column !important;
+                gap: 24px !important;
+            }
+            .interactive-demo .pulse-connection {
+                width: 100% !important;
+                height: 60px !important;
+            }
+        }
+        
         /* Mobile */
         @media (max-width: 768px) {
             .hero {
@@ -588,6 +600,68 @@
         <p>When Claude Code and CodeRabbit work together, magic happens.<br>Let the bots handle the boring stuff.</p>
         <div class="install-cmd" onclick="copyInstall()">npm install -g pr-vibe</div>
         <p style="font-size: 14px; opacity: 0.5; margin-top: 16px;">Built for AI developers, by AI developers</p>
+    </section>
+
+    <!-- Interactive Demo Section -->
+    <section class="interactive-demo" style="background: rgba(168, 85, 247, 0.05); padding: 80px 0; margin: 40px 0; position: relative; overflow: hidden;">
+        <div class="container">
+            <h2 style="text-align: center; font-size: 36px; margin-bottom: 48px;">See the Magic in Action</h2>
+            <div style="display: flex; gap: 40px; align-items: stretch; min-height: 400px;">
+                <!-- Claude Code Panel -->
+                <div style="flex: 1; background: #1a1a1a; border-radius: 16px; padding: 24px; position: relative;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <span style="color: #ff7c00; font-weight: 700; font-size: 18px;">Claude Code</span>
+                        <span style="opacity: 0.6; font-size: 14px;">Orchestrating...</span>
+                    </div>
+                    <div style="font-family: monospace; font-size: 14px; line-height: 1.6;">
+                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 0.5s;">
+                            <span style="color: #666;"># Found PR with bot comments...</span>
+                        </div>
+                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 1s; margin-top: 12px;">
+                            <span style="color: #ff7c00;">$</span> pr-vibe review 45
+                        </div>
+                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 1.5s; margin-top: 8px;">
+                            <span style="color: #22c55e;">✓</span> Found 12 bot comments
+                        </div>
+                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 2s;">
+                            <span style="color: #a855f7;">✓</span> Loading patterns...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Connection Visual -->
+                <div style="position: relative; width: 80px; display: flex; align-items: center; justify-content: center;">
+                    <div class="pulse-connection" style="width: 60px; height: 60px; background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%); border-radius: 50%; animation: pulse 2s infinite;">
+                        <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px;">⚡</span>
+                    </div>
+                </div>
+                
+                <!-- pr-vibe Panel -->
+                <div style="flex: 1; background: #0f0f0f; border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                        <span style="color: #a855f7; font-weight: 700; font-size: 18px;">🎵 pr-vibe</span>
+                        <span style="opacity: 0.6; font-size: 14px;">Learning & fixing...</span>
+                    </div>
+                    <div style="font-family: monospace; font-size: 13px;">
+                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 2.5s; background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
+                            <strong>AUTO_FIX:</strong> Hardcoded API key<br>
+                            <span style="color: #22c55e;">→ Moving to env variable</span>
+                        </div>
+                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 3s; background: rgba(255, 124, 0, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
+                            <strong>REJECT:</strong> Remove console.log<br>
+                            <span style="color: #ff7c00;">→ Valid for CloudWatch</span>
+                        </div>
+                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 3.5s; background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 8px;">
+                            <strong>LEARNED:</strong> New pattern saved<br>
+                            <span style="color: #a855f7;">→ Will handle automatically next time</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center; margin-top: 32px; opacity: 0.8;">
+                <strong>Result:</strong> 12 bot comments handled in 30 seconds instead of 15 minutes ⚡
+            </p>
+        </div>
     </section>
 
     <section class="demo container">
