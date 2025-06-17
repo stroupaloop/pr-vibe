@@ -24,6 +24,9 @@ build/
 .DS_Store
 .claude/
 
+# Planning and internal docs
+.github/planning/
+
 # Project specific
 .pr-review/
 !templates/.pr-review/

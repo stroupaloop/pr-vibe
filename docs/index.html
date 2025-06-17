@@ -94,7 +94,7 @@
         }
         
         nav {
-            padding: 48px 0 32px;
+            padding: 64px 0 48px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -104,9 +104,12 @@
             font-size: 24px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            color: var(--vibe-light);
+            color: var(--text);
             text-decoration: none;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .logo:hover {
@@ -133,7 +136,7 @@
         
         /* Hero */
         .hero {
-            padding: 120px 0 80px;
+            padding: 80px 0 80px;
             text-align: center;
         }
         
@@ -559,10 +562,11 @@
     </div>
 
     <nav class="container">
-        <span class="logo" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));">
-                <circle cx="12" cy="12" r="10" fill="url(#logoGradient)" opacity="0.3"/>
-                <text x="12" y="17" font-size="14" text-anchor="middle" fill="#a855f7">🎵</text>
+        <span class="logo" style="cursor: pointer;">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+                <rect width="36" height="36" rx="8" fill="#1a1a1a"/>
+                <circle cx="18" cy="18" r="14" fill="url(#logoGradient)" opacity="0.2"/>
+                <text x="18" y="24" font-size="20" text-anchor="middle" fill="#a855f7">🎵</text>
                 <defs>
                     <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />

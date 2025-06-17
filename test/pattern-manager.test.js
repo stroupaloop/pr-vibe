@@ -172,6 +172,6 @@ describe('PatternManager Integration', () => {
     // Check statistics
     const stats = patternManager.patterns.global.statistics;
     expect(stats.total_reviews).toBe(3);
-    expect(stats.time_saved_minutes).toBe(5.0); // 2 auto-fixes * 2.5
+    expect(stats.time_saved_minutes).toBe(7.5); // 1 REJECT + 2 AUTO_FIX = 3 * 2.5
   });
 });

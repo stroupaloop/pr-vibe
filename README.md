@@ -9,9 +9,9 @@
 [![GitHub stars](https://img.shields.io/github/stars/stroupaloop/pr-vibe.svg?style=social)](https://github.com/stroupaloop/pr-vibe)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/stroupaloop/pr-vibe/pulls)
 
-> When bots handle bot feedback, developers stay in flow
+> 🎵 When AI tools vibe together on your PRs. Let CodeRabbit and Claude Code handle the repetitive feedback while you ship features.
 
-The first tool designed for AI-to-AI collaboration on code reviews. Let Claude Code and CodeRabbit vibe together while you focus on shipping features.
+Built BY an AI (Claude) FOR AIs to orchestrate - the first tool designed for AI-to-AI collaboration on code reviews.
 
 ## 🚀 ProductHunt Launch Special
 
@@ -227,3 +227,7 @@ MIT © [Andrew Stroup](https://github.com/stroupaloop) & [Claude (Anthropic)](ht
   <br>
   <a href="https://www.producthunt.com/products/pr-vibe">Vote on ProductHunt</a>
 </p>
+
+## Keywords
+
+`ai` `code-review` `pr-automation` `coderabbit` `claude` `ai-tools` `developer-tools` `productivity` `automation` `bot-management` `pattern-learning` `vibe-coding` `ai-collaboration` `pull-request` `github-automation`

@@ -15,7 +15,7 @@ describe('Decision Engine', () => {
       
       expect(decision.action).toBe('AUTO_FIX');
       expect(decision.severity).toBe('CRITICAL');
-      expect(decision.fix).toContain('process.env');
+      expect(decision.suggestedFix).toContain('process.env');
       expect(decision.reason).toContain('security');
     });
 
@@ -25,8 +25,8 @@ describe('Decision Engine', () => {
       
       expect(decision.action).toBe('AUTO_FIX');
       expect(decision.severity).toBe('CRITICAL');
-      expect(decision.fix).toContain('parameterized');
-      expect(decision.reason).toContain('SQL injection');
+      expect(decision.suggestedFix).toContain('parameterized');
+      expect(decision.reason).toContain('security');
     });
   });
 

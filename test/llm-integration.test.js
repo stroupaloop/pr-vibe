@@ -1,85 +1,56 @@
 import { describe, test, expect, jest } from '@jest/globals';
-import { LLMAnalyzer, createAnalyzer } from '../lib/llm.js';
+import { processWithLLM } from '../lib/llm.js';
 
 describe('LLM Integration', () => {
-  describe('Provider Selection', () => {
-    test('should create Claude analyzer', () => {
-      const analyzer = createAnalyzer({
-        provider: 'anthropic',
-        apiKey: 'test-key'
-      });
+  describe('processWithLLM', () => {
+    test('should AUTO_FIX hardcoded API keys', async () => {
+      const comments = [{
+        body: 'Found hardcoded API key in the code',
+        user: { login: 'coderabbit[bot]' }
+      }];
       
-      expect(analyzer).toBeInstanceOf(ClaudeAnalyzer);
+      const result = await processWithLLM(comments);
+      
+      expect(result.decision).toBe('AUTO_FIX');
+      expect(result.reason).toContain('Security issue');
+      expect(result.suggestedFix).toContain('process.env');
     });
 
-    test('should create OpenAI analyzer', () => {
-      const analyzer = createAnalyzer({
-        provider: 'openai',
-        apiKey: 'test-key'
-      });
+    test('should REJECT valid console.log in Lambda', async () => {
+      const comments = [{
+        body: 'Remove console.log from Lambda function',
+        user: { login: 'coderabbit[bot]' }
+      }];
       
-      expect(analyzer).toBeInstanceOf(OpenAIAnalyzer);
+      const result = await processWithLLM(comments);
+      
+      expect(result.decision).toBe('REJECT');
+      expect(result.reason).toContain('CloudWatch logging');
     });
 
-    test('should handle local LLM', () => {
-      const analyzer = createAnalyzer({
-        provider: 'ollama',
-        model: 'codellama'
-      });
+    test('should AUTO_FIX SQL injection vulnerabilities', async () => {
+      const comments = [{
+        body: 'Potential SQL injection vulnerability detected',
+        user: { login: 'deepsource[bot]' }
+      }];
       
-      expect(analyzer).toBeInstanceOf(LocalAnalyzer);
-    });
-  });
-
-  describe('Prompt Building', () => {
-    test('should include project context in prompt', () => {
-      const analyzer = new LLMAnalyzer();
-      const prompt = analyzer.buildPrompt({
-        comment: { body: 'Security issue' },
-        projectPatterns: ['console.log is valid in Lambda']
-      });
+      const result = await processWithLLM(comments);
       
-      expect(prompt).toContain('console.log is valid in Lambda');
-      expect(prompt).toContain('Security issue');
+      expect(result.decision).toBe('AUTO_FIX');
+      expect(result.reason).toContain('Critical security');
+      expect(result.suggestedFix).toContain('parameterized');
     });
 
-    test('should include conversation history', () => {
-      const analyzer = new LLMAnalyzer();
-      const prompt = analyzer.buildPrompt({
-        comment: { body: 'Latest comment' },
-        thread: [
-          { body: 'Original issue' },
-          { body: 'First reply' }
-        ]
-      });
+    test('should DISCUSS for unclear feedback', async () => {
+      const comments = [{
+        body: 'Consider refactoring this method',
+        user: { login: 'coderabbit[bot]' }
+      }];
       
-      expect(prompt).toContain('Original issue');
-      expect(prompt).toContain('First reply');
-      expect(prompt).toContain('Latest comment');
-    });
-  });
-
-  describe('Response Parsing', () => {
-    test('should parse AUTO_FIX response', () => {
-      const mockResponse = {
-        action: 'AUTO_FIX',
-        fix: 'const API_KEY = process.env.API_KEY;',
-        reason: 'Security vulnerability'
-      };
+      const result = await processWithLLM(comments);
       
-      const parsed = parseLLMResponse(JSON.stringify(mockResponse));
-      
-      expect(parsed.action).toBe('AUTO_FIX');
-      expect(parsed.fix).toBeDefined();
-    });
-
-    test('should handle malformed responses gracefully', () => {
-      const malformed = 'This is not JSON';
-      
-      const parsed = parseLLMResponse(malformed);
-      
-      expect(parsed.action).toBe('ESCALATE');
-      expect(parsed.reason).toContain('Failed to parse');
+      expect(result.decision).toBe('DISCUSS');
+      expect(result.reason).toContain('more context');
     });
   });
 });

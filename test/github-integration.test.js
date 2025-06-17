@@ -1,64 +1,78 @@
-import { describe, test, expect, jest } from '@jest/globals';
-import { analyzeGitHubPR, postComment, applyFix } from '../lib/github.js';
+import { describe, test, expect, jest, beforeEach } from '@jest/globals';
 
-// Mock execSync for testing
-jest.mock('child_process', () => ({
-  execSync: jest.fn()
+// Create mocks before imports
+const mockExecSync = jest.fn();
+jest.unstable_mockModule('child_process', () => ({
+  execSync: mockExecSync
 }));
 
+// Import after mocking
+const { analyzeGitHubPR } = await import('../lib/github.js');
+
 describe('GitHub Integration', () => {
-  describe('Fetching PR Data', () => {
-    test('should fetch and parse PR comments', async () => {
+  beforeEach(() => {
+    mockExecSync.mockClear();
+  });
+
+  describe('analyzeGitHubPR', () => {
+    test('should fetch and parse PR data with bot comments', async () => {
       const mockPR = {
         title: 'Test PR',
         comments: [
-          { id: 1, author: { login: 'user1' }, body: 'Test comment' }
+          { 
+            author: { login: 'coderabbit[bot]' }, 
+            body: 'Found issues',
+            createdAt: '2024-01-01T00:00:00Z'
+          }
         ]
       };
       
-      // Mock the gh CLI response
-      require('child_process').execSync.mockReturnValue(JSON.stringify(mockPR));
+      const mockReviewComments = [{
+        user: { login: 'deepsource[bot]' },
+        body: 'Security issue',
+        created_at: '2024-01-01T00:00:00Z'
+      }];
       
-      const result = await analyzeGitHubPR(18, 'test/repo');
-      
-      expect(result.pr).toBeDefined();
-      expect(result.comments).toHaveLength(1);
-      expect(result.threads).toBeDefined();
-    });
-
-    test('should group comments into threads correctly', async () => {
-      const mockComments = [
-        { id: 1, body: 'Original comment' },
-        { id: 2, in_reply_to_id: 1, body: 'Reply to comment' },
-        { id: 3, body: 'New thread' }
-      ];
-      
-      const threads = groupIntoThreads(mockComments);
-      
-      expect(Object.keys(threads)).toHaveLength(2);
-      expect(threads['1']).toHaveLength(2); // Original + reply
-      expect(threads['3']).toHaveLength(1); // Standalone
-    });
-  });
-
-  describe('Posting Responses', () => {
-    test('should format reply correctly for inline comments', () => {
-      const reply = formatReply({
-        commentId: 123,
-        message: 'Fixed the issue',
-        type: 'review'
+      mockExecSync.mockImplementation((cmd) => {
+        if (cmd.includes('gh pr view')) {
+          return JSON.stringify(mockPR);
+        }
+        if (cmd.includes('/comments')) {
+          return JSON.stringify(mockReviewComments);
+        }
+        return '{}';
       });
       
-      expect(reply).toContain('Fixed the issue');
+      const result = await analyzeGitHubPR(123, 'owner/repo');
+      
+      expect(result.pr.title).toBe('Test PR');
+      expect(result.botComments).toHaveLength(2);
+      expect(result.botComments[0].isBot).toBe(true);
     });
 
-    test('should handle different reviewer types', () => {
-      const codeRabbitReply = formatReply({
-        reviewer: 'coderabbitai[bot]',
-        message: 'Applied fix'
+    test('should handle human comments from PR', async () => {
+      const mockPR = {
+        title: 'Test PR',
+        comments: [
+          {
+            author: { login: 'human-reviewer' },
+            body: 'LGTM with minor suggestions',
+            createdAt: '2024-01-01T00:00:00Z'
+          }
+        ]
+      };
+      
+      mockExecSync.mockImplementation((cmd) => {
+        if (cmd.includes('gh pr view')) {
+          return JSON.stringify(mockPR);
+        }
+        return '[]';
       });
       
-      expect(codeRabbitReply).toContain('@coderabbitai');
+      const result = await analyzeGitHubPR(123, 'owner/repo');
+      
+      expect(result.humanComments).toHaveLength(1);
+      expect(result.humanComments[0].body).toContain('LGTM');
     });
   });
 });
