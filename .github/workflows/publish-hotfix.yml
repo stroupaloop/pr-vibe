@@ -1,0 +1,34 @@
+name: Publish Hotfix
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Install dependencies
+        run: npm ci --omit=dev
+        
+      - name: Run validation
+        run: npm run prepack
+        
+      - name: Publish to npm (v0.2.1)
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Verify publication
+        run: |
+          sleep 5
+          npm view pr-vibe@0.2.1 version || echo "Failed to verify publication"
