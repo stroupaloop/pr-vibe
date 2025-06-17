@@ -37,9 +37,9 @@ jobs:
     
     - name: Test imports
       run: |
-        node -e "import { patternManager } from './lib/pattern-manager.js'; console.log('✅ pattern-manager imports correctly')"
-        node -e "import { analyzeComment } from './lib/decision-engine.js'; console.log('✅ decision-engine imports correctly')"
-        node -e "import { createLLMService } from './lib/llm-integration.js'; console.log('✅ llm-integration imports correctly')"
+        node --input-type=module -e "import { patternManager } from './lib/pattern-manager.js'; console.log('✅ pattern-manager imports correctly')"
+        node --input-type=module -e "import { analyzeComment } from './lib/decision-engine.js'; console.log('✅ decision-engine imports correctly')"
+        node --input-type=module -e "import { createLLMService } from './lib/llm-integration.js'; console.log('✅ llm-integration imports correctly')"
     
     - name: Test package installation
       run: |

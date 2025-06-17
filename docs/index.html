@@ -94,7 +94,7 @@
         }
         
         nav {
-            padding: 64px 0 48px;
+            padding: 96px 0 64px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -303,6 +303,21 @@
             to { opacity: 1; }
         }
         
+        /* Interactive demo animations */
+        .interactive-demo .terminal-line {
+            opacity: 0;
+            animation: type-in 0.5s forwards;
+        }
+        
+        .interactive-demo > div > div > div:first-child .terminal-line:nth-child(1) { animation-delay: 0.5s; }
+        .interactive-demo > div > div > div:first-child .terminal-line:nth-child(2) { animation-delay: 1s; }
+        .interactive-demo > div > div > div:first-child .terminal-line:nth-child(3) { animation-delay: 1.5s; }
+        .interactive-demo > div > div > div:first-child .terminal-line:nth-child(4) { animation-delay: 2s; }
+        
+        .interactive-demo > div > div > div:last-child .terminal-line:nth-child(1) { animation-delay: 2.5s; }
+        .interactive-demo > div > div > div:last-child .terminal-line:nth-child(2) { animation-delay: 3s; }
+        .interactive-demo > div > div > div:last-child .terminal-line:nth-child(3) { animation-delay: 3.5s; }
+        
         .prompt { color: var(--vibe-light); }
         .success { color: var(--success); }
         .comment { color: #666; }
@@ -413,7 +428,7 @@
         
         /* Footer */
         footer {
-            padding: 60px 0 40px;
+            padding: 100px 0 80px;
             text-align: center;
             opacity: 0.6;
         }
@@ -614,16 +629,16 @@
                         <span style="opacity: 0.6; font-size: 14px;">Orchestrating...</span>
                     </div>
                     <div style="font-family: monospace; font-size: 14px; line-height: 1.6;">
-                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 0.5s;">
+                        <div class="terminal-line">
                             <span style="color: #666;"># Found PR with bot comments...</span>
                         </div>
-                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 1s; margin-top: 12px;">
+                        <div class="terminal-line" style="margin-top: 12px;">
                             <span style="color: #ff7c00;">$</span> pr-vibe review 45
                         </div>
-                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 1.5s; margin-top: 8px;">
+                        <div class="terminal-line" style="margin-top: 8px;">
                             <span style="color: #22c55e;">✓</span> Found 12 bot comments
                         </div>
-                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 2s;">
+                        <div class="terminal-line">
                             <span style="color: #a855f7;">✓</span> Loading patterns...
                         </div>
                     </div>
@@ -643,15 +658,15 @@
                         <span style="opacity: 0.6; font-size: 14px;">Learning & fixing...</span>
                     </div>
                     <div style="font-family: monospace; font-size: 13px;">
-                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 2.5s; background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
+                        <div class="terminal-line" style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
                             <strong>AUTO_FIX:</strong> Hardcoded API key<br>
                             <span style="color: #22c55e;">→ Moving to env variable</span>
                         </div>
-                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 3s; background: rgba(255, 124, 0, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
+                        <div class="terminal-line" style="background: rgba(255, 124, 0, 0.1); padding: 8px; border-radius: 8px; margin-bottom: 8px;">
                             <strong>REJECT:</strong> Remove console.log<br>
                             <span style="color: #ff7c00;">→ Valid for CloudWatch</span>
                         </div>
-                        <div class="demo-typing" style="opacity: 0; animation: type 0.5s forwards; animation-delay: 3.5s; background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 8px;">
+                        <div class="terminal-line" style="background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 8px;">
                             <strong>LEARNED:</strong> New pattern saved<br>
                             <span style="color: #a855f7;">→ Will handle automatically next time</span>
                         </div>
