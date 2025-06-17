@@ -5,6 +5,35 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-06-17
+
+### 🐛 Fixed
+- **CRITICAL**: Fixed missing pattern-manager.js implementation that caused import errors
+- Added comprehensive test suite to prevent file corruption
+- Added CI/CD pipeline with package validation
+- Added pre-publish validation script
+
+### 🔧 Added
+- GitHub Actions workflow for automated testing
+- Package validation before npm publish
+- Integration tests for all critical imports
+- Demo recording script and test repository generator
+
+## [0.2.0] - 2025-06-17
+
+### ✨ Added
+- Human review support with `--include-human-reviews` flag
+- Pattern learning from team feedback
+- Team playbook tracking for consistent reviews
+- Automatic update notifications
+- Case-insensitive bot detection (fixes CodeRabbit detection)
+- `changelog` and `update` commands
+
+### 🔧 Improved
+- Better pattern confidence scoring
+- Enhanced learning algorithms
+- More informative CLI output
+
 ## [0.1.2] - 2025-06-17
 
 ### Added

@@ -1,0 +1,83 @@
+name: Test and Validate
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linter
+      run: npm run lint || echo "Linter not configured"
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Test CLI execution
+      run: |
+        node bin/cli.js --version
+        node bin/cli.js --help
+    
+    - name: Test imports
+      run: |
+        node -e "import { patternManager } from './lib/pattern-manager.js'; console.log('✅ pattern-manager imports correctly')"
+        node -e "import { analyzeComment } from './lib/decision-engine.js'; console.log('✅ decision-engine imports correctly')"
+        node -e "import { createLLMService } from './lib/llm-integration.js'; console.log('✅ llm-integration imports correctly')"
+    
+    - name: Test package installation
+      run: |
+        npm pack
+        npm install -g pr-vibe-*.tgz
+        pr-vibe --version
+        pr-vibe --help
+    
+    - name: Validate package contents
+      run: |
+        tar -tzf pr-vibe-*.tgz | grep -E "(bin/cli.js|lib/pattern-manager.js|package.json)"
+        echo "✅ All critical files are included in package"
+
+  validate-pr:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check for file corruption
+      run: |
+        # Check that pattern-manager.js is not a stub
+        if grep -q "TODO: Implement" lib/pattern-manager.js; then
+          echo "❌ ERROR: pattern-manager.js appears to be corrupted!"
+          exit 1
+        fi
+        
+        # Check file sizes
+        MIN_SIZE=1000  # bytes
+        for file in lib/*.js; do
+          size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null || echo 0)
+          if [ "$size" -lt "$MIN_SIZE" ]; then
+            echo "❌ WARNING: $file is suspiciously small ($size bytes)"
+          fi
+        done
+    
+    - name: Test dry run
+      run: |
+        npm install
+        node bin/cli.js pr 1 --dry-run --repo octocat/hello-world || true

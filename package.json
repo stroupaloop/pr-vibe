@@ -58,9 +58,12 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "test": "echo 'Tests passed'",
-    "lint": "echo 'Linting passed'",
-    "prepublishOnly": "",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint lib bin --ext .js",
+    "lint:fix": "eslint lib bin --ext .js --fix",
+    "prepublishOnly": "npm test",
+    "prepack": "node scripts/validate-package.js",
     "dev": "node --watch bin/cli.js"
   },
   "dependencies": {

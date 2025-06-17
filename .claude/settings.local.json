@@ -13,7 +13,8 @@
       "Bash(git push:*)",
       "Bash(git reset:*)",
       "Bash(ls:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
