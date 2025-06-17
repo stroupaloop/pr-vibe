@@ -56,7 +56,7 @@ const program = new Command();
 program
   .name('pr-vibe')
   .description('AI-powered PR review responder that vibes with bots')
-  .version('0.2.0');
+  .version('0.2.1');
 
 program
   .command('pr <number>')
