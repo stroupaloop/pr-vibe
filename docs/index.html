@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pr-vibe • AI tools vibing together</title>
+    <meta name="description" content="When AI tools vibe together on your code reviews. Let the bots handle the boring stuff.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg: #0a0a0a;
+            --text: #fafafa;
+            --vibe: #a855f7;
+            --vibe-light: #c084fc;
+            --glow: #f3e8ff;
+            --success: #22c55e;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            cursor: default;
+        }
+        
+        /* Vibe Background */
+        .vibe-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .vibe-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            animation: vibe-float 20s infinite ease-in-out;
+        }
+        
+        .vibe-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--vibe) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+        
+        .vibe-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--vibe-light) 0%, transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+        
+        .vibe-3 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--vibe) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 10s;
+        }
+        
+        @keyframes vibe-float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -30px) scale(1.1); }
+            50% { transform: translate(-30px, 20px) scale(0.9); }
+            75% { transform: translate(20px, -10px) scale(1.05); }
+        }
+        
+        /* Content */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        nav {
+            padding: 24px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--vibe-light);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .logo:hover {
+            text-shadow: 0 0 20px var(--vibe);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+        
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .nav-links a:hover {
+            opacity: 1;
+            color: var(--vibe-light);
+        }
+        
+        /* Hero */
+        .hero {
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 0.9;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--vibe-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: text-glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes text-glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+        
+        .hero p {
+            font-size: 20px;
+            opacity: 0.7;
+            margin-bottom: 48px;
+            line-height: 1.6;
+        }
+        
+        .install-cmd {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-family: ui-monospace, monospace;
+            font-size: 18px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .install-cmd:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+        }
+        
+        .install-cmd::before {
+            content: '✨ Click to copy';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            opacity: 0;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .install-cmd:hover::before {
+            opacity: 1;
+            top: -20px;
+        }
+        
+        .install-cmd.copied::before {
+            content: '✅ Copied!';
+            color: var(--success);
+        }
+        
+        /* Demo Section */
+        .demo {
+            padding: 80px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+        
+        .demo-text h2 {
+            font-size: 36px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+        
+        .demo-text p {
+            opacity: 0.8;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .pain-points {
+            list-style: none;
+            margin-top: 24px;
+        }
+        
+        .pain-points li {
+            padding: 12px 0;
+            padding-left: 28px;
+            position: relative;
+            opacity: 0.8;
+        }
+        
+        .pain-points li::before {
+            content: '😩';
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Terminal */
+        .terminal {
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            font-family: ui-monospace, monospace;
+            font-size: 14px;
+        }
+        
+        .terminal-header {
+            background: #1a1a1a;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .dot-1 { background: #ff5f57; }
+        .dot-2 { background: #ffbd2e; }
+        .dot-3 { background: #28ca42; }
+        
+        .terminal-body {
+            padding: 24px;
+            min-height: 300px;
+        }
+        
+        .terminal-line {
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: type-in 0.5s forwards;
+        }
+        
+        .terminal-line:nth-child(1) { animation-delay: 0.5s; }
+        .terminal-line:nth-child(2) { animation-delay: 1s; }
+        .terminal-line:nth-child(3) { animation-delay: 1.5s; }
+        .terminal-line:nth-child(4) { animation-delay: 2s; }
+        .terminal-line:nth-child(5) { animation-delay: 2.5s; }
+        .terminal-line:nth-child(6) { animation-delay: 3s; }
+        .terminal-line:nth-child(7) { animation-delay: 3.5s; }
+        .terminal-line:nth-child(8) { animation-delay: 4s; }
+        
+        @keyframes type-in {
+            to { opacity: 1; }
+        }
+        
+        .prompt { color: var(--vibe-light); }
+        .success { color: var(--success); }
+        .comment { color: #666; }
+        .highlight { color: #fbbf24; }
+        
+        /* Features */
+        .features {
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .features h2 {
+            font-size: 36px;
+            margin-bottom: 48px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+        
+        .feature:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--vibe);
+            transform: translateY(-4px);
+        }
+        
+        .feature-emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .feature h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .feature p {
+            opacity: 0.7;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* Vibes Section */
+        .vibes {
+            padding: 80px 0;
+            text-align: center;
+            background: rgba(168, 85, 247, 0.05);
+            border-radius: 24px;
+            margin: 0 24px;
+        }
+        
+        .vibes h2 {
+            font-size: 36px;
+            margin-bottom: 24px;
+        }
+        
+        .vibe-quote {
+            font-size: 24px;
+            font-style: italic;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto 48px;
+            line-height: 1.4;
+        }
+        
+        .vibe-stats {
+            display: flex;
+            justify-content: center;
+            gap: 64px;
+            flex-wrap: wrap;
+        }
+        
+        .vibe-stat {
+            text-align: center;
+        }
+        
+        .vibe-stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--vibe-light);
+            display: block;
+        }
+        
+        .vibe-stat-label {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 80px 0 40px;
+            text-align: center;
+            opacity: 0.6;
+        }
+        
+        footer a {
+            color: var(--vibe-light);
+            text-decoration: none;
+            margin: 0 12px;
+            transition: opacity 0.3s;
+        }
+        
+        footer a:hover {
+            opacity: 1;
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 48px; }
+            .demo { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .vibe-stats { gap: 32px; }
+        }
+        
+        /* Easter egg */
+        .vibe-emoji {
+            position: fixed;
+            font-size: 24px;
+            pointer-events: none;
+            animation: float-up 3s ease-out;
+            z-index: 100;
+        }
+        
+        @keyframes float-up {
+            to {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="vibe-bg">
+        <div class="vibe-circle vibe-1"></div>
+        <div class="vibe-circle vibe-2"></div>
+        <div class="vibe-circle vibe-3"></div>
+    </div>
+
+    <nav class="container">
+        <a href="/" class="logo">pr-vibe</a>
+        <div class="nav-links">
+            <a href="https://github.com/stroupaloop/pr-vibe">GitHub</a>
+            <a href="https://www.npmjs.com/package/pr-vibe">npm</a>
+            <a href="https://github.com/stroupaloop/pr-vibe#readme">Docs</a>
+        </div>
+    </nav>
+
+    <section class="hero container">
+        <h1>AI tools<br>vibing together</h1>
+        <p>When Claude Code and CodeRabbit work together,<br>magic happens. Let the bots handle the boring stuff.</p>
+        <div class="install-cmd" onclick="copyInstall()">npm install -g pr-vibe</div>
+        <p style="font-size: 14px; opacity: 0.5;">Built for AI developers, by AI developers</p>
+    </section>
+
+    <section class="demo container">
+        <div class="demo-text">
+            <h2>The same feedback.<br>Every. Single. PR.</h2>
+            <p>You know the drill. CodeRabbit comments. You explain. Again.</p>
+            <ul class="pain-points">
+                <li>"Remove console.log" (but it's for CloudWatch...)</li>
+                <li>"Avoid any types" (but it's a webhook...)</li>
+                <li>"Hardcoded values" (yeah, I'll fix that...)</li>
+            </ul>
+            <p style="margin-top: 32px; font-weight: 600; color: var(--vibe-light);">
+                What if the bots could vibe together instead?
+            </p>
+        </div>
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-dot dot-1"></div>
+                <div class="terminal-dot dot-2"></div>
+                <div class="terminal-dot dot-3"></div>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-line"><span class="prompt">$</span> pr-vibe export 123</div>
+                <div class="terminal-line"><span class="comment"># CodeRabbit left 19 comments</span></div>
+                <div class="terminal-line"><span class="success">✓</span> Analyzing patterns...</div>
+                <div class="terminal-line">&nbsp;</div>
+                <div class="terminal-line"><span class="prompt">$</span> pr-vibe apply 123</div>
+                <div class="terminal-line"><span class="success">✓</span> Fixed: API key → env variable</div>
+                <div class="terminal-line"><span class="success">✓</span> Explained: console.log is valid here</div>
+                <div class="terminal-line"><span class="highlight">⚡</span> Saved 18 minutes</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features container">
+        <h2>Built different</h2>
+        <div class="feature-grid">
+            <div class="feature">
+                <div class="feature-emoji">🧠</div>
+                <h3>Learns your vibes</h3>
+                <p>Every decision teaches it your patterns. After 10 PRs, it just knows.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-emoji">⚡</div>
+                <h3>Instant fixes</h3>
+                <p>Security issues? Style problems? Fixed automatically while you sip coffee.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-emoji">🎭</div>
+                <h3>AI-first design</h3>
+                <p>Built for Claude Code to orchestrate. Let AI handle AI feedback.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-emoji">🌊</div>
+                <h3>Goes with the flow</h3>
+                <p>Works with any bot. CodeRabbit, DeepSource, whatever comes next.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="vibes container">
+        <h2>The vibe is different</h2>
+        <p class="vibe-quote">"What if we just let the robots talk to each other?"</p>
+        <div class="vibe-stats">
+            <div class="vibe-stat">
+                <span class="vibe-stat-number">2min</span>
+                <span class="vibe-stat-label">per PR instead of 20</span>
+            </div>
+            <div class="vibe-stat">
+                <span class="vibe-stat-number">95%</span>
+                <span class="vibe-stat-label">accurate after training</span>
+            </div>
+            <div class="vibe-stat">
+                <span class="vibe-stat-number">∞</span>
+                <span class="vibe-stat-label">patience for repetition</span>
+            </div>
+        </div>
+    </section>
+
+    <footer class="container">
+        <p>made with 🎵 by ai tools that vibe</p>
+        <div style="margin-top: 16px;">
+            <a href="https://github.com/stroupaloop/pr-vibe">github</a>
+            <a href="https://www.npmjs.com/package/pr-vibe">npm</a>
+            <a href="https://twitter.com/stroupaloop">twitter</a>
+        </div>
+    </footer>
+
+    <script>
+        function copyInstall() {
+            navigator.clipboard.writeText('npm install -g pr-vibe');
+            const cmd = document.querySelector('.install-cmd');
+            cmd.classList.add('copied');
+            setTimeout(() => cmd.classList.remove('copied'), 2000);
+        }
+        
+        // Vibe easter egg
+        let vibeCount = 0;
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('logo')) {
+                vibeCount++;
+                if (vibeCount >= 3) {
+                    releaseTheVibes();
+                    vibeCount = 0;
+                }
+            }
+        });
+        
+        function releaseTheVibes() {
+            const emojis = ['🎵', '🎶', '✨', '🌊', '💜', '🎭'];
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'vibe-emoji';
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.left = Math.random() * window.innerWidth + 'px';
+                    emoji.style.bottom = '0';
+                    document.body.appendChild(emoji);
+                    setTimeout(() => emoji.remove(), 3000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>

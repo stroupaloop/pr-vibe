@@ -1,4 +1,4 @@
-# Monetization Strategy for pr-review-assistant
+# Monetization Strategy for pr-bot-responder
 
 ## Philosophy
 - Value first, payment optional
@@ -26,7 +26,7 @@
 
 ## Future Opportunities (Phase 2)
 
-### Hosted Service (pr-review.dev)
+### Hosted Service (pr-bot.dev)
 ```
 Free Tier:
 - Unlimited personal use
@@ -57,9 +57,9 @@ Team Tier ($29/month):
 
 ### In the CLI
 ```javascript
-// After successful review session
-if (stats.timeSaved > 30 && Math.random() < 0.1) { // 10% chance
-  console.log(chalk.dim(`\n☕ Saved ${stats.timeSaved} minutes? Consider supporting: github.com/sponsors/stroupaloop`));
+// After successful bot response session
+if (stats.botsHandled > 5 && Math.random() < 0.1) { // 10% chance
+  console.log(chalk.dim(`\n☕ Handled ${stats.botsHandled} bot comments? Consider supporting: github.com/sponsors/stroupaloop`));
 }
 ```
 
@@ -67,7 +67,7 @@ if (stats.timeSaved > 30 && Math.random() < 0.1) { // 10% chance
 ```markdown
 ## Support
 
-pr-review-assistant is MIT licensed and free forever. If it saves you time:
+pr-bot-responder is MIT licensed and free forever. If it saves you time dealing with bots:
 
 - ⭐ Star the repo
 - 💚 [Sponsor on GitHub](https://github.com/sponsors/stroupaloop)

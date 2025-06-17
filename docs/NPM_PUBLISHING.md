@@ -21,7 +21,7 @@
 1. **Test locally first**
    ```bash
    npm link
-   pr-review --version
+   pr-bot --version
    ```
 
 2. **Run tests**
@@ -40,8 +40,8 @@
    npm publish
    ```
 
-   Note: Since the package name is not scoped (@stroupaloop/pr-review-assistant), 
-   it will be published as `pr-review-assistant` directly.
+   Note: Since the package name is not scoped (@stroupaloop/pr-bot-responder), 
+   it will be published as `pr-bot-responder` directly.
 
 ## Version Strategy
 
@@ -63,8 +63,8 @@
 npm pack --dry-run
 
 # View package info
-npm info pr-review-assistant
+npm info pr-bot-responder
 
 # Check for name availability
-npm view pr-review-assistant
+npm view pr-bot-responder
 ```

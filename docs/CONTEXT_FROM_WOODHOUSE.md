@@ -2,7 +2,7 @@
 
 ## Why This Tool Exists
 
-Started as a complex GitHub Actions workflow system to automatically respond to CodeRabbit reviews on the Woodhouse project. After building extensive webhook orchestration, realized a simpler CLI tool would be more maintainable and useful.
+Started as a complex GitHub Actions workflow system to automatically respond to CodeRabbit reviews on the Woodhouse project. After building extensive webhook orchestration, realized a simpler CLI tool focused on RESPONDING TO BOTS (not replacing them) would be more maintainable and useful.
 
 ## Key Learnings
 
@@ -60,13 +60,22 @@ Developed these categories:
 - **ESCALATE**: Architecture changes, business logic
 - **BACKLOG**: Good ideas but not urgent
 
-### 6. Integration Insights
+### 6. Bot Response Philosophy
+
+Key insight: Bots are valuable but need context about YOUR project. Instead of fighting them:
+- Work WITH bots, not against them
+- Educate bots about your patterns
+- Fix real issues they find
+- Explain why false positives are valid
+- Remember explanations for next time
+
+### 7. Integration Insights
 
 Best approach for Claude Code integration:
-1. CLI prepares structured context
-2. Saves to `.pr-review/` directory  
+1. CLI prepares structured bot comments
+2. Saves to `.pr-bot/` directory  
 3. Claude Code reads context when needed
-4. Shared decision history
+4. Shared response history
 
 ## Code Snippets Worth Keeping
 
