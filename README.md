@@ -218,11 +218,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Support
 
-If pr-vibe saves you time, consider supporting development:
-
-<a href="https://www.buymeacoffee.com/stroupaloop" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
-Your support helps maintain and improve pr-vibe! 🎵
+If pr-vibe saves you time, consider sponsoring development through GitHub Sponsors. Your support helps maintain and improve pr-vibe! 🎵
 
 ## License
 
