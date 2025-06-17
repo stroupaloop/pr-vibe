@@ -5,6 +5,34 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-06-17 (Ready for Release)
+
+### Added
+- 🧑‍💻 **Human Review Support** (experimental) - Learn from your team's review patterns
+  - Separate bot and human comment detection
+  - Interactive pattern learning with confidence tracking
+  - Team playbook that grows smarter with each review
+  - Extract key phrases like "needs error handling", "add tests"
+  - `--experimental` flag to enable human review features
+- 🔔 **Update Notifications** - Never miss a pr-vibe improvement
+  - Automatic daily checks for new versions
+  - `pr-vibe changelog` command to see what's new
+  - `pr-vibe update` command for manual update checks
+  - Version-specific highlights in notifications
+- 📚 **Better Documentation**
+  - Comprehensive ROADMAP.md with feature wishlist
+  - ProductHunt launch preparation
+  - Enhanced README with clearer getting started guide
+
+### Changed
+- 🐛 Bot detection is now case-insensitive (catches Renovate[bot], Dependabot)
+- 📦 Added more npm keywords for better discoverability
+- 🎨 Landing page now has 6 feature panels (better visual balance)
+
+### Fixed
+- Pattern manager YAML parsing improvements
+- Regex matches now capture all occurrences, not just the first
+
 ## [0.1.2] - 2025-06-17
 
 ### Added
