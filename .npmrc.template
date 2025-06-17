@@ -1,0 +1,12 @@
+# Ensure we publish with public access since this is a scoped package
+access=public
+
+# Use exact versions for consistency
+save-exact=true
+
+# Don't generate package-lock for a CLI tool
+package-lock=false
+
+# Auth token for publishing (DO NOT COMMIT)
+# To publish, create a local .npmrc with:
+# //registry.npmjs.org/:_authToken=YOUR_NPM_TOKEN_HERE
