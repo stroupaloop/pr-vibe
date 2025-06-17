@@ -77,7 +77,7 @@
     "inquirer": "^9.2.15",
     "openai": "^4.28.0",
     "ora": "^8.0.1",
-    "p-limit": "^5.0.0",
+    "p-limit": "^6.2.0",
     "update-notifier": "^7.0.0"
   },
   "devDependencies": {
