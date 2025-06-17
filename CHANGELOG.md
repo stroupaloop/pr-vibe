@@ -8,12 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2025-06-17 (Ready for Release)
 
 ### Added
-- 🧑‍💻 **Human Review Support** (experimental) - Learn from your team's review patterns
+- 🧑‍💻 **Human Review Support** - Learn from your team's review patterns
   - Separate bot and human comment detection
   - Interactive pattern learning with confidence tracking
   - Team playbook that grows smarter with each review
   - Extract key phrases like "needs error handling", "add tests"
-  - `--experimental` flag to enable human review features
+  - `--include-human-reviews` flag to also process human feedback
+  - Gradual confidence building - pr-vibe learns what matters to YOUR team
 - 🔔 **Update Notifications** - Never miss a pr-vibe improvement
   - Automatic daily checks for new versions
   - `pr-vibe changelog` command to see what's new

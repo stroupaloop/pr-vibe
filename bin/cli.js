@@ -66,7 +66,7 @@ program
   .option('--llm <provider>', 'LLM provider (openai/anthropic/none)', 'none')
   .option('--dry-run', 'preview changes without applying')
   .option('--no-comments', 'skip posting comments to PR')
-  .option('--experimental', 'enable experimental features (human review analysis)')
+  .option('--include-human-reviews', 'also process human reviews (not just bots)')
   .action(async (prNumber, options) => {
     console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
     
@@ -86,13 +86,14 @@ program
       
       // Show human reviews if present
       if (humanComments.length > 0) {
-        console.log(chalk.bold('\n👥 Human Reviews:'));
+        console.log(chalk.bold('\n👥 Human Reviews Found:'));
         const humanReviewers = [...new Set(humanComments.map(c => c.user.login))];
         console.log(`  Reviewers: ${humanReviewers.join(', ')}`);
         console.log(`  Comments: ${humanComments.length}`);
         
-        // TODO: Show human review summary
-        console.log(chalk.gray('\n  (Human review analysis coming soon...)'));
+        if (!options.includeHumanReviews) {
+          console.log(chalk.gray('\n  💡 Tip: Use --include-human-reviews to learn from team feedback'));
+        }
       }
       
       if (comments.length === 0) {
@@ -207,9 +208,9 @@ program
         console.log(chalk.dim(`  → Action: ${userAction}\n`));
       }
       
-      // 4. Process human reviews (experimental)
-      if (options.experimental && humanComments.length > 0) {
-        console.log(chalk.bold('\n🧪 EXPERIMENTAL: Processing Human Reviews\n'));
+      // 4. Process human reviews (if requested)
+      if (options.includeHumanReviews && humanComments.length > 0) {
+        console.log(chalk.bold('\n🧑‍💻 Learning from Human Reviews\n'));
         console.log(chalk.gray('─'.repeat(50)));
         
         for (const [threadId, threadComments] of Object.entries(humanThreads)) {
@@ -561,7 +562,7 @@ program
     } else {
       // Show recent highlights
       console.log(chalk.cyan('## Version 0.2.0 (Coming Soon)'));
-      console.log('  ✨ Human review support with --experimental flag');
+      console.log('  ✨ Human review learning with --include-human-reviews flag');
       console.log('  🔔 Automatic update notifications');
       console.log('  🐛 Case-insensitive bot detection');
       console.log('  📊 Pattern learning from team feedback\n');

@@ -1,0 +1,121 @@
+{
+  "pr": {
+    "number": "1",
+    "title": "feat: Add comprehensive rate limiting and DDoS protection",
+    "state": "MERGED"
+  },
+  "comments": [
+    {
+      "id": 2147022360,
+      "author": "coderabbitai[bot]",
+      "body": "_🛠️ Refactor suggestion_\n\n**Timestamp fields are typed as `number`; consider `string` or branded types for clarity.**\n\n`messageResetMinute` / `messageResetHour` are declared `number`, whereas most other temporal fields in the model use ISO strings (e.g., `createdAt`). Mixing formats can lead to subtle bugs when serialising to DynamoDB.\n\n```diff\n-  messageResetMinute?: number;\n-  messageResetHour?: number;\n+  // Unix epoch (ms) or ISO string?  Align with the rest of the model:\n+  messageResetMinute?: string; // ISO timestamp\n+  messageResetHour?: string;\n```\n\nDocument whichever format you choose so downstream services can parse it safely.\n\n\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\n  suspendedUntil?: string;\n  // Rate limiting\n  messageCountMinute?: number;\n  // Unix epoch (ms) or ISO string?  Align with the rest of the model:\n  messageResetMinute?: string; // ISO timestamp\n  messageCountHour?: number;\n  messageResetHour?: string;\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn woodhouse-modern/packages/core/src/types/index.ts around lines 27 to 32, the\ntimestamp fields messageResetMinute and messageResetHour are typed as number,\nwhile other temporal fields use ISO string format. To maintain consistency and\navoid serialization bugs with DynamoDB, change these fields to string type or\nuse a branded type representing ISO timestamps. Also, add documentation comments\nspecifying the chosen format to ensure downstream services parse these fields\ncorrectly.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commit b6576b5",
+      "path": "woodhouse-modern/packages/core/src/types/index.ts",
+      "line": null,
+      "created_at": "2025-06-14T16:41:40Z",
+      "analysis": {
+        "action": "AUTO_FIX",
+        "confidence": 1,
+        "source": "repo"
+      },
+      "thread": "2147022360"
+    },
+    {
+      "id": 2147022361,
+      "author": "coderabbitai[bot]",
+      "body": "_⚠️ Potential issue_\n\n**Rate-limit counters are only updated for the “reminder” path – loophole risk.**\n\n`updateUserCounters` runs after `handleReminder` but **not** for other commands (list, help, settings, delete, etc.).  \nA malicious user could spam those commands and bypass minute/hour limits.\n\nEither:\n\n1. Increment counters inside `checkRateLimit` (so every accepted message counts), **or**  \n2. Move the update call to a `finally` block that executes for all successful paths.\n\n```diff\n-const response = await this.handleReminder(user, request);\n-\n-// Update rate limit counters on successful processing\n-await this.rateLimiter.updateUserCounters(phoneNumber);\n-\n-return response;\n+let response: MessageResponse;\n+try {\n+  response = await this.routeCommand(user, request); // pseudo-helper\n+} finally {\n+  await this.rateLimiter.updateUserCounters(phoneNumber);\n+}\n+return response;\n```\n\n\n\n> Committable suggestion skipped: line range outside the PR's diff.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn woodhouse-modern/packages/sms-handler/src/services/message-processor.ts\naround lines 92 to 95, the rate limit counters are only updated after processing\nthe \"reminder\" command, allowing other commands to bypass rate limiting. To fix\nthis, move the call to updateUserCounters into a finally block that runs after\nall successful command paths, ensuring counters increment regardless of the\ncommand processed. This guarantees all accepted messages count towards rate\nlimits and prevents spamming loopholes.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commit b6576b5",
+      "path": "woodhouse-modern/packages/sms-handler/src/services/message-processor.ts",
+      "line": null,
+      "created_at": "2025-06-14T16:41:40Z",
+      "analysis": {
+        "action": "AUTO_FIX",
+        "confidence": 1,
+        "source": "repo"
+      },
+      "thread": "2147022361"
+    },
+    {
+      "id": 2147022363,
+      "author": "coderabbitai[bot]",
+      "body": "_🛠️ Refactor suggestion_\n\n**Duplicate user fetch – optimise or cache to save one read.**\n\n`rateLimiter.checkRateLimit(phoneNumber)` most likely performs its own `getUser` call.  \nImmediately afterwards the code fetches the same user again (`this.db.getUser(phoneNumber)`), resulting in two reads per request.\n\nIf `checkRateLimit` already retrieves the user, return it to the caller:\n\n```diff\n-const rateLimitCheck = await this.rateLimiter.checkRateLimit(phoneNumber);\n-if (!rateLimitCheck.allowed) {\n-  return { message: rateLimitCheck.reason! };\n-}\n-\n-let user = await this.db.getUser(phoneNumber);\n+const { allowed, reason, user } =\n+  await this.rateLimiter.checkRateLimit(phoneNumber);\n+\n+if (!allowed) {\n+  return { message: reason! };\n+}\n```\n\nReduces DynamoDB RCU usage and latency.\n\n\n\n> Committable suggestion skipped: line range outside the PR's diff.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn woodhouse-modern/packages/sms-handler/src/services/message-processor.ts\naround lines 18 to 23, the code calls getUser twice: once inside\nrateLimiter.checkRateLimit(phoneNumber) and again immediately after. To fix\nthis, modify checkRateLimit to return the user object along with the rate limit\nresult, then reuse that user object in the subsequent code instead of fetching\nit again. This will reduce duplicate database reads and improve performance.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+      "path": "woodhouse-modern/packages/sms-handler/src/services/message-processor.ts",
+      "line": 23,
+      "created_at": "2025-06-14T16:41:40Z",
+      "analysis": {
+        "action": "AUTO_FIX",
+        "confidence": 1,
+        "source": "repo"
+      },
+      "thread": "2147022363"
+    },
+    {
+      "id": 2147022366,
+      "author": "coderabbitai[bot]",
+      "body": "_⚠️ Potential issue_\n\n**Remove unused `globalRequestsPerSecond` config or implement global rate limiting.**\n\nThe `globalRequestsPerSecond` configuration is defined but never used in the implementation. Either remove this unused config or implement the global rate limiting logic.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn woodhouse-modern/packages/core/src/services/rate-limiter.ts around lines 30\nto 31, the globalRequestsPerSecond configuration is defined but not used\nanywhere. To fix this, either remove the globalRequestsPerSecond property from\nthe config if global rate limiting is not needed, or implement the logic to\nenforce a global rate limit across all users using this value.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commit b6576b5",
+      "path": "woodhouse-modern/packages/core/src/services/rate-limiter.ts",
+      "line": null,
+      "created_at": "2025-06-14T16:41:41Z",
+      "analysis": {
+        "action": "AUTO_FIX",
+        "confidence": 1,
+        "source": "repo"
+      },
+      "thread": "2147022366"
+    },
+    {
+      "id": 2147022368,
+      "author": "coderabbitai[bot]",
+      "body": "_🛠️ Refactor suggestion_\n\n**Make new user message limit configurable.**\n\nThe limit of 5 messages for new users is hardcoded. Consider adding this to the config for easier adjustment.\n\n```diff\n  // In RateLimitConfig interface\n+ newUserMessageLimit: number;\n+ newUserWindowMinutes: number;\n\n  // In default config\n+ newUserMessageLimit: 5,\n+ newUserWindowMinutes: 5,\n\n  // In checkNewUserLimits\n- if (recentCount > 5) {\n+ if (recentCount > this.config.newUserMessageLimit) {\n```\n\n\n> Committable suggestion skipped: line range outside the PR's diff.\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn woodhouse-modern/packages/core/src/services/rate-limiter.ts at line 167, the\nnew user message limit is hardcoded as 5. To fix this, replace the hardcoded\nvalue with a configurable parameter by adding a new setting in the configuration\nfile or environment variables. Then, use this configuration value in place of\nthe literal 5 to allow easy adjustment of the message limit for new users.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->\n\n✅ Addressed in commit b6576b5",
+      "path": "woodhouse-modern/packages/core/src/services/rate-limiter.ts",
+      "line": null,
+      "created_at": "2025-06-14T16:41:41Z",
+      "analysis": {
+        "action": "AUTO_FIX",
+        "confidence": 1,
+        "source": "repo"
+      },
+      "thread": "2147022368"
+    },
+    {
+      "id": 2147022369,
+      "author": "coderabbitai[bot]",
+      "body": "_🛠️ Refactor suggestion_\n\n**Use proper typing instead of `any`.**\n\nReplace the `any` type with a proper interface or type definition for better type safety.\n\n```diff\n- const updates: any = {};\n+ const updates: Partial<{\n+   messageCountMinute: number;\n+   messageResetMinute: number;\n+   messageCountHour: number;\n+   messageResetHour: number;\n+ }> = {};\n```\n\n\n<!-- suggestion_start -->\n\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n```suggestion\nconst updates: Partial<{\n  messageCountMinute: number;\n  messageResetMinute: number;\n  messageCountHour: number;\n  messageResetHour: number;\n}> = {};\n```\n\n</details>\n\n<!-- suggestion_end -->\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn woodhouse-modern/packages/core/src/services/rate-limiter.ts at line 231, the\ncode uses the `any` type which reduces type safety. Identify the actual\nstructure or interface that the variable or parameter should conform to and\nreplace `any` with that specific type or interface to improve type safety and\nmaintainability.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+      "path": "woodhouse-modern/packages/core/src/services/rate-limiter.ts",
+      "line": 236,
+      "created_at": "2025-06-14T16:41:41Z",
+      "analysis": {
+        "action": "AUTO_FIX",
+        "confidence": 1,
+        "source": "repo"
+      },
+      "thread": "2147022369"
+    },
+    {
+      "id": 2147022371,
+      "author": "coderabbitai[bot]",
+      "body": "_🛠️ Refactor suggestion_\n\n**Make suspension duration configurable.**\n\nThe 1-hour suspension duration is hardcoded. Consider adding this to the config.\n\n```diff\n  // In RateLimitConfig interface\n+ suspensionDurationMinutes: number;\n\n  // In default config  \n+ suspensionDurationMinutes: 60,\n\n  // In recordViolation\n- suspendedUntil: new Date(now + 3600000).toISOString() // 1 hour suspension\n+ suspendedUntil: new Date(now + this.config.suspensionDurationMinutes * 60000).toISOString()\n```\n\n<details>\n<summary>🤖 Prompt for AI Agents</summary>\n\n```\nIn woodhouse-modern/packages/core/src/services/rate-limiter.ts at line 192, the\nsuspension duration is hardcoded to 1 hour (3600000 ms). Modify the code to use\na configurable suspension duration by adding a new configuration parameter for\nthis value and replace the hardcoded 3600000 with the config value. Ensure the\nconfig value is used to calculate the suspendedUntil timestamp dynamically.\n```\n\n</details>\n\n<!-- This is an auto-generated comment by CodeRabbit -->",
+      "path": "woodhouse-modern/packages/core/src/services/rate-limiter.ts",
+      "line": 196,
+      "created_at": "2025-06-14T16:41:41Z",
+      "analysis": {
+        "action": "AUTO_FIX",
+        "confidence": 1,
+        "source": "repo"
+      },
+      "thread": "2147022371"
+    }
+  ],
+  "stats": {
+    "total": 7,
+    "byAuthor": {
+      "coderabbitai[bot]": 7
+    },
+    "byAction": {
+      "AUTO_FIX": 7
+    }
+  },
+  "metadata": {
+    "exported_at": "2025-06-17T15:00:04.424Z",
+    "tool_version": "0.0.1",
+    "repo": "stroupaloop/woodhouse-modern"
+  }
+}

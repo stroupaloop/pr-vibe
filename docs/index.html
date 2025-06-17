@@ -476,6 +476,116 @@
             }
         }
         
+        /* Roadmap Timeline */
+        .roadmap {
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .roadmap h2 {
+            font-size: 32px;
+            margin-bottom: 48px;
+            font-weight: 700;
+        }
+        
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 32px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: rgba(168, 85, 247, 0.2);
+            z-index: 0;
+        }
+        
+        .timeline-item {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .timeline-badge {
+            width: 64px;
+            height: 64px;
+            background: var(--surface);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--vibe-light);
+        }
+        
+        .timeline-item.current .timeline-badge {
+            background: var(--vibe);
+            color: white;
+            border-color: var(--vibe);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .timeline-content h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .timeline-content p {
+            opacity: 0.7;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-date {
+            font-size: 12px;
+            color: var(--vibe-light);
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline {
+                flex-direction: column;
+                gap: 32px;
+            }
+            
+            .timeline::before {
+                top: 0;
+                bottom: 0;
+                left: 32px;
+                right: auto;
+                width: 2px;
+                height: auto;
+            }
+            
+            .timeline-item {
+                padding-left: 80px;
+                text-align: left;
+            }
+            
+            .timeline-badge {
+                position: absolute;
+                left: 0;
+                margin: 0;
+            }
+        }
+        
         /* ProductHunt Banner */
         .ph-banner {
             position: fixed;
@@ -661,12 +771,51 @@
         </div>
     </section>
 
+    <section class="roadmap container">
+        <h2>What's vibing next? 🚀</h2>
+        <div class="timeline">
+            <div class="timeline-item current">
+                <div class="timeline-badge">v0.2</div>
+                <div class="timeline-content">
+                    <h3>Human Review Learning</h3>
+                    <p>Learn from your team's code review patterns</p>
+                    <span class="timeline-date">Shipping now!</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-badge">v0.3</div>
+                <div class="timeline-content">
+                    <h3>More Bot Support</h3>
+                    <p>SonarQube, Snyk, GitHub Security</p>
+                    <span class="timeline-date">July 2025</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-badge">v0.4</div>
+                <div class="timeline-content">
+                    <h3>Team Playbooks</h3>
+                    <p>Share patterns across your organization</p>
+                    <span class="timeline-date">August 2025</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-badge">v1.0</div>
+                <div class="timeline-content">
+                    <h3>Full Automation</h3>
+                    <p>Autonomous PR handling with confidence</p>
+                    <span class="timeline-date">Fall 2025</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer class="container">
         <p>made with 🎵 by ai tools that vibe</p>
         <div style="margin-top: 16px;">
             <a href="https://github.com/stroupaloop/pr-vibe">github</a>
             <a href="https://www.npmjs.com/package/pr-vibe">npm</a>
             <a href="https://twitter.com/stroupaloop">twitter</a>
+            <a href="https://github.com/stroupaloop/pr-vibe/blob/main/ROADMAP.md">full roadmap</a>
         </div>
     </footer>
     
