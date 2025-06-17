@@ -44,7 +44,7 @@ function getUpdateHighlight(current, latest) {
   } else if (latestMinor > currMinor) {
     // Specific highlights for known versions
     if (latest.startsWith('0.2')) {
-      return 'Human review support with --experimental flag';
+      return 'Human review support with --include-human-reviews flag';
     }
     return 'New features and improvements';
   }
@@ -56,7 +56,7 @@ const program = new Command();
 program
   .name('pr-vibe')
   .description('AI-powered PR review responder that vibes with bots')
-  .version('0.1.2');
+  .version('0.2.0');
 
 program
   .command('pr <number>')
@@ -560,13 +560,13 @@ program
       }
     } else {
       // Show recent highlights
-      console.log(chalk.cyan('## Version 0.2.0 (Coming Soon)'));
-      console.log('  ✨ Human review support with --experimental flag');
+      console.log(chalk.cyan('## Version 0.2.0 (Current)'));
+      console.log('  ✨ Human review support with --include-human-reviews flag');
       console.log('  🔔 Automatic update notifications');
       console.log('  🐛 Case-insensitive bot detection');
       console.log('  📊 Pattern learning from team feedback\n');
       
-      console.log(chalk.cyan('## Version 0.1.2 (Current)'));
+      console.log(chalk.cyan('## Version 0.1.2 (Previous)'));
       console.log('  🚀 Initial public release');
       console.log('  🤖 CodeRabbit and DeepSource support');
       console.log('  🧠 Pattern learning system');
