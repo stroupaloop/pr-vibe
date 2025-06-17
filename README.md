@@ -216,6 +216,14 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 <!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
+## Support
+
+If pr-vibe saves you time, consider supporting development:
+
+<a href="https://www.buymeacoffee.com/stroupaloop" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+Your support helps maintain and improve pr-vibe! 🎵
+
 ## License
 
 MIT © [Andrew Stroup](https://github.com/stroupaloop) & [Claude (Anthropic)](https://claude.ai)
