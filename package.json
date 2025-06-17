@@ -6,6 +6,7 @@
     "ai",
     "pr",
     "pull-request",
+    "code-review",
     "coderabbit",
     "deepsource",
     "vibe",
@@ -16,7 +17,18 @@
     "github",
     "gitlab",
     "cli",
-    "developer-tools"
+    "developer-tools",
+    "ai-collaboration",
+    "pattern-learning",
+    "review-automation",
+    "pr-bot",
+    "code-quality",
+    "sonarqube",
+    "codacy",
+    "llm",
+    "ai-tools",
+    "flow-state",
+    "productivity"
   ],
   "author": "Andrew Stroup <andrew@stroup.dev>",
   "license": "MIT",
@@ -57,7 +69,8 @@
     "inquirer": "^9.2.15",
     "openai": "^4.28.0",
     "ora": "^8.0.1",
-    "p-limit": "^5.0.0"
+    "p-limit": "^5.0.0",
+    "update-notifier": "^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

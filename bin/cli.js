@@ -4,7 +4,9 @@ import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import updateNotifier from 'update-notifier';
 import { analyzeGitHubPR } from '../lib/github.js';
 import { analyzeComment } from '../lib/decision-engine.js';
 import { createLLMService } from '../lib/llm-integration.js';
@@ -13,6 +15,41 @@ import { createCommentPoster } from '../lib/comment-poster.js';
 import { GitHubProvider } from '../lib/providers/github-provider.js';
 import { displayThread } from '../lib/ui.js';
 import { patternManager } from '../lib/pattern-manager.js';
+
+// Check for updates
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
+const notifier = updateNotifier({ 
+  pkg,
+  updateCheckInterval: 1000 * 60 * 60 * 24 // Check once per day
+});
+
+// Show update notification with custom message
+if (notifier.update) {
+  const { current, latest } = notifier.update;
+  console.log(chalk.yellow(`
+🎵 pr-vibe ${latest} available! (you have ${current})
+✨ What's new: ${getUpdateHighlight(current, latest)}
+Run: ${chalk.cyan('npm update -g pr-vibe')}
+`));
+}
+
+function getUpdateHighlight(current, latest) {
+  // Simple version comparison for highlight messages
+  const [currMajor, currMinor] = current.split('.').map(Number);
+  const [latestMajor, latestMinor] = latest.split('.').map(Number);
+  
+  if (latestMajor > currMajor) {
+    return 'Major update with new features!';
+  } else if (latestMinor > currMinor) {
+    // Specific highlights for known versions
+    if (latest.startsWith('0.2')) {
+      return 'Human review support with --experimental flag';
+    }
+    return 'New features and improvements';
+  }
+  return 'Bug fixes and improvements';
+}
 
 const program = new Command();
 
@@ -29,6 +66,7 @@ program
   .option('--llm <provider>', 'LLM provider (openai/anthropic/none)', 'none')
   .option('--dry-run', 'preview changes without applying')
   .option('--no-comments', 'skip posting comments to PR')
+  .option('--experimental', 'enable experimental features (human review analysis)')
   .action(async (prNumber, options) => {
     console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
     
@@ -43,20 +81,31 @@ program
       
       // 1. Fetch PR and comments
       spinner.text = 'Fetching PR comments...';
-      const { pr, comments, threads } = await analyzeGitHubPR(prNumber, options.repo);
-      spinner.succeed(`Found ${comments.length} comments on PR #${prNumber}`);
+      const { pr, comments, threads, humanComments, humanThreads } = await analyzeGitHubPR(prNumber, options.repo);
+      spinner.succeed(`Found ${comments.length} bot comments and ${humanComments.length} human reviews on PR #${prNumber}`);
+      
+      // Show human reviews if present
+      if (humanComments.length > 0) {
+        console.log(chalk.bold('\n👥 Human Reviews:'));
+        const humanReviewers = [...new Set(humanComments.map(c => c.user.login))];
+        console.log(`  Reviewers: ${humanReviewers.join(', ')}`);
+        console.log(`  Comments: ${humanComments.length}`);
+        
+        // TODO: Show human review summary
+        console.log(chalk.gray('\n  (Human review analysis coming soon...)'));
+      }
       
       if (comments.length === 0) {
-        console.log(chalk.yellow('No review comments found. Nothing to do! 🎉'));
+        console.log(chalk.yellow('\nNo bot review comments found. Nothing to auto-process! 🎉'));
         return;
       }
       
-      // 2. Show summary
-      console.log(chalk.bold('\n📊 Review Summary:'));
+      // 2. Show bot summary
+      console.log(chalk.bold('\n🤖 Bot Review Summary:'));
       const reviewers = [...new Set(comments.map(c => c.user.login))];
-      console.log(`  Reviewers: ${reviewers.join(', ')}`);
-      console.log(`  Total comments: ${comments.length}`);
-      console.log(`  Conversation threads: ${Object.keys(threads).length}\n`);
+      console.log(`  Bot reviewers: ${reviewers.join(', ')}`);
+      console.log(`  Bot comments: ${comments.length}`);
+      console.log(`  Bot threads: ${Object.keys(threads).length}\n`);
       
       const decisions = [];
       const projectContext = {
@@ -158,7 +207,66 @@ program
         console.log(chalk.dim(`  → Action: ${userAction}\n`));
       }
       
-      // 4. Apply all fixes
+      // 4. Process human reviews (experimental)
+      if (options.experimental && humanComments.length > 0) {
+        console.log(chalk.bold('\n🧪 EXPERIMENTAL: Processing Human Reviews\n'));
+        console.log(chalk.gray('─'.repeat(50)));
+        
+        for (const [threadId, threadComments] of Object.entries(humanThreads)) {
+          const mainComment = threadComments[0];
+          const author = mainComment.user?.login || 'Unknown';
+          
+          console.log(chalk.bold(`\n👤 ${author} commented:`));
+          console.log(chalk.white(mainComment.body));
+          
+          if (mainComment.path) {
+            console.log(chalk.dim(`  📄 ${mainComment.path}${mainComment.line ? `:${mainComment.line}` : ''}`));
+          }
+          
+          // Ask what to do with human feedback
+          console.log(chalk.yellow('\n🤔 pr-vibe is learning from human reviews...'));
+          console.log(chalk.gray('  This feedback will help pr-vibe understand your team\'s standards.'));
+          
+          // For now, just acknowledge - pattern learning comes next
+          const { humanAction } = await inquirer.prompt([
+            {
+              type: 'list',
+              name: 'humanAction',
+              message: 'How should pr-vibe interpret this feedback?',
+              choices: [
+                { name: 'Learn pattern (will remember for future)', value: 'learn' },
+                { name: 'Just acknowledge (one-time feedback)', value: 'acknowledge' },
+                { name: 'Skip for now', value: 'skip' }
+              ]
+            }
+          ]);
+          
+          if (humanAction === 'learn') {
+            // Learn from this human review
+            const learningResult = await patternManager.learnFromHumanReview(
+              mainComment,
+              'human_feedback',
+              { pr: prNumber, repo: options.repo }
+            );
+            
+            console.log(chalk.green(`  ✅ Pattern learned from ${learningResult.reviewer}!`));
+            console.log(chalk.dim(`     Confidence: ${(learningResult.confidence * 100).toFixed(0)}%`));
+            console.log(chalk.dim(`     Patterns updated: ${learningResult.patternsUpdated}`));
+            
+            // Check if this matches existing patterns
+            const match = patternManager.matchHumanPattern(mainComment);
+            if (match.matched) {
+              console.log(chalk.cyan(`  🔍 This matches a pattern learned from: ${match.learnedFrom.join(', ')}`));
+            }
+          } else if (humanAction === 'acknowledge') {
+            console.log(chalk.blue('  👍 Acknowledged'));
+          }
+        }
+        
+        console.log(chalk.gray('\n─'.repeat(50)));
+      }
+      
+      // 5. Apply all fixes
       const fixesToApply = decisions.filter(d => d.userAction === 'fix');
       if (fixesToApply.length > 0) {
         if (!options.dryRun) {
@@ -432,6 +540,57 @@ escalation_rules:
     } catch (error) {
       console.error(chalk.red(`Failed: ${error.message}`));
     }
+  });
+
+program
+  .command('changelog')
+  .description('Show recent changes and updates')
+  .option('--full', 'show full changelog')
+  .action(async (options) => {
+    console.log(chalk.bold('\n🎵 pr-vibe Changelog\n'));
+    
+    if (options.full) {
+      // Show full changelog
+      try {
+        const changelogPath = join(__dirname, '../CHANGELOG.md');
+        const changelog = readFileSync(changelogPath, 'utf-8');
+        console.log(changelog);
+      } catch (error) {
+        console.log(chalk.yellow('Full changelog not available in this version.'));
+      }
+    } else {
+      // Show recent highlights
+      console.log(chalk.cyan('## Version 0.2.0 (Coming Soon)'));
+      console.log('  ✨ Human review support with --experimental flag');
+      console.log('  🔔 Automatic update notifications');
+      console.log('  🐛 Case-insensitive bot detection');
+      console.log('  📊 Pattern learning from team feedback\n');
+      
+      console.log(chalk.cyan('## Version 0.1.2 (Current)'));
+      console.log('  🚀 Initial public release');
+      console.log('  🤖 CodeRabbit and DeepSource support');
+      console.log('  🧠 Pattern learning system');
+      console.log('  ⚡ Auto-fix common issues\n');
+      
+      console.log(chalk.gray('Run with --full to see complete changelog'));
+    }
+  });
+
+program
+  .command('update')
+  .description('Check for updates')
+  .action(() => {
+    const update = notifier.update;
+    
+    if (update) {
+      console.log(chalk.yellow(`\n🎵 Update available: ${update.current} → ${update.latest}`));
+      console.log(chalk.cyan(`\nRun: npm update -g pr-vibe\n`));
+    } else {
+      console.log(chalk.green('\n✅ You are running the latest version of pr-vibe!\n'));
+    }
+    
+    // Force check for updates
+    notifier.notify({ defer: false });
   });
 
 program.parse();

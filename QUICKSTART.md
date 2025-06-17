@@ -11,23 +11,22 @@ npm install -g pr-vibe
 ### 1. Initialize pr-vibe in your project
 ```bash
 cd your-project
-pr-vibe init
+pr-vibe init-patterns
 
 # This creates:
 # - .pr-bot/patterns.yml (your project's learned patterns)
-# - .pr-bot/config.yml (configuration)
 ```
 
 ### 2. When you get bot reviews on a PR
 ```bash
 # Export bot comments for analysis
-pr-vibe export 123 -o pr-123-review.json
+pr-vibe export 123
 
-# Review what the bots found
-pr-vibe review 123
+# Review what the bots found interactively
+pr-vibe pr 123
 
 # Apply decisions (auto-fix issues, respond to comments)
-pr-vibe apply 123 --decisions decisions.json
+pr-vibe apply 123
 ```
 
 ## Example: Real CodeRabbit Review
@@ -35,12 +34,12 @@ pr-vibe apply 123 --decisions decisions.json
 Here's how pr-vibe handled PR #20 with 19 CodeRabbit comments:
 
 ```bash
-# 1. Export CodeRabbit's comments
-pr-vibe export 20 -o review.json
+# 1. Export CodeRabbit's comments for Claude Code
+pr-vibe export 20
 # Found 19 comments from coderabbitai[bot]
 
-# 2. Analyze and create decisions
-pr-vibe review 20
+# 2. Review and decide on each comment
+pr-vibe pr 20
 # ✓ REJECT: console.log in Lambda (valid CloudWatch pattern)
 # ✓ AUTO_FIX: Hardcoded API key → environment variable
 # ✓ AUTO_FIX: SQL injection → parameterized query
@@ -70,12 +69,11 @@ valid_patterns:
 
 ## Commands
 
-- `pr-vibe init` - Set up pr-vibe in your project
-- `pr-vibe export <PR>` - Export bot comments from a PR
-- `pr-vibe review <PR>` - Interactively review bot comments
+- `pr-vibe init-patterns` - Set up pr-vibe in your project
+- `pr-vibe export <PR>` - Export bot comments for external analysis
+- `pr-vibe pr <PR>` - Interactively review bot comments
 - `pr-vibe apply <PR>` - Apply decisions (fix code, post replies)
-- `pr-vibe patterns` - Manage learned patterns
-- `pr-vibe stats` - See how much time you've saved
+- `pr-vibe test` - Run decision engine tests
 
 ## Configuration
 
