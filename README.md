@@ -13,9 +13,15 @@
 
 Built BY an AI (Claude) FOR AIs to orchestrate - the first tool designed for AI-to-AI collaboration on code reviews.
 
-## Demo
+## Try it Now - Zero Setup! 🚀
 
-Visit our [interactive demo](https://stroupaloop.github.io/pr-vibe/) to see pr-vibe in action.
+```bash
+npx pr-vibe@latest demo
+```
+
+No tokens, no setup, just instant value. See pr-vibe handle real bot comments in 30 seconds.
+
+Visit our [interactive demo](https://stroupaloop.github.io/pr-vibe/) for more.
 
 ## Why pr-vibe?
 
@@ -42,67 +48,89 @@ pr-vibe bridges this gap by:
 ## Installation
 
 ```bash
-npm install -g pr-vibe
+# Try instantly - no setup required!
+npx pr-vibe@latest demo
 
-# Or use directly with npx
-npx pr-vibe review 42
+# Install globally when ready
+npm install -g pr-vibe
 ```
 
-## Getting Started in 60 Seconds
+## Getting Started
 
-1. **Install pr-vibe globally:**
+### 🎯 Option 1: Try Without Setup (Recommended)
+```bash
+# See pr-vibe in action instantly
+npx pr-vibe@latest demo
+```
+
+### 🚀 Option 2: Quick Setup (2 minutes)
+
+1. **Install pr-vibe:**
    ```bash
    npm install -g pr-vibe
    ```
 
-2. **Set your GitHub token:**
+2. **Let pr-vibe find your GitHub auth:**
    ```bash
-   export GITHUB_TOKEN=your_github_token
-   # Get one at: https://github.com/settings/tokens
+   pr-vibe auth status
    ```
    
-   > **🔐 Security Note**: Never commit tokens to the repository. See [SECURITY.md](SECURITY.md) for best practices.
+   pr-vibe automatically detects tokens from:
+   - ✅ GitHub CLI (`gh auth login`)
+   - ✅ Environment variables
+   - ✅ VS Code GitHub extension
+   
+   No token? Run `pr-vibe auth` for guided setup.
 
-3. **Initialize in your project:**
-   ```bash
-   cd your-project
-   pr-vibe init-patterns
-   ```
-
-4. **Review your next PR with bot comments:**
+3. **Review your PR:**
    ```bash
    pr-vibe pr 42
    ```
 
-That's it! pr-vibe will analyze bot comments, suggest responses, and start learning your patterns.
+That's it! pr-vibe learns from every decision you make.
 
-## Quick Start
+## Commands
 
 ```bash
-# Initialize patterns in your project
-pr-vibe init-patterns
+# Try demo - no setup needed!
+pr-vibe demo
+
+# Check your auth status
+pr-vibe auth
 
 # Review bot comments interactively
 pr-vibe pr 42
 
-# Export comments for external analysis (Claude Code mode)
-pr-vibe export 42
+# Export for Claude/ChatGPT analysis
+pr-vibe export 42 --format claude
 
-# Apply decisions from Claude Code
-pr-vibe apply 42
+# Apply AI decisions
+pr-vibe apply 42 -d decisions.json
 
-# Specify a different repository
-pr-vibe pr 42 -r owner/repo
+# Initialize patterns for your project
+pr-vibe init
 ```
 
 ## How It Works
 
-1. **Fetches** bot comments from your PR (CodeRabbit, DeepSource, etc.)
-2. **Groups** them into conversation threads
-3. **Analyzes** each with your project context in mind
-4. **Suggests** responses based on your patterns
-5. **Applies** fixes where appropriate
-6. **Responds** to bots with explanations
+```mermaid
+graph LR
+    A[pr-vibe pr 123] --> B{Auth?}
+    B -->|Yes| C[Fetch PR]
+    B -->|No| D[Try: pr-vibe demo]
+    C --> E[Analyze Comments]
+    E --> F[Learn Patterns]
+    F --> G[Apply Fixes]
+    G --> H[Post Replies]
+    H --> I[Save 18+ min]
+```
+
+1. **Smart Auth** - Finds your token automatically
+2. **Fetches** bot comments from your PR
+3. **Analyzes** with learned patterns
+4. **Fixes** what can be automated
+5. **Explains** your valid patterns
+6. **Learns** from every decision
 
 ## Real Impact 📊
 
@@ -132,6 +160,8 @@ $ pr-vibe apply 20
 ```
 
 **After ~10 PRs:** pr-vibe handles 95% of repetitive feedback automatically!
+
+> 💡 **Pro tip:** Start with `pr-vibe demo` to see the magic before setting up auth.
 
 ## Pattern Learning
 
