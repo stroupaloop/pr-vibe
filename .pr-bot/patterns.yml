@@ -1,0 +1,30 @@
+# PR Bot Response Patterns
+version: 1.0
+project: pr-vibe
+created_at: 2025-06-17T07:13:43.931Z
+
+# Valid patterns to reject with explanation
+valid_patterns:
+  - id: console-log-lambda
+    pattern: "console.log"
+    condition:
+      files: ["**/lambda/**", "**/*-handler.js"]
+    reason: "We use console.log for CloudWatch logging"
+    confidence: 1.0
+    auto_reply: |
+      Thanks for the feedback. We use console.log for CloudWatch 
+      logging in our Lambda functions.
+
+# Auto-fix rules
+auto_fixes:
+  - id: api-key-to-env
+    trigger: "hardcoded.+(api|key|token)"
+    severity: CRITICAL
+    fix_template: |
+      const {{CONST_NAME}} = process.env.{{ENV_NAME}};
+
+# When to escalate
+escalation_rules:
+  - id: architecture
+    pattern: "refactor|architecture"
+    notify: ["@stroupaloop"]

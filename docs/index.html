@@ -92,7 +92,7 @@
         }
         
         nav {
-            padding: 24px 0;
+            padding: 32px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -131,7 +131,7 @@
         
         /* Hero */
         .hero {
-            padding: 100px 0 60px;
+            padding: 120px 0 80px;
             text-align: center;
         }
         
@@ -139,12 +139,13 @@
             font-size: clamp(48px, 8vw, 80px);
             font-weight: 900;
             letter-spacing: -2px;
-            line-height: 1.1;
-            margin-bottom: 20px;
+            line-height: 1.2;
+            margin-bottom: 32px;
             background: linear-gradient(135deg, var(--text) 0%, var(--vibe-light) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             animation: text-glow 3s ease-in-out infinite;
+            padding-bottom: 8px;
         }
         
         @keyframes text-glow {
@@ -155,8 +156,8 @@
         .hero p {
             font-size: 18px;
             opacity: 0.7;
-            margin-bottom: 32px;
-            line-height: 1.5;
+            margin-bottom: 40px;
+            line-height: 1.6;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
@@ -358,11 +359,11 @@
         
         /* Vibes Section */
         .vibes {
-            padding: 60px 24px;
+            padding: 60px 40px;
             text-align: center;
             background: rgba(168, 85, 247, 0.05);
             border-radius: 24px;
-            margin: 40px 24px;
+            margin: 40px 0;
         }
         
         .vibes h2 {
@@ -383,12 +384,14 @@
         .vibe-stats {
             display: flex;
             justify-content: center;
-            gap: 48px;
+            gap: 64px;
             flex-wrap: wrap;
+            margin-top: 40px;
         }
         
         .vibe-stat {
             text-align: center;
+            min-width: 140px;
         }
         
         .vibe-stat-number {
@@ -428,7 +431,8 @@
             }
             .hero h1 { 
                 font-size: 48px;
-                margin-bottom: 16px;
+                margin-bottom: 24px;
+                line-height: 1.1;
             }
             .hero p {
                 font-size: 16px;
@@ -441,8 +445,12 @@
             }
             .nav-links { display: none; }
             .vibe-stats { gap: 32px; }
-            .features, .vibes {
+            .features {
                 padding: 40px 20px;
+            }
+            .vibes {
+                padding: 40px 20px;
+                margin: 40px 0;
             }
             .terminal {
                 font-size: 12px;
@@ -550,21 +558,23 @@
         </div>
     </section>
 
-    <section class="vibes container">
-        <h2>The vibe is different</h2>
-        <p class="vibe-quote">"What if we just let the robots talk to each other?"</p>
-        <div class="vibe-stats">
-            <div class="vibe-stat">
-                <span class="vibe-stat-number">2min</span>
-                <span class="vibe-stat-label">per PR instead of 20</span>
-            </div>
-            <div class="vibe-stat">
-                <span class="vibe-stat-number">95%</span>
-                <span class="vibe-stat-label">accurate after training</span>
-            </div>
-            <div class="vibe-stat">
-                <span class="vibe-stat-number">∞</span>
-                <span class="vibe-stat-label">patience for repetition</span>
+    <section class="vibes">
+        <div class="container">
+            <h2>The vibe is different</h2>
+            <p class="vibe-quote">"What if we just let the robots talk to each other?"</p>
+            <div class="vibe-stats">
+                <div class="vibe-stat">
+                    <span class="vibe-stat-number">2min</span>
+                    <span class="vibe-stat-label">per PR instead of 20</span>
+                </div>
+                <div class="vibe-stat">
+                    <span class="vibe-stat-number">95%</span>
+                    <span class="vibe-stat-label">accurate after training</span>
+                </div>
+                <div class="vibe-stat">
+                    <span class="vibe-stat-number">∞</span>
+                    <span class="vibe-stat-label">patience for repetition</span>
+                </div>
             </div>
         </div>
     </section>

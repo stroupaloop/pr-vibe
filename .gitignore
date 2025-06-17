@@ -40,3 +40,5 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+# Never commit npm tokens
+.npmrc

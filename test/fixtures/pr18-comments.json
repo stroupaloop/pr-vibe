@@ -1,0 +1,34 @@
+{
+  "description": "Real comments from woodhouse-modern PR #18 for testing",
+  "pr": {
+    "number": 18,
+    "title": "test: Validate conversational review system with intentional issues",
+    "author": "stroupaloop"
+  },
+  "comments": [
+    {
+      "id": 2151206340,
+      "user": { "login": "coderabbitai[bot]" },
+      "path": "test-conversation/security-issues.js",
+      "line": 7,
+      "body": "_⚠️ Potential issue_\n\n**Critical security issue: Remove hardcoded API key**\n\nHardcoded API keys must never be committed to source control.",
+      "type": "review"
+    },
+    {
+      "id": 2151206342,
+      "user": { "login": "coderabbitai[bot]" },
+      "path": "test-conversation/security-issues.js", 
+      "line": 16,
+      "body": "_⚠️ Potential issue_\n\n**Critical security issue: SQL injection vulnerability**\n\nDirect string interpolation of user input into SQL queries creates a severe security vulnerability.",
+      "type": "review"
+    },
+    {
+      "id": 2151206361,
+      "user": { "login": "coderabbitai[bot]" },
+      "path": "test-conversation/code-quality.js",
+      "line": 5,
+      "body": "console.log in Lambda handler\n\nThis appears to be CloudWatch logging which is valid for Lambda functions.",
+      "type": "review"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm view:*)",
+      "Bash(grep:*)",
+      "Bash(git add:*)",
+      "Bash(npm link:*)",
+      "Bash(pr-vibe:*)",
+      "Bash(npm install)",
+      "Bash(cat:*)",
+      "Bash(python3:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)"
+    ],
+    "deny": []
+  }
+}

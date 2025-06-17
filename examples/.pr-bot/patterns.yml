@@ -1,0 +1,148 @@
+# Example: Woodhouse-Modern Pattern File
+# This file would live in your repo at .pr-bot/patterns.yml
+
+version: 1.0
+project: woodhouse-modern
+description: "SMS reminder system with AWS Lambda backend"
+last_updated: 2024-06-17T10:00:00Z
+updated_by: claude-code
+
+# Valid patterns specific to this project
+valid_patterns:
+  # Lambda + CloudWatch Patterns
+  - id: console-log-lambda
+    pattern: "console.log"
+    condition: 
+      files: ["packages/sms-handler/**", "packages/cron-handler/**"]
+      bots: ["coderabbitai", "deepsource"]
+    reason: "We use console.log for CloudWatch logging in Lambda functions"
+    confidence: 1.0
+    auto_reply: |
+      Thanks for the feedback. In our Lambda functions, we intentionally use 
+      console.log for CloudWatch logging. This is our standard logging approach
+      for serverless functions and is documented in our architecture guide.
+    examples:
+      - pr: 15
+        comment: "Remove console.log from Lambda handler"
+        decision: REJECT
+
+  # TypeScript Patterns  
+  - id: any-type-webhooks
+    pattern: "any type"
+    condition:
+      files: ["**/webhook*.ts", "**/stripe*.ts", "**/twilio*.ts"]
+      content_match: "webhook|payload|event"
+    reason: "External webhook payloads have unpredictable shapes"
+    confidence: 0.95
+    auto_reply: |
+      We use 'any' type for external webhook payloads (Stripe, Twilio) because
+      these APIs can change their payload structure without notice. We validate
+      the critical fields at runtime instead of relying on TypeScript types.
+
+  # DynamoDB Patterns
+  - id: hardcoded-table-names
+    pattern: "hardcoded.+table.+name"
+    condition:
+      files: ["packages/core/src/db/**", "infrastructure/**"]
+    reason: "Table names are managed by CDK infrastructure"
+    confidence: 0.90
+    auto_reply: |
+      Table names are intentionally hardcoded in our infrastructure code.
+      They're managed by AWS CDK and injected as environment variables at runtime.
+
+# Auto-fix rules with project-specific templates
+auto_fixes:
+  - id: api-key-to-env
+    trigger: "hardcoded.+(api|key|token|secret)"
+    severity: CRITICAL
+    files: ["**/*.ts", "**/*.js"]
+    exclude: ["**/*.test.ts", "**/*.spec.js"]
+    fix_template: |
+      const {{CONST_NAME}} = process.env.{{ENV_NAME}};
+      if (!{{CONST_NAME}}) {
+        throw new Error('Missing required environment variable: {{ENV_NAME}}');
+      }
+    commit_message: "fix: Move {{CONST_NAME}} to environment variable"
+    
+  - id: sql-injection
+    trigger: "sql.+injection|unsafe.+query"
+    severity: CRITICAL
+    fix_template: |
+      // Use parameterized query
+      const query = 'SELECT * FROM users WHERE id = ?';
+      const results = await db.query(query, [userId]);
+
+# Escalation rules for this team
+escalation_rules:
+  - id: architecture-decisions
+    pattern: "refactor|redesign|architecture|split.+into"
+    notify: 
+      - "@stroupaloop"
+      - "@woodhouse-architects"
+    message: |
+      This suggestion involves architectural changes that need team discussion.
+      {{MENTION}} - please review CodeRabbit's suggestion above.
+    label: "needs-architecture-review"
+    
+  - id: performance-concerns
+    pattern: "performance|n\\+1|optimize|slow"
+    notify: ["@backend-team"]
+    condition:
+      severity: ["warning", "critical"]
+    message: "Performance concern raised - needs specialist review"
+
+  - id: security-unclear
+    pattern: "security|vulnerable|exploit"
+    condition:
+      confidence: "< 0.8"
+    notify: ["@security-team", "@stroupaloop"]
+    priority: HIGH
+
+# Learning history from this repo
+decision_history:
+  - date: 2024-06-17
+    pr: 26
+    bot: coderabbitai
+    comment: "Remove console.log from Lambda handler"
+    decision: REJECT
+    pattern_learned: console-log-lambda
+    time_saved: "5 minutes"
+    
+  - date: 2024-06-16
+    pr: 25
+    bot: coderabbitai
+    comment: "Hardcoded Stripe API key found"
+    decision: AUTO_FIX
+    pattern_learned: api-key-to-env
+    fix_applied: true
+    
+  - date: 2024-06-15
+    pr: 24
+    bot: deepsource
+    comment: "Function processReminders exceeds 200 lines"
+    decision: DEFER
+    reason: "Working code, will refactor in next sprint"
+    ticket_created: "WOOD-127"
+
+# Statistics for this repository
+stats:
+  total_pr_comments: 247
+  auto_handled: 189
+  escalated: 23
+  manually_handled: 35
+  time_saved_hours: 41.2
+  patterns_learned: 12
+  
+# Team preferences
+preferences:
+  auto_apply_threshold: 0.95  # Only auto-apply if 95% confident
+  require_human_review:
+    - SECURITY
+    - ARCHITECTURE
+  bot_settings:
+    coderabbitai:
+      auto_respond: true
+      tone: "friendly_professional"
+    deepsource:
+      auto_respond: true
+      ignore_info_level: true

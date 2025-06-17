@@ -1,0 +1,198 @@
+{
+  "version": "1.0",
+  "last_updated": "2024-06-17T10:00:00Z",
+  "total_decisions": 3847,
+  "total_repos": 23,
+  "time_saved_hours": 642.5,
+  
+  "learned_patterns": {
+    "console-log-lambda": {
+      "id": "console-log-lambda",
+      "description": "Console.log in Lambda/serverless functions",
+      "occurrences": 156,
+      "repos_seen": [
+        "woodhouse-modern",
+        "serverless-api",
+        "lambda-processor",
+        "event-handler"
+      ],
+      "confidence": 0.987,
+      "auto_decision": "REJECT",
+      "conditions": [
+        "file contains 'lambda' OR 'handler' OR 'serverless'",
+        "file extension is .js OR .ts",
+        "project uses AWS"
+      ],
+      "suggested_reply": "Console.log is used for CloudWatch logging in Lambda functions",
+      "variations_seen": [
+        "Remove console.log from Lambda handler",
+        "console.log impacts cold start performance",
+        "Avoid console statements in production"
+      ],
+      "last_seen": "2024-06-17T09:30:00Z",
+      "created_by": "stroupaloop",
+      "upvotes": 47,
+      "downvotes": 2
+    },
+    
+    "any-type-external-api": {
+      "id": "any-type-external-api",
+      "description": "Using 'any' type for external API payloads",
+      "occurrences": 89,
+      "repos_seen": [
+        "woodhouse-modern",
+        "payment-processor",
+        "webhook-handler"
+      ],
+      "confidence": 0.923,
+      "auto_decision": "REJECT",
+      "conditions": [
+        "comment mentions 'any type'",
+        "file contains 'webhook' OR 'payload' OR 'external'",
+        "TypeScript file"
+      ],
+      "suggested_reply": "External API payloads use 'any' type due to unpredictable shapes. Runtime validation is implemented.",
+      "context_keywords": ["stripe", "twilio", "webhook", "payload"],
+      "last_seen": "2024-06-16T14:20:00Z"
+    },
+    
+    "hardcoded-api-keys": {
+      "id": "hardcoded-api-keys",
+      "description": "Hardcoded API keys or secrets",
+      "occurrences": 234,
+      "confidence": 0.998,
+      "auto_decision": "AUTO_FIX",
+      "severity": "CRITICAL",
+      "fix_patterns": [
+        {
+          "match": "const (\\w+) = ['\"]sk_test",
+          "replace": "const $1 = process.env.STRIPE_TEST_KEY"
+        },
+        {
+          "match": "apiKey: ['\"]([^'\"]+)['\"]",
+          "replace": "apiKey: process.env.API_KEY"
+        }
+      ],
+      "always_escalate_if": [
+        "production key",
+        "aws credentials",
+        "database password"
+      ]
+    },
+    
+    "large-function-refactor": {
+      "id": "large-function-refactor",
+      "description": "Suggestions to refactor large functions",
+      "occurrences": 412,
+      "confidence": 0.76,
+      "auto_decision": "ESCALATE",
+      "escalation_message": "Architectural decision needed on function refactoring",
+      "common_thresholds_seen": {
+        "coderabbitai": "50 lines",
+        "sonarcloud": "75 lines",
+        "deepsource": "100 lines"
+      },
+      "team_preferences": {
+        "stroupaloop": "defer if working",
+        "enterprise-team": "fix immediately",
+        "startup-team": "defer to backlog"
+      }
+    }
+  },
+  
+  "bot_profiles": {
+    "coderabbitai": {
+      "total_comments_seen": 2341,
+      "common_patterns": [
+        {
+          "pattern": "console.log",
+          "frequency": 0.18,
+          "typical_severity": "warning"
+        },
+        {
+          "pattern": "any type",
+          "frequency": 0.12,
+          "typical_severity": "info"
+        },
+        {
+          "pattern": "error handling",
+          "frequency": 0.15,
+          "typical_severity": "warning"
+        }
+      ],
+      "response_effectiveness": {
+        "total_responses": 1876,
+        "accepted": 1698,
+        "rejected": 134,
+        "modified": 44
+      }
+    },
+    
+    "deepsource": {
+      "total_comments_seen": 892,
+      "focuses_on": ["code_quality", "complexity", "test_coverage"],
+      "auto_fixable_rate": 0.67
+    }
+  },
+  
+  "community_patterns": {
+    "trending": [
+      {
+        "pattern": "console-log-vercel",
+        "description": "Console.log in Vercel Edge Functions",
+        "growth_rate": 2.3,
+        "repos_adopting": 45
+      }
+    ],
+    
+    "controversial": [
+      {
+        "pattern": "no-any-ever",
+        "description": "Never use 'any' type",
+        "agreement_rate": 0.52,
+        "discussion_thread": "github.com/pr-bot-responder/discussions/123"
+      }
+    ]
+  },
+  
+  "effectiveness_metrics": {
+    "patterns_by_confidence": {
+      "0.95+": 23,
+      "0.90-0.95": 18,
+      "0.80-0.90": 34,
+      "0.70-0.80": 41,
+      "<0.70": 67
+    },
+    
+    "decision_accuracy": {
+      "auto_fix": {
+        "total": 823,
+        "successful": 812,
+        "rate": 0.987
+      },
+      "reject": {
+        "total": 1234,
+        "agreed": 1198,
+        "rate": 0.971
+      },
+      "escalate": {
+        "total": 345,
+        "appropriate": 332,
+        "rate": 0.962
+      }
+    },
+    
+    "time_savings": {
+      "average_per_comment": "3.2 minutes",
+      "average_per_pr": "18.7 minutes",
+      "total_hours_saved": 642.5
+    }
+  },
+  
+  "pattern_sources": {
+    "user_contributed": 134,
+    "auto_learned": 289,
+    "community_validated": 67,
+    "official_patterns": 12
+  }
+}

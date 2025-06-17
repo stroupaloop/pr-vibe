@@ -1,60 +1,73 @@
-# pr-review-assistant 🤖
+# pr-vibe 🎵
 
-AI-powered pull request review assistant that helps you handle automated review comments with intelligent, context-aware responses.
+The first tool to intelligently respond to PR review bots. Stop explaining the same patterns to bots over and over again.
+
+## Why pr-vibe?
+
+PR review bots like CodeRabbit and DeepSource are great, but they don't understand *your* project. You find yourself:
+- Explaining why `console.log` is valid in Lambda functions... again
+- Rejecting the same "any types" warnings for complex webhooks
+- Manually fixing the same security issues they flag
+
+pr-vibe bridges this gap by:
+- 🤝 **Working WITH bots** - Enhances CodeRabbit, DeepSource, etc. rather than replacing them
+- 🧠 **Learning your patterns** - Remembers your project's conventions and valid exceptions
+- ⚡ **Automating responses** - Fixes what should be fixed, explains what's intentional
+- 🎯 **Saving time** - Handle bot comments in seconds, not minutes
 
 ## Features
 
-- 🔍 **Intelligent Analysis** - Understands context from CodeRabbit, DeepSource, and other review tools
-- 💬 **Conversational** - Maintains thread context across multiple exchanges  
-- 🛠️ **Smart Actions** - Auto-fix simple issues, discuss complex ones, or escalate when needed
-- 🧠 **Project Aware** - Learns your project's patterns and conventions
-- 🔌 **LLM Agnostic** - Works with Claude, GPT-4, Gemini, or local models
+- 🔍 **Bot Comment Analysis** - Parses and understands comments from all major PR review bots
+- 💬 **Intelligent Responses** - Maintains conversation context across bot exchanges  
+- 🛠️ **Smart Actions** - Auto-fix simple issues, explain valid patterns, or escalate edge cases
+- 🧠 **Project Memory** - Learns and remembers your project-specific patterns
+- 🔌 **LLM Flexibility** - Works with Claude, GPT-4, Gemini, or local models
 - ⚡ **CLI First** - Full control with human-in-the-loop design
 
 ## Installation
 
 ```bash
-npm install -g pr-review-assistant
+npm install -g pr-vibe
 
 # Or use directly with npx
-npx pr-review-assistant pr 42
+npx pr-vibe review 42
 ```
 
 ## Quick Start
 
 ```bash
 # Initialize in your project
-pr-review init
+pr-vibe init
 
-# Review a PR interactively
-pr-review pr 18
+# Review and respond to bot comments on a PR
+pr-vibe review 18
 
-# Auto-fix safe issues
-pr-review pr 18 --auto-fix
+# Auto-fix and respond to safe issues
+pr-vibe review 18 --auto-fix
 
-# Watch for new comments
-pr-review watch 18 --interval=5
+# Watch for new bot comments
+pr-vibe watch 18 --interval=5
 
 # Use a different LLM
-pr-review pr 18 --llm=gpt-4
+pr-bot respond 18 --llm=gpt-4
 ```
 
 ## How It Works
 
-1. **Fetches** all review comments from your PR
+1. **Fetches** bot comments from your PR (CodeRabbit, DeepSource, etc.)
 2. **Groups** them into conversation threads
-3. **Analyzes** each issue with your chosen LLM
-4. **Suggests** appropriate actions based on context
-5. **Applies** fixes with your approval
-6. **Responds** to reviewers intelligently
+3. **Analyzes** each with your project context in mind
+4. **Suggests** responses based on your patterns
+5. **Applies** fixes where appropriate
+6. **Responds** to bots with explanations
 
 ## Example Session
 
 ```bash
-$ pr-review pr 42
+$ pr-bot respond 42
 
-🔍 Fetching PR #42 comments...
-Found 12 review comments from CodeRabbit
+🔍 Fetching bot comments on PR #42...
+Found 12 comments from CodeRabbit
 
 📋 Review Summary:
 - 5 security issues (2 critical)
@@ -90,7 +103,7 @@ Ready to push fixes and post 7 replies? [Y/n] > Y
 
 ## Configuration
 
-Create `.pr-review/config.json` in your project:
+Create `.pr-bot/config.json` in your project:
 
 ```json
 {
@@ -132,16 +145,25 @@ Create `.pr-review/config.json` in your project:
 
 ## Integration with Claude Code
 
-This tool works seamlessly with Claude Code:
+Designed to work seamlessly with Claude Code or standalone:
 
 ```bash
-# Let pr-review-assistant prepare context
-pr-review analyze 42 --output=.claude-context
+# Let pr-bot-responder prepare context
+pr-bot analyze 42 --output=.claude-context
 
 # Then in Claude Code
-"Fix the issues from the PR review"
-# Claude Code reads the prepared context and has full understanding
+"Handle the bot comments from PR 42"
+# Claude Code reads the prepared context and handles everything
 ```
+
+## Supported Review Bots
+
+- **CodeRabbit** - Full comment parsing and thread tracking
+- **DeepSource** - Issue categorization and auto-fix support
+- **Sonar** - Code quality and security issue handling
+- **Codacy** - Style and complexity feedback
+- **GitHub Actions** (bot comments) - Workflow failure explanations
+- More coming soon!
 
 ## Contributing
 
@@ -153,4 +175,4 @@ MIT © Andrew Stroup
 
 ---
 
-Built with ❤️ to make PR reviews less painful
+Built with ❤️ to work WITH bots, not against them
