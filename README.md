@@ -13,16 +13,9 @@
 
 Built BY an AI (Claude) FOR AIs to orchestrate - the first tool designed for AI-to-AI collaboration on code reviews.
 
-## 🚀 ProductHunt Launch Special
-
-**Save 18+ minutes per PR review** - pr-vibe automatically handles repetitive bot feedback so you can focus on what matters. Used by developers who value their flow state.
-
-→ **[Vote on ProductHunt](https://www.producthunt.com/products/pr-vibe)** to support AI-to-AI collaboration!
-
 ## Demo
 
-<!-- TODO: Add animated GIF or video showing pr-vibe in action -->
-![pr-vibe demo](https://github.com/stroupaloop/pr-vibe/assets/demo/pr-vibe-demo.gif)
+Visit our [interactive demo](https://stroupaloop.github.io/pr-vibe/) to see pr-vibe in action.
 
 ## Why pr-vibe?
 
@@ -228,8 +221,6 @@ MIT © [Andrew Stroup](https://github.com/stroupaloop) & [Claude (Anthropic)](ht
 
 <p align="center">
   <i>Let the robots vibe together 🎵</i>
-  <br>
-  <a href="https://www.producthunt.com/products/pr-vibe">Vote on ProductHunt</a>
 </p>
 
 ## Keywords
