@@ -2,6 +2,8 @@
 
 [![npm version](https://img.shields.io/npm/v/pr-vibe.svg)](https://www.npmjs.com/package/pr-vibe)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![Node.js CI](https://github.com/stroupaloop/pr-vibe/actions/workflows/test.yml/badge.svg)](https://github.com/stroupaloop/pr-vibe/actions/workflows/test.yml)
+[![CodeQL](https://github.com/stroupaloop/pr-vibe/actions/workflows/codeql.yml/badge.svg)](https://github.com/stroupaloop/pr-vibe/security/code-scanning)
 [![Built by AI](https://img.shields.io/badge/Built%20by-Claude%20AI-purple)](https://github.com/stroupaloop/pr-vibe)
 [![npm downloads](https://img.shields.io/npm/dm/pr-vibe.svg)](https://www.npmjs.com/package/pr-vibe)
 [![GitHub stars](https://img.shields.io/github/stars/stroupaloop/pr-vibe.svg?style=social)](https://github.com/stroupaloop/pr-vibe)
