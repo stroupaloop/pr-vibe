@@ -1,0 +1,25 @@
+<svg width="120" height="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40">
+  <!-- Purple gradient background circle -->
+  <defs>
+    <linearGradient id="vibeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c084fc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Music note icon -->
+  <g transform="translate(8, 8)">
+    <circle cx="12" cy="12" r="12" fill="url(#vibeGradient)" opacity="0.2"/>
+    <text x="12" y="18" font-family="system-ui" font-size="16" text-anchor="middle" fill="#a855f7">🎵</text>
+  </g>
+  
+  <!-- Text -->
+  <text x="40" y="25" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#fafafa">pr-vibe</text>
+</svg>
