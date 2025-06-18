@@ -23,6 +23,9 @@ jobs:
       - name: Run tests
         run: npm test
         
+      - name: Update changelog version in CLI
+        run: node scripts/update-changelog-version.js
+        
       - name: Publish to npm
         run: npm publish --access public
         env:

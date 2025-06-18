@@ -48,7 +48,11 @@ function getUpdateHighlight(current, latest) {
     return 'Major update with new features!';
   } else if (latestMinor > currMinor) {
     // Specific highlights for known versions
-    if (latest.startsWith('0.2')) {
+    if (latest.startsWith('0.4')) {
+      return 'Comprehensive reporting and pre-merge safety checks';
+    } else if (latest.startsWith('0.3')) {
+      return 'Conversation management and security fixes';
+    } else if (latest.startsWith('0.2')) {
       return 'Human review support with --include-human-reviews flag';
     }
     return 'New features and improvements';
@@ -601,17 +605,27 @@ program
       }
     } else {
       // Show recent highlights
-      console.log(chalk.cyan('## Version 0.2.0 (Current)'));
+      console.log(chalk.cyan('## Version 0.4.1 (Current)'));
+      console.log('  🐛 Fixed CLI changelog showing outdated version');
+      console.log('  🔧 Automated changelog version updates in CI/CD\n');
+      
+      console.log(chalk.cyan('## Version 0.4.0'));
+      console.log('  📊 Comprehensive reporting with decision logs');
+      console.log('  🛡️ Pre-merge safety checks (check, status, report commands)');
+      console.log('  📝 Persistent report storage with 30-day TTL');
+      console.log('  🐛 Fixed critical file replacement bug\n');
+      
+      console.log(chalk.cyan('## Version 0.3.x'));
+      console.log('  🤝 Full conversation management with bots');
+      console.log('  🔒 Security fix for shell injection vulnerability');
+      console.log('  📏 GitHub comment length handling');
+      console.log('  🎯 Zero-setup demo experience\n');
+      
+      console.log(chalk.cyan('## Version 0.2.0'));
       console.log('  ✨ Human review support with --include-human-reviews flag');
       console.log('  🔔 Automatic update notifications');
       console.log('  🐛 Case-insensitive bot detection');
       console.log('  📊 Pattern learning from team feedback\n');
-      
-      console.log(chalk.cyan('## Version 0.1.2 (Previous)'));
-      console.log('  🚀 Initial public release');
-      console.log('  🤖 CodeRabbit and DeepSource support');
-      console.log('  🧠 Pattern learning system');
-      console.log('  ⚡ Auto-fix common issues\n');
       
       console.log(chalk.gray('Run with --full to see complete changelog'));
     }

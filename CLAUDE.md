@@ -62,9 +62,11 @@ Created comprehensive tracking in `.internal-docs/`:
 - **Release Process**: 
   1. Create release branch: `git checkout -b release/vX.Y.Z`
   2. Bump version in package.json
-  3. Create PR and merge
-  4. Create GitHub Release: `gh release create vX.Y.Z`
-  5. This triggers automatic npm publish via GitHub Actions
+  3. Update CHANGELOG.md with release notes
+  4. Run `node scripts/update-changelog-version.js` (or let CI do it)
+  5. Create PR and merge
+  6. Create GitHub Release: `gh release create vX.Y.Z`
+  7. This triggers automatic npm publish via GitHub Actions (including changelog update)
 
 ## v0.4.0 Release (2025-06-18)
 **Major Features**: Comprehensive reporting and pre-merge safety
@@ -197,6 +199,7 @@ Using pr-vibe on its own PRs proved invaluable - CodeRabbit caught a critical se
 3. **ALWAYS run pr-vibe check before merging** - Ensures all bot comments resolved
 4. **ALWAYS use GitHub releases for npm publish** - Never publish locally
 5. **ALWAYS verify tests pass** - GitHub Actions must be green
+6. **ALWAYS update changelog** - Either run `node scripts/update-changelog-version.js` or let CI handle it
 
 ## Next Session Priorities
 1. Verify ProductHunt launch is actually submitted/scheduled

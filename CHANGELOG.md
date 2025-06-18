@@ -5,6 +5,40 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2025-06-19
+
+### 🐛 Fixed
+- **CLI Changelog Command** - Updated hardcoded version from 0.2.0 to current version
+  - The `pr-vibe changelog` command now correctly shows v0.4.0 as the current version
+  - Added automated changelog version updates to CI/CD pipeline
+  - Future releases will automatically update the CLI changelog
+
+### 🔧 Improved
+- **Release Process** - Added automated changelog version synchronization
+  - Created `scripts/update-changelog-version.js` to sync CLI with package.json version
+  - Updated GitHub Actions workflows to run changelog update during releases
+  - Ensures users always see the correct version information
+
+## [0.4.0] - 2025-06-18
+
+### ✨ Added
+- **Comprehensive Reporting System** - Detailed decision logs for every PR review
+  - ReportBuilder generates structured reports with bot comments, decisions, and actions
+  - Reports saved in `.pr-bot/reports/` in both Markdown and JSON formats
+  - Automatic TTL management (30-day retention by default)
+  
+- **Pre-Merge Safety Commands** - New commands to ensure PR readiness
+  - `pr-vibe check <pr>` - Exit code 0/1 for CI integration
+  - `pr-vibe status <pr>` - View or post GitHub status checks
+  - `pr-vibe report <pr>` - Access saved reports
+  - `pr-vibe cleanup` - Remove old reports
+
+### 🐛 Fixed
+- **Critical File Replacement Bug** - pr-vibe no longer replaces files with TODO placeholders
+  - Fixed decision-engine.js to return null instead of TODO strings
+  - Added safety checks in file-modifier.js
+  - Prevents accidental file corruption
+
 ## [0.3.4] - 2025-06-18
 
 ### 🐛 Fixed
