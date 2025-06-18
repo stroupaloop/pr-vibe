@@ -5,6 +5,39 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2025-06-18
+
+### 🔒 Security
+- **CRITICAL**: Fixed shell injection vulnerability in GitHub comment posting
+  - Replaced direct shell interpolation with safe execFileSync calls
+  - Uses temp files or stdin to pass comment bodies securely
+  - Prevents command injection from untrusted bot responses
+
+### 🐛 Fixed
+- **GitHub Comment Length Limit** - Automatically handles messages exceeding GitHub's 65,536 character limit
+  - Intelligent truncation at natural boundaries (code blocks, paragraphs)
+  - Adds truncation notice to inform users when content is cut
+  - Automatic retry with aggressive truncation on API validation errors
+  - Prevents 422 errors when posting long responses
+- **Message Splitting** - Fixed bug that dropped content when splitting long messages
+  - Correctly tracks raw content length vs augmented length with markers
+  - Ensures all content is preserved when splitting across multiple comments
+
+### 🔧 Added
+- MessageTruncator utility for handling long messages
+- Comprehensive tests for message truncation logic
+- Documentation for message length handling in README
+
+## [0.3.2] - 2025-06-18
+
+### 🐛 Fixed
+- Version display in CLI now correctly reads from package.json instead of being hardcoded
+
+## [0.3.1] - 2025-06-18
+
+### 🐛 Fixed
+- Corrected npm homepage URL to point to GitHub Pages site
+
 ## [0.3.0] - 2025-06-18
 
 ### 🚀 Added
