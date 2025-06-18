@@ -4,8 +4,8 @@
 pr-vibe is an AI-powered PR review tool that orchestrates conversations between PR bots (CodeRabbit, DeepSource, etc.) and handles their feedback automatically. Built BY an AI (Claude) FOR AIs to collaborate on code reviews.
 
 ## Current Status (2025-06-18)
-- **Version**: v0.3.3 (published to npm with critical security fix)
-- **Launch**: ProductHunt live as of 2025-06-18
+- **Version**: v0.3.4 (hotfix: restored demo command)
+- **Launch**: ProductHunt scheduled for 2025-06-19 ~3am ET
 - **Pre-launch**: Posted on HN, Reddit (r/ClaudeAI), Medium, X, LinkedIn
 
 ## Key Features Implemented
@@ -37,6 +37,11 @@ Created comprehensive tracking in `.internal-docs/`:
 - **GitHub Actions**: Automated testing and npm publishing
 - **NPM_TOKEN**: Already configured in GitHub secrets
 - **Workflows**: test.yml, publish.yml, publish-current.yml
+
+## v0.3.4 Hotfix (2025-06-18)
+**CRITICAL**: Restored missing demo command for ProductHunt launch
+- Demo command was accidentally removed in v0.3.3
+- Essential for zero-setup experience: `npx pr-vibe@latest demo`
 
 ## v0.3.3 Security Fix (2025-06-18)
 **CRITICAL**: Fixed shell injection vulnerability discovered by CodeRabbit
