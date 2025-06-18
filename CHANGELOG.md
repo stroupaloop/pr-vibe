@@ -5,6 +5,14 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2025-06-18
+
+### 🐛 Fixed
+- **CRITICAL**: Restored missing `demo` command that was accidentally removed in v0.3.3
+  - The demo command is essential for the zero-setup experience
+  - Now `npx pr-vibe@latest demo` works correctly again
+  - No authentication required for demo mode
+
 ## [0.3.3] - 2025-06-18
 
 ### 🔒 Security

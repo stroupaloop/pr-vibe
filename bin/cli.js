@@ -15,6 +15,7 @@ import { createCommentPoster } from '../lib/comment-poster.js';
 import { GitHubProvider } from '../lib/providers/github-provider.js';
 import { displayThread } from '../lib/ui.js';
 import { patternManager } from '../lib/pattern-manager.js';
+import { runDemo } from '../lib/demo.js';
 
 // Check for updates
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -57,6 +58,14 @@ program
   .name('pr-vibe')
   .description('AI-powered PR review responder that vibes with bots')
   .version(pkg.version);
+
+// Demo command - no auth required!
+program
+  .command('demo')
+  .description('See pr-vibe in action with sample data (no setup required)')
+  .action(async () => {
+    await runDemo();
+  });
 
 program
   .command('pr <number>')
