@@ -127,6 +127,7 @@ pr-vibe pr <number> -r stroupaloop/pr-vibe
 - [ ] Monitor and respond to feedback across channels
 
 ## Recent PRs and Issues
+- PR #14: v0.4.0 release with reporting and pre-merge safety (merged)
 - PR #13: Critical security fix and message length handling (merged)
 - Issue #12: GitHub comment length limit (fixed in v0.3.3)
 - v0.3.4 Hotfix: Restored missing demo command (critical for ProductHunt)
@@ -140,6 +141,7 @@ pr-vibe pr <number> -r stroupaloop/pr-vibe
 - Team patterns feature (learning from human reviewers)
 - Enhanced pattern matching with regex support
 - VS Code extension for in-editor PR reviews
+- Verify/setup ProductHunt launch submission
 
 ## Important Files to Check
 - `.internal-docs/CLAUDE.md` - Detailed session history
@@ -156,7 +158,7 @@ Remember: pr-vibe is about making AI tools vibe together on code reviews! 🎵
 
 ## Session Summary (2025-06-18)
 
-**Major Accomplishments:**
+**Morning Session Accomplishments:**
 1. **Security Crisis Resolved**: Fixed critical shell injection vulnerability discovered by CodeRabbit
    - Replaced unsafe execSync with execFileSync
    - pr-vibe successfully reviewed its own security fix (PR #13)
@@ -164,11 +166,42 @@ Remember: pr-vibe is about making AI tools vibe together on code reviews! 🎵
 3. **Demo Command Restored**: Fixed critical regression where demo was missing in v0.3.3
 4. **Successful Releases**: Published v0.3.3 (security) and v0.3.4 (demo hotfix)
 
+**Afternoon Session Accomplishments (v0.4.0):**
+1. **Comprehensive Reporting System**: 
+   - Built ReportBuilder class with detailed decision logging
+   - Added ReportStorage with TTL management (30 days)
+   - Reports saved in `.pr-bot/reports/` with Markdown and JSON formats
+2. **Pre-Merge Safety Features**:
+   - `pr-vibe check` - Returns exit code 0/1 for CI integration
+   - `pr-vibe status` - Posts GitHub status checks
+   - `pr-vibe report` - View saved reports
+   - `pr-vibe cleanup` - Remove old reports
+3. **Critical Bug Fix**: Prevented pr-vibe from replacing files with TODO placeholders
+   - Fixed decision-engine.js to return null instead of TODO strings
+   - Added safety checks in file-modifier.js
+4. **GitHub Release Process Documented**: Uses GitHub releases to trigger npm publish
+
 **Launch Status:**
-- ProductHunt scheduled for 2025-06-19 ~3am ET
-- All critical features working
+- ProductHunt scheduled for 2025-06-19 ~3am ET (needs verification)
+- v0.4.0 live on npm with all features
+- Documentation fully updated
 - Demo provides zero-setup experience
 - 0 stars/downloads (normal pre-launch)
 
 **Key Learning:**
 Using pr-vibe on its own PRs proved invaluable - CodeRabbit caught a critical security vulnerability that could have been catastrophic post-launch. This validates the entire concept of AI tools working together!
+
+## Critical Workflow Reminders
+1. **ALWAYS create PRs for changes** - Never push directly to main
+2. **ALWAYS use pr-vibe on its own PRs** - Run `pr-vibe pr <number> -r stroupaloop/pr-vibe`
+3. **ALWAYS run pr-vibe check before merging** - Ensures all bot comments resolved
+4. **ALWAYS use GitHub releases for npm publish** - Never publish locally
+5. **ALWAYS verify tests pass** - GitHub Actions must be green
+
+## Next Session Priorities
+1. Verify ProductHunt launch is actually submitted/scheduled
+2. Monitor launch metrics using tracking tools
+3. Respond to user feedback across all channels
+4. Address any critical bugs from early adopters
+5. Consider implementing browser extension
+6. Continue dogfooding pr-vibe on its own development
