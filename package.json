@@ -74,7 +74,7 @@
     "commander": "^12.0.0",
     "cosmiconfig": "^9.0.0",
     "dotenv": "^16.4.5",
-    "inquirer": "^9.2.15",
+    "inquirer": "^12.6.3",
     "openai": "^4.70.0",
     "ora": "^8.0.1",
     "p-limit": "^6.0.0",
