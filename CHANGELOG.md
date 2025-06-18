@@ -7,12 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.3] - 2025-06-18
 
+### 🔒 Security
+- **CRITICAL**: Fixed shell injection vulnerability in GitHub comment posting
+  - Replaced direct shell interpolation with safe execFileSync calls
+  - Uses temp files or stdin to pass comment bodies securely
+  - Prevents command injection from untrusted bot responses
+
 ### 🐛 Fixed
 - **GitHub Comment Length Limit** - Automatically handles messages exceeding GitHub's 65,536 character limit
   - Intelligent truncation at natural boundaries (code blocks, paragraphs)
   - Adds truncation notice to inform users when content is cut
   - Automatic retry with aggressive truncation on API validation errors
   - Prevents 422 errors when posting long responses
+- **Message Splitting** - Fixed bug that dropped content when splitting long messages
+  - Correctly tracks raw content length vs augmented length with markers
+  - Ensures all content is preserved when splitting across multiple comments
 
 ### 🔧 Added
 - MessageTruncator utility for handling long messages

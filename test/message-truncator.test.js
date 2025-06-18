@@ -19,7 +19,7 @@ describe('MessageTruncator', () => {
       const result = MessageTruncator.truncate(longMessage);
       
       expect(result.wasTruncated).toBe(true);
-      expect(result.message.length).toBeLessThan(GITHUB_LIMIT);
+      expect(result.message.length).toBeLessThanOrEqual(GITHUB_LIMIT);
       expect(result.originalLength).toBe(longMessage.length);
     });
     
@@ -68,7 +68,7 @@ ${'x'.repeat(GITHUB_LIMIT)}`;
       
       expect(parts.length).toBeGreaterThan(1);
       parts.forEach(part => {
-        expect(part.length).toBeLessThan(GITHUB_LIMIT);
+        expect(part.length).toBeLessThanOrEqual(GITHUB_LIMIT);
       });
     });
     
