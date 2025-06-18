@@ -4,9 +4,9 @@
 pr-vibe is an AI-powered PR review tool that orchestrates conversations between PR bots (CodeRabbit, DeepSource, etc.) and handles their feedback automatically. Built BY an AI (Claude) FOR AIs to collaborate on code reviews.
 
 ## Current Status (2025-06-18)
-- **Version**: v0.3.2 (published to npm)
-- **Launch**: ProductHunt scheduled for 2025-06-19 ~3am ET
-- **Pre-launch**: Already posted on HN, Reddit (r/ClaudeAI), Medium, X, LinkedIn
+- **Version**: v0.3.3 (published to npm with critical security fix)
+- **Launch**: ProductHunt live as of 2025-06-18
+- **Pre-launch**: Posted on HN, Reddit (r/ClaudeAI), Medium, X, LinkedIn
 
 ## Key Features Implemented
 1. **Conversation Management** (v0.3.0) - Full multi-round dialogue handling with bots
@@ -38,6 +38,13 @@ Created comprehensive tracking in `.internal-docs/`:
 - **NPM_TOKEN**: Already configured in GitHub secrets
 - **Workflows**: test.yml, publish.yml, publish-current.yml
 
+## v0.3.3 Security Fix (2025-06-18)
+**CRITICAL**: Fixed shell injection vulnerability discovered by CodeRabbit
+- Replaced `execSync` with shell interpolation with safe `execFileSync` calls
+- Comments now passed via temp files or stdin, preventing command injection
+- Also fixed message splitting bug and added GitHub comment length handling
+- pr-vibe successfully caught its own security issue when reviewing PR #13!
+
 ## Key Commands for Next Session
 ```bash
 # Track launch metrics
@@ -60,16 +67,18 @@ pr-vibe pr <number> -r stroupaloop/pr-vibe
 4. **Version in cli.js** - Reads from package.json (was hardcoded before)
 
 ## ProductHunt Launch Checklist
-- [x] v0.3.2 published with conversation features
-- [x] Demo mode working (`npx pr-vibe@latest demo`)
+- [x] v0.3.3 published with critical security fix
 - [x] Website updated (https://stroupaloop.github.io/pr-vibe/)
 - [x] PRODUCTHUNT.md with launch copy
 - [x] Pre-launch posts on HN, Reddit, Medium
 - [x] Tracking infrastructure ready
-- [ ] Monitor launch at ~3am ET on 2025-06-19
-- [ ] Respond to feedback across channels
+- [x] ProductHunt launch went live
+- [x] Critical security issue found and fixed (v0.3.3)
+- [ ] Continue monitoring feedback across channels
 
 ## Recent PRs and Issues
+- PR #13: Critical security fix and message length handling (merged)
+- Issue #12: GitHub comment length limit (fixed in v0.3.3)
 - PR #7: Implemented conversation management (merged)
 - PR #8: Fixed corrupted README (merged)
 - PR #10: Updated dependencies (merged)
