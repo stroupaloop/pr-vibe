@@ -53,10 +53,6 @@ function getUpdateHighlight(current, latest) {
 
 const program = new Command();
 
-// Read version from package.json
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
-
 program
   .name('pr-vibe')
   .description('AI-powered PR review responder that vibes with bots')
