@@ -50,3 +50,4 @@ temp/
 *.tmp
 # Never commit npm tokens
 .npmrc
+.internal-docs/
