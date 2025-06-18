@@ -1,0 +1,39 @@
+# Test files
+test/
+*.test.js
+jest.config.js
+coverage/
+
+# Development files
+.github/
+.gitignore
+.eslintrc.json
+.editorconfig
+.prettierrc
+
+# Documentation
+docs/
+*.md
+!README.md
+!SECURITY.md
+
+# Build artifacts
+.DS_Store
+*.log
+.env*
+.vscode/
+.idea/
+
+# Planning and launch files
+planning/
+launch/
+PRODUCTHUNT.md
+LAUNCH_CHECKLIST.md
+
+# Local patterns (user-specific)
+.pr-bot/
+
+# Temporary files
+*.tmp
+*.bak
+*~

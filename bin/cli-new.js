@@ -15,6 +15,8 @@ import { createCommentPoster } from '../lib/comment-poster.js';
 import { GitHubProvider } from '../lib/providers/github-provider.js';
 import { displayThread } from '../lib/ui.js';
 import { patternManager } from '../lib/pattern-manager.js';
+import { runDemo } from '../lib/demo.js';
+import { detectGitHubToken, showAuthStatus, ensureAuth, isAuthRequired } from '../lib/auth.js';
 
 // Check for updates
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -43,7 +45,9 @@ function getUpdateHighlight(current, latest) {
     return 'Major update with new features!';
   } else if (latestMinor > currMinor) {
     // Specific highlights for known versions
-    if (latest.startsWith('0.2')) {
+    if (latest.startsWith('0.3')) {
+      return 'Zero-setup demo mode and smart auth detection!';
+    } else if (latest.startsWith('0.2')) {
       return 'Human review support with --include-human-reviews flag';
     }
     return 'New features and improvements';
@@ -53,13 +57,107 @@ function getUpdateHighlight(current, latest) {
 
 const program = new Command();
 
+// Hook to check auth before commands that need it
+program.hook('preAction', (thisCommand) => {
+  const commandName = thisCommand.name();
+  const noAuthCommands = ['demo', 'help', 'auth', 'version', 'changelog', 'update', 'init', 'init-patterns'];
+  
+  if (!noAuthCommands.includes(commandName)) {
+    const { limited } = ensureAuth({ allowLimited: commandName === 'export' });
+    if (limited) {
+      thisCommand.opts().limited = true;
+    }
+  }
+});
+
 program
   .name('pr-vibe')
-  .description('AI-powered PR review responder that vibes with bots')
-  .version('0.2.1');
+  .description('AI-powered PR review responder that vibes with bots 🎵')
+  .version(pkg.version);
+
+// Demo command - no auth required!
+program
+  .command('demo')
+  .description('See pr-vibe in action with sample data (no setup required)')
+  .action(async () => {
+    await runDemo();
+  });
+
+// Auth command
+program
+  .command('auth')
+  .description('Manage GitHub authentication')
+  .argument('[action]', 'Action to perform (status, setup, login)', 'status')
+  .action(async (action) => {
+    switch (action) {
+      case 'status':
+        showAuthStatus();
+        break;
+      case 'setup':
+      case 'login':
+        console.log(chalk.yellow('\n🚧 Interactive auth setup coming soon!\n'));
+        console.log('For now, please use one of these methods:\n');
+        const { showAuthHelp } = await import('../lib/auth.js');
+        showAuthHelp();
+        break;
+      default:
+        console.log(chalk.red(`Unknown auth action: ${action}`));
+        console.log('Available actions: status, setup, login');
+    }
+  });
+
+program
+  .command('init')
+  .alias('init-patterns')
+  .description('Initialize pr-vibe patterns for your project')
+  .action(() => {
+    const template = `# PR Bot Response Patterns
+version: 1.0
+project: ${process.cwd().split('/').pop()}
+created_at: ${new Date().toISOString()}
+
+# Valid patterns to reject with explanation
+valid_patterns:
+  - id: console-log-lambda
+    pattern: "console.log"
+    condition:
+      files: ["**/lambda/**", "**/*-handler.js"]
+    reason: "We use console.log for CloudWatch logging"
+    confidence: 1.0
+    auto_reply: |
+      Thanks for the feedback. We use console.log for CloudWatch 
+      logging in our Lambda functions.
+
+# Auto-fix rules
+auto_fixes:
+  - id: api-key-to-env
+    trigger: "hardcoded.+(api|key|token)"
+    severity: CRITICAL
+    fix_template: |
+      const {{CONST_NAME}} = process.env.{{ENV_NAME}};
+
+# When to escalate
+escalation_rules:
+  - id: architecture
+    pattern: "refactor|architecture"
+    notify: ["@stroupaloop"]
+`;
+
+    try {
+      const dir = join(process.cwd(), '.pr-bot');
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, 'patterns.yml'), template);
+      
+      console.log(chalk.green('✅ Created .pr-bot/patterns.yml'));
+      console.log(chalk.gray('Edit this file to add your project-specific patterns.'));
+    } catch (error) {
+      console.error(chalk.red(`Failed: ${error.message}`));
+    }
+  });
 
 program
   .command('pr <number>')
+  .alias('review')
   .description('Review a pull request')
   .option('-r, --repo <repo>', 'repository (owner/name)', 'stroupaloop/woodhouse-modern')
   .option('--auto-fix', 'automatically apply safe fixes')
@@ -68,7 +166,7 @@ program
   .option('--no-comments', 'skip posting comments to PR')
   .option('--experimental', 'enable experimental features (human review analysis)')
   .action(async (prNumber, options) => {
-    console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
+    console.log(chalk.blue('\n🔍 PR Review Assistant\n'));
     
     const spinner = ora('Initializing services...').start();
     
@@ -91,8 +189,9 @@ program
         console.log(`  Reviewers: ${humanReviewers.join(', ')}`);
         console.log(`  Comments: ${humanComments.length}`);
         
-        // TODO: Show human review summary
-        console.log(chalk.gray('\n  (Human review analysis coming soon...)'));
+        if (options.experimental) {
+          console.log(chalk.gray('\n  (Human review analysis enabled)'));
+        }
       }
       
       if (comments.length === 0) {
@@ -193,8 +292,7 @@ program
           
           if (!options.dryRun) {
             await commentPoster.replyToComment(prNumber, mainComment, replyText, {
-              reaction: analysis.action,
-              action: analysis.action
+              reaction: analysis.action
             });
             console.log(chalk.green('  ✅ Reply posted'));
           } else {
@@ -327,17 +425,11 @@ program
   });
 
 program
-  .command('test')
-  .description('Run decision engine tests')
-  .action(() => {
-    import('./test-runner.js');
-  });
-
-program
   .command('export <prNumber>')
   .description('Export PR data for external analysis (Claude Code mode)')
   .option('-r, --repo <repo>', 'repository (owner/name)', 'stroupaloop/woodhouse-modern')
   .option('-o, --output <file>', 'output file', 'pr-review.json')
+  .option('--format <format>', 'output format (json, claude, markdown)', 'json')
   .action(async (prNumber, options) => {
     const spinner = ora('Exporting PR data...').start();
     
@@ -382,44 +474,89 @@ program
         };
       });
       
-      const exportData = {
-        pr: {
-          number: prNumber,
-          title: pr.title,
-          author: pr.author?.login,
-          state: pr.state
-        },
-        comments: analyzedComments,
-        stats: {
-          total: comments.length,
-          byAuthor: analyzedComments.reduce((acc, c) => {
-            acc[c.author] = (acc[c.author] || 0) + 1;
-            return acc;
-          }, {}),
-          byAction: analyzedComments.reduce((acc, c) => {
-            acc[c.analysis.action] = (acc[c.analysis.action] || 0) + 1;
-            return acc;
-          }, {})
-        },
-        metadata: {
-          exported_at: new Date().toISOString(),
-          tool_version: '0.0.1',
-          repo: options.repo
+      if (options.format === 'claude' || options.format === 'markdown') {
+        // Format for Claude
+        let output = `# PR Review Comments Analysis\n\n`;
+        output += `**PR #${prNumber}**: ${pr.title}\n`;
+        output += `**Repository**: ${options.repo}\n`;
+        output += `**Total Comments**: ${comments.length}\n\n`;
+        
+        output += `## Summary\n\n`;
+        const stats = analyzedComments.reduce((acc, c) => {
+          acc[c.analysis.action] = (acc[c.analysis.action] || 0) + 1;
+          return acc;
+        }, {});
+        
+        output += `- Auto-fixable issues: ${stats.AUTO_FIX || 0}\n`;
+        output += `- Valid patterns to reject: ${stats.REJECT || 0}\n`;
+        output += `- Needs discussion: ${stats.DISCUSS || 0}\n`;
+        output += `- Should defer: ${stats.DEFER || 0}\n\n`;
+        
+        output += `## Comments\n\n`;
+        analyzedComments.forEach((c, i) => {
+          output += `### ${i + 1}. ${c.author} - ${c.analysis.action}\n\n`;
+          output += `**File**: ${c.path || 'General comment'}${c.line ? `:${c.line}` : ''}\n\n`;
+          output += `**Comment**: ${c.body}\n\n`;
+          output += `**Analysis**: ${c.analysis.reason}\n\n`;
+          if (c.analysis.suggestedFix) {
+            output += `**Suggested Fix**:\n\`\`\`\n${c.analysis.suggestedFix}\n\`\`\`\n\n`;
+          }
+          output += `---\n\n`;
+        });
+        
+        if (options.output.endsWith('.md')) {
+          writeFileSync(options.output, output);
+        } else {
+          // Output to console for copying
+          console.log(output);
         }
-      };
-      
-      writeFileSync(options.output, JSON.stringify(exportData, null, 2));
-      spinner.succeed(`Exported ${comments.length} comments to ${options.output}`);
+        
+        spinner.succeed(`Exported ${comments.length} comments in Claude format`);
+      } else {
+        // JSON format
+        const exportData = {
+          pr: {
+            number: prNumber,
+            title: pr.title,
+            author: pr.author?.login,
+            state: pr.state
+          },
+          comments: analyzedComments,
+          stats: {
+            total: comments.length,
+            byAuthor: analyzedComments.reduce((acc, c) => {
+              acc[c.author] = (acc[c.author] || 0) + 1;
+              return acc;
+            }, {}),
+            byAction: analyzedComments.reduce((acc, c) => {
+              acc[c.analysis.action] = (acc[c.analysis.action] || 0) + 1;
+              return acc;
+            }, {})
+          },
+          metadata: {
+            exported_at: new Date().toISOString(),
+            tool_version: pkg.version,
+            repo: options.repo
+          }
+        };
+        
+        writeFileSync(options.output, JSON.stringify(exportData, null, 2));
+        spinner.succeed(`Exported ${comments.length} comments to ${options.output}`);
+      }
       
       // Also output summary to console for Claude Code
-      console.log(chalk.bold('\n📊 Summary for Claude Code:'));
+      console.log(chalk.bold('\n📊 Summary:'));
       console.log(`Total comments: ${comments.length}`);
-      console.log(`Suggested auto-fixes: ${exportData.stats.byAction.AUTO_FIX || 0}`);
-      console.log(`Valid patterns to reject: ${exportData.stats.byAction.REJECT || 0}`);
-      console.log(`Needs discussion: ${exportData.stats.byAction.DISCUSS || 0}`);
+      console.log(`Suggested auto-fixes: ${analyzedComments.filter(c => c.analysis.action === 'AUTO_FIX').length}`);
+      console.log(`Valid patterns to reject: ${analyzedComments.filter(c => c.analysis.action === 'REJECT').length}`);
+      console.log(`Needs discussion: ${analyzedComments.filter(c => c.analysis.action === 'DISCUSS').length}`);
       
     } catch (error) {
       spinner.fail(`Export failed: ${error.message}`);
+      if (options.limited) {
+        console.log(chalk.yellow('\nNote: Running in limited mode without authentication.'));
+        console.log('Some features may be restricted to public repositories only.');
+      }
       process.exit(1);
     }
   });
@@ -496,54 +633,6 @@ program
   });
 
 program
-  .command('init-patterns')
-  .description('Initialize patterns file for this repository')
-  .action(() => {
-    const template = `# PR Bot Response Patterns
-version: 1.0
-project: ${process.cwd().split('/').pop()}
-created_at: ${new Date().toISOString()}
-
-# Valid patterns to reject with explanation
-valid_patterns:
-  - id: console-log-lambda
-    pattern: "console.log"
-    condition:
-      files: ["**/lambda/**", "**/*-handler.js"]
-    reason: "We use console.log for CloudWatch logging"
-    confidence: 1.0
-    auto_reply: |
-      Thanks for the feedback. We use console.log for CloudWatch 
-      logging in our Lambda functions.
-
-# Auto-fix rules
-auto_fixes:
-  - id: api-key-to-env
-    trigger: "hardcoded.+(api|key|token)"
-    severity: CRITICAL
-    fix_template: |
-      const {{CONST_NAME}} = process.env.{{ENV_NAME}};
-
-# When to escalate
-escalation_rules:
-  - id: architecture
-    pattern: "refactor|architecture"
-    notify: ["@stroupaloop"]
-`;
-
-    try {
-      const dir = join(process.cwd(), '.pr-bot');
-      mkdirSync(dir, { recursive: true });
-      writeFileSync(join(dir, 'patterns.yml'), template);
-      
-      console.log(chalk.green('✅ Created .pr-bot/patterns.yml'));
-      console.log(chalk.gray('Edit this file to add your project-specific patterns.'));
-    } catch (error) {
-      console.error(chalk.red(`Failed: ${error.message}`));
-    }
-  });
-
-program
   .command('changelog')
   .description('Show recent changes and updates')
   .option('--full', 'show full changelog')
@@ -561,13 +650,19 @@ program
       }
     } else {
       // Show recent highlights
+      console.log(chalk.cyan('## Version 0.3.0 (Coming Soon)'));
+      console.log('  🚀 Zero-setup demo mode - try without any auth!');
+      console.log('  🔐 Smart token detection from gh CLI, env, etc');
+      console.log('  ⚡ Progressive enhancement - limited mode for public repos');
+      console.log('  📝 Export to Claude/markdown formats\n');
+      
       console.log(chalk.cyan('## Version 0.2.0 (Current)'));
-      console.log('  ✨ Human review support with --include-human-reviews flag');
+      console.log('  ✨ Human review support with --experimental flag');
       console.log('  🔔 Automatic update notifications');
       console.log('  🐛 Case-insensitive bot detection');
       console.log('  📊 Pattern learning from team feedback\n');
       
-      console.log(chalk.cyan('## Version 0.1.2 (Previous)'));
+      console.log(chalk.cyan('## Version 0.1.2'));
       console.log('  🚀 Initial public release');
       console.log('  🤖 CodeRabbit and DeepSource support');
       console.log('  🧠 Pattern learning system');
@@ -593,5 +688,17 @@ program
     // Force check for updates
     notifier.notify({ defer: false });
   });
+
+// Handle no command - show interactive menu
+if (process.argv.length === 2) {
+  console.log('\n🎵 ' + chalk.magenta('Welcome to pr-vibe!') + ' Let\'s reduce your PR review time by 90%.\n');
+  console.log('What would you like to do?\n');
+  console.log('  ' + chalk.cyan('pr-vibe demo') + '     - See a demo (no setup required)');
+  console.log('  ' + chalk.cyan('pr-vibe auth') + '     - Set up GitHub authentication');
+  console.log('  ' + chalk.cyan('pr-vibe init') + '     - Initialize for your project');
+  console.log('  ' + chalk.cyan('pr-vibe pr 123') + '  - Review PR #123');
+  console.log('  ' + chalk.cyan('pr-vibe help') + '     - Show all commands\n');
+  process.exit(0);
+}
 
 program.parse();

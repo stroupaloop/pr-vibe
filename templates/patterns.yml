@@ -1,0 +1,96 @@
+# PR Bot Response Patterns Template
+# Copy this to .pr-bot/patterns.yml and customize for your project
+
+version: 1.0
+project: your-project-name
+created_at: ${DATE}
+
+# Valid patterns to reject with explanation
+valid_patterns:
+  - id: console-log-lambda
+    pattern: "console.log"
+    condition:
+      files: ["**/lambda/**", "**/*-handler.js"]
+    reason: "We use console.log for CloudWatch logging in Lambda functions"
+    confidence: 1.0
+    auto_reply: |
+      Thanks for the feedback! We intentionally use console.log in our Lambda functions
+      as it's the standard way to send logs to CloudWatch.
+
+  - id: any-types-webhooks
+    pattern: "any.*type"
+    condition:
+      files: ["**/webhooks/**"]
+    reason: "Webhook payloads from external services don't have stable types"
+    confidence: 0.9
+    auto_reply: |
+      Webhook payloads from external services can change without notice,
+      so we use 'any' types here to prevent runtime errors.
+
+  - id: todo-comments
+    pattern: "TODO|FIXME"
+    condition:
+      tracked_in: ["jira", "github-issues"]
+    reason: "TODOs are tracked in our issue tracker"
+    confidence: 0.85
+    auto_reply: |
+      Thanks for flagging this TODO. We track all TODOs in our issue tracker
+      to ensure they're not forgotten. This one is tracked in ${ISSUE_ID}.
+
+# Auto-fix rules
+auto_fixes:
+  - id: hardcoded-secrets
+    trigger: "hardcoded.+(api|key|secret|token|password)"
+    severity: CRITICAL
+    fix_template: |
+      const ${CONST_NAME} = process.env.${ENV_NAME};
+    message: "Moving sensitive data to environment variables"
+
+  - id: missing-semicolon
+    trigger: "missing semicolon"
+    severity: LOW
+    fix_template: |
+      ${LINE};
+    message: "Adding missing semicolon"
+
+  - id: unused-imports
+    trigger: "is defined but never used"
+    severity: MEDIUM
+    fix_action: "remove_line"
+    message: "Removing unused import"
+
+# When to escalate to humans
+escalation_rules:
+  - id: architecture-changes
+    pattern: "refactor|architecture|breaking.?change"
+    notify: ["@lead-dev", "@tech-lead"]
+    message: "This requires architectural review"
+
+  - id: security-issues
+    pattern: "security|vulnerability|CVE"
+    severity: CRITICAL
+    notify: ["@security-team"]
+    message: "Security issue requires immediate attention"
+
+  - id: performance
+    pattern: "performance|slow|optimization"
+    notify: ["@performance-team"]
+    message: "Performance concerns need specialized review"
+
+# Team preferences
+team_preferences:
+  code_style:
+    - prefer: "async/await"
+      over: "promises"
+    - prefer: "const"
+      over: "let"
+    - prefer: "template literals"
+      over: "string concatenation"
+  libraries:
+    preferred:
+      - lodash: "for utility functions"
+      - dayjs: "for date manipulation"
+      - zod: "for schema validation"
+    avoid:
+      - moment: "use dayjs instead"
+      - request: "use fetch or axios"
