@@ -5,6 +5,31 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-06-18
+
+### 🚀 Added
+- **Zero-Setup Demo Mode** - Try pr-vibe instantly with `npx pr-vibe@latest demo`
+- **Full Conversation Management** - Handles multi-round dialogues with review bots
+- **Smart Token Detection** - Automatically finds GitHub tokens from gh CLI, env vars, VS Code
+- **Rate Limit Handling** - Detects and waits for bot rate limits automatically
+- **Conversation Monitoring** - Tracks bot responses and continues dialogue until resolution
+- **Progressive Enhancement** - Works in limited mode for public repos without auth
+- **Interactive Menu** - Run `pr-vibe` without args for guided experience
+
+### 🔧 Improved
+- Bot response detection now catches corrections and clarifications
+- Enhanced pattern matching for various rate limit messages
+- Better error messages with actionable solutions
+- Exponential backoff for checking bot responses
+- Thread resolution via GraphQL API
+- pr-vibe signatures on all bot responses
+
+### 🐛 Fixed
+- Handles cases where bots correct misunderstandings
+- Properly waits for bot responses instead of using arbitrary timeouts
+- Resolved empty test file issues
+- Fixed demo.js corruption issues
+
 ## [0.2.1] - 2025-06-17
 
 ### 🐛 Fixed
