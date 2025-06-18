@@ -180,6 +180,7 @@ pr-vibe now handles full conversations with bots:
 - **Handles corrections** when bots clarify misunderstandings
 - **Resolves threads** automatically when consensus is reached
 - **Escalates to humans** after too many rounds
+- **Handles long messages** by automatically truncating to fit GitHub's 65,536 character limit
 
 Example conversation flow:
 ```
@@ -189,6 +190,14 @@ pr-vibe: "Thank you for the clarification. You're right about the ESLint configu
 Bot: "LGTM! Thanks for addressing this."
 [Thread resolved automatically]
 ```
+
+### Message Length Handling
+
+GitHub limits comment bodies to 65,536 characters. pr-vibe automatically:
+- Detects when responses exceed the limit
+- Truncates intelligently at natural boundaries (code blocks, paragraphs)
+- Adds a notice indicating content was truncated
+- Retries with aggressive truncation if needed
 
 ## CLI Workflow Example
 
