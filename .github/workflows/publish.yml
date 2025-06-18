@@ -32,13 +32,19 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           
       - name: Install dependencies
-        run: npm install --omit=dev
+        run: npm install
         
       - name: Run tests
         run: npm test
         
+      - name: Check if version needs bump
+        id: version_check
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
       - name: Bump version (manual trigger)
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version
         run: |
           git config user.name "pr-vibe bot"
           git config user.email "actions@github.com"
