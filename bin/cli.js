@@ -496,11 +496,11 @@ program
           }
           console.log(chalk.green(`  ✅ Fix ${options.dryRun ? 'would be' : ''} applied to ${decision.path}`));
         } else if (decision.action === 'REJECT') {
-          console.log(chalk.yellow(`  ❌ Pattern rejected - valid in this codebase`));
+          console.log(chalk.yellow('  ❌ Pattern rejected - valid in this codebase'));
         } else if (decision.action === 'DEFER') {
-          console.log(chalk.blue(`  📝 Deferred to backlog`));
+          console.log(chalk.blue('  📝 Deferred to backlog'));
         } else if (decision.action === 'ESCALATE') {
-          console.log(chalk.red(`  ⚠️ Escalated for human review`));
+          console.log(chalk.red('  ⚠️ Escalated for human review'));
         }
         
         if (decision.reply && !options.dryRun) {
@@ -510,7 +510,7 @@ program
             decision.reply,
             { reaction: decision.reaction }
           );
-          console.log(chalk.blue(`  💬 Reply posted`));
+          console.log(chalk.blue('  💬 Reply posted'));
         } else if (decision.reply && options.dryRun) {
           console.log(chalk.gray(`  💬 Would post reply: "${decision.reply.substring(0, 50)}..."`));
         }
@@ -703,7 +703,7 @@ program
         );
         if (newComments.length > 0) {
           hasNewComments = true;
-          console.log(chalk.yellow(`\n⚠️  New Activity:`));
+          console.log(chalk.yellow('\n⚠️  New Activity:'));
           console.log(chalk.yellow(`  - ${newComments.length} new bot comments since last run`));
         }
       }
@@ -788,7 +788,7 @@ program
           `gh api repos/${options.repo}/statuses/${commitData} ` +
           `-f state="${status}" ` +
           `-f description="${description}" ` +
-          `-f context="pr-vibe"`,
+          '-f context="pr-vibe"',
           { stdio: 'pipe' }
         );
         
@@ -843,7 +843,7 @@ program
         console.log('');
       });
       
-      console.log(chalk.gray(`Use --timestamp to view a specific report\n`));
+      console.log(chalk.gray('Use --timestamp to view a specific report\n'));
       return;
     }
     
@@ -903,7 +903,7 @@ program
     
     if (update) {
       console.log(chalk.yellow(`\n🎵 Update available: ${update.current} → ${update.latest}`));
-      console.log(chalk.cyan(`\nRun: npm update -g pr-vibe\n`));
+      console.log(chalk.cyan('\nRun: npm update -g pr-vibe\n'));
     } else {
       console.log(chalk.green('\n✅ You are running the latest version of pr-vibe!\n'));
     }
