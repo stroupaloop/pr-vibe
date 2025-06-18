@@ -26,7 +26,7 @@ IMPORTANT: Before merging ANY PR with bot comments:
 pr-vibe is an AI-powered PR review tool that orchestrates conversations between PR bots (CodeRabbit, DeepSource, etc.) and handles their feedback automatically. Built BY an AI (Claude) FOR AIs to collaborate on code reviews.
 
 ## Current Status (2025-06-18)
-- **Version**: v0.3.4 (hotfix: restored demo command)
+- **Version**: v0.4.0 (comprehensive reporting & pre-merge safety)
 - **Launch**: ProductHunt scheduled for 2025-06-19 ~3am ET
 - **Pre-launch**: Posted on HN, Reddit (r/ClaudeAI), Medium, X, LinkedIn
 
@@ -59,6 +59,20 @@ Created comprehensive tracking in `.internal-docs/`:
 - **GitHub Actions**: Automated testing and npm publishing
 - **NPM_TOKEN**: Already configured in GitHub secrets
 - **Workflows**: test.yml, publish.yml, publish-current.yml
+- **Release Process**: 
+  1. Create release branch: `git checkout -b release/vX.Y.Z`
+  2. Bump version in package.json
+  3. Create PR and merge
+  4. Create GitHub Release: `gh release create vX.Y.Z`
+  5. This triggers automatic npm publish via GitHub Actions
+
+## v0.4.0 Release (2025-06-18)
+**Major Features**: Comprehensive reporting and pre-merge safety
+- Enhanced reporting with detailed decision logs and confidence scores
+- Pre-merge safety checks: `pr-vibe check`, `pr-vibe status`, `pr-vibe report`
+- Report storage with automatic TTL (30 days)
+- Fixed CRITICAL bug: pr-vibe no longer replaces files with TODO placeholders
+- All GitHub Actions tests passing
 
 ## v0.3.4 Hotfix (2025-06-18)
 **CRITICAL**: Restored missing demo command for ProductHunt launch
