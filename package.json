@@ -39,7 +39,7 @@
   "bugs": {
     "url": "https://github.com/stroupaloop/pr-vibe/issues"
   },
-  "homepage": "https://github.com/stroupaloop/pr-vibe#readme",
+  "homepage": "https://stroupaloop.github.io/pr-vibe/",
   "type": "module",
   "bin": {
     "pr-vibe": "./bin/cli.js",
