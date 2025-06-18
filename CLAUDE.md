@@ -72,18 +72,19 @@ pr-vibe pr <number> -r stroupaloop/pr-vibe
 4. **Version in cli.js** - Reads from package.json (was hardcoded before)
 
 ## ProductHunt Launch Checklist
-- [x] v0.3.3 published with critical security fix
+- [x] v0.3.4 published with demo command restored
 - [x] Website updated (https://stroupaloop.github.io/pr-vibe/)
-- [x] PRODUCTHUNT.md with launch copy
 - [x] Pre-launch posts on HN, Reddit, Medium
 - [x] Tracking infrastructure ready
-- [x] ProductHunt launch went live
 - [x] Critical security issue found and fixed (v0.3.3)
-- [ ] Continue monitoring feedback across channels
+- [x] Demo command hotfix applied (v0.3.4)
+- [ ] ProductHunt launch at ~3am ET 2025-06-19
+- [ ] Monitor and respond to feedback across channels
 
 ## Recent PRs and Issues
 - PR #13: Critical security fix and message length handling (merged)
 - Issue #12: GitHub comment length limit (fixed in v0.3.3)
+- v0.3.4 Hotfix: Restored missing demo command (critical for ProductHunt)
 - PR #7: Implemented conversation management (merged)
 - PR #8: Fixed corrupted README (merged)
 - PR #10: Updated dependencies (merged)
@@ -98,8 +99,8 @@ pr-vibe pr <number> -r stroupaloop/pr-vibe
 ## Important Files to Check
 - `.internal-docs/CLAUDE.md` - Detailed session history
 - `.internal-docs/LAUNCH_TRACKING.md` - Launch monitoring dashboard
-- `PRODUCTHUNT.md` - Launch copy and materials
 - `lib/conversation-manager.js` - Core conversation logic
+- `lib/demo.js` - Demo implementation (critical for onboarding)
 
 ## Security Notes
 - Never commit tokens or API keys
@@ -107,3 +108,22 @@ pr-vibe pr <number> -r stroupaloop/pr-vibe
 - All patterns stored locally in `.pr-bot/`
 
 Remember: pr-vibe is about making AI tools vibe together on code reviews! 🎵
+
+## Session Summary (2025-06-18)
+
+**Major Accomplishments:**
+1. **Security Crisis Resolved**: Fixed critical shell injection vulnerability discovered by CodeRabbit
+   - Replaced unsafe execSync with execFileSync
+   - pr-vibe successfully reviewed its own security fix (PR #13)
+2. **Message Length Handling**: Implemented smart truncation for GitHub's 65,536 char limit
+3. **Demo Command Restored**: Fixed critical regression where demo was missing in v0.3.3
+4. **Successful Releases**: Published v0.3.3 (security) and v0.3.4 (demo hotfix)
+
+**Launch Status:**
+- ProductHunt scheduled for 2025-06-19 ~3am ET
+- All critical features working
+- Demo provides zero-setup experience
+- 0 stars/downloads (normal pre-launch)
+
+**Key Learning:**
+Using pr-vibe on its own PRs proved invaluable - CodeRabbit caught a critical security vulnerability that could have been catastrophic post-launch. This validates the entire concept of AI tools working together!
