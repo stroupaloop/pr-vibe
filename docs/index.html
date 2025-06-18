@@ -537,7 +537,7 @@
     <section class="hero container">
         <h1>AI tools<br>vibing together</h1>
         <p>When Claude Code and CodeRabbit work together, magic happens.<br>Let the bots handle the boring stuff.</p>
-        <div class="install-cmd" onclick="copyInstall()">npm install -g pr-vibe</div>
+        <div class="install-cmd" onclick="copyDemo()">npx pr-vibe@latest demo</div>
         <p style="font-size: 14px; opacity: 0.5; margin-top: 16px;">Built for AI developers, by AI developers</p>
     </section>
 
@@ -598,7 +598,7 @@
                 </div>
             </div>
             <p style="text-align: center; margin-top: 32px; opacity: 0.8;">
-                <strong>Result:</strong> 12 bot comments handled in 30 seconds instead of 15 minutes ⚡
+                <strong>Result:</strong> Full bot conversations handled automatically. Time saved: 20+ minutes ⚡
             </p>
         </div>
     </section>
@@ -610,7 +610,8 @@
             <ul class="pain-points">
                 <li>"Remove console.log" (but it's for CloudWatch...)</li>
                 <li>"Avoid any types" (but it's a webhook...)</li>
-                <li>"Hardcoded values" (yeah, I'll fix that...)</li>
+                <li>Waiting for bot responses and rate limits...</li>
+                <li>Bot misunderstands, needs clarification...</li>
             </ul>
             <p style="margin-top: 32px; font-weight: 600; color: var(--vibe-light);">
                 What if the bots could vibe together instead?
@@ -623,14 +624,14 @@
                 <div class="terminal-dot dot-3"></div>
             </div>
             <div class="terminal-body">
-                <div class="terminal-line"><span class="prompt">$</span> pr-vibe export 123</div>
-                <div class="terminal-line"><span class="comment"># CodeRabbit left 19 comments</span></div>
-                <div class="terminal-line"><span class="success">✓</span> Analyzing patterns...</div>
-                <div class="terminal-line">&nbsp;</div>
-                <div class="terminal-line"><span class="prompt">$</span> pr-vibe apply 123</div>
+                <div class="terminal-line"><span class="prompt">$</span> pr-vibe pr 123</div>
+                <div class="terminal-line"><span class="comment"># Found 12 bot comments</span></div>
                 <div class="terminal-line"><span class="success">✓</span> Fixed: API key → env variable</div>
-                <div class="terminal-line"><span class="success">✓</span> Explained: console.log is valid here</div>
-                <div class="terminal-line"><span class="highlight">⚡</span> Saved 18 minutes</div>
+                <div class="terminal-line"><span class="success">✓</span> Explained: console.log for CloudWatch</div>
+                <div class="terminal-line"><span class="comment"># Bot: "Actually, I meant ESLint..."</span></div>
+                <div class="terminal-line">⏳ Rate limit detected. Waiting 60s...</div>
+                <div class="terminal-line">💬 Continuing conversation...</div>
+                <div class="terminal-line"><span class="success">✅ Thread resolved!</span></div>
             </div>
         </div>
     </section>
@@ -654,19 +655,19 @@
                 <p>Built for Claude Code to orchestrate. Let AI handle AI feedback.</p>
             </div>
             <div class="feature">
-                <div class="feature-emoji">🌊</div>
-                <h3>Goes with the flow</h3>
-                <p>Works with any bot. CodeRabbit, DeepSource, whatever comes next.</p>
+                <div class="feature-emoji">💬</div>
+                <h3>Full conversations</h3>
+                <p>Handles multi-round dialogues with bots until resolution.</p>
             </div>
             <div class="feature">
                 <div class="feature-emoji">🚀</div>
-                <h3>Zero friction</h3>
-                <p>One command to start. Works with your existing workflow. No config needed.</p>
+                <h3>Zero-setup demo</h3>
+                <p>Try instantly with npx - no auth or config needed.</p>
             </div>
             <div class="feature">
-                <div class="feature-emoji">💰</div>
-                <h3>Time is money</h3>
-                <p>Save 18+ minutes per PR. That's $45-90 in dev time. Every single review.</p>
+                <div class="feature-emoji">⏱️</div>
+                <h3>Rate limit aware</h3>
+                <p>Detects and waits for bot rate limits automatically.</p>
             </div>
         </div>
     </section>
@@ -703,11 +704,15 @@
     
 
     <script>
-        function copyInstall() {
-            navigator.clipboard.writeText('npm install -g pr-vibe');
+        function copyDemo() {
+            navigator.clipboard.writeText('npx pr-vibe@latest demo');
             const cmd = document.querySelector('.install-cmd');
             cmd.classList.add('copied');
             setTimeout(() => cmd.classList.remove('copied'), 2000);
+        }
+        
+        function copyInstall() {
+            copyDemo(); // For backward compatibility
         }
         
         // Vibe easter egg
