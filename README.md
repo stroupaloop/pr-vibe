@@ -46,6 +46,10 @@ pr-vibe bridges this gap by:
 - 🛠️ **Smart Actions** - Auto-fix simple issues, explain valid patterns, or escalate edge cases
 - 🧠 **Project Memory** - Learns and remembers your project-specific patterns
 - ⏱️ **Rate Limit Handling** - Detects and waits for bot rate limits automatically
+- 📊 **Detailed Reports** - Save comprehensive reports of all actions taken for review
+- ✅ **Pre-Merge Safety** - Check if all bot comments are resolved before merging
+- 📈 **GitHub Status Checks** - Post status checks to PRs for team visibility
+- 🗑️ **Auto-Cleanup** - Reports expire after 30 days to keep your repo clean
 - 🔌 **LLM Flexibility** - Works with Claude, GPT-4, Gemini, or without any LLM
 - ⚡ **CLI First** - Full control with human-in-the-loop design
 
@@ -114,11 +118,26 @@ pr-vibe init
 # Review bot comments interactively
 pr-vibe pr 42
 
+# Check if PR is ready to merge (all bot comments resolved)
+pr-vibe check 42
+
+# View saved reports for a PR
+pr-vibe report 42
+pr-vibe report 42 --list  # List all reports
+pr-vibe report 42 --json  # Output in JSON format
+
+# Post GitHub status check
+pr-vibe status 42         # View status
+pr-vibe status 42 --post  # Post to GitHub
+
 # Export comments for external analysis (Claude Code mode)
 pr-vibe export 42
 
 # Apply decisions from Claude Code
 pr-vibe apply 42
+
+# Clean up old reports
+pr-vibe cleanup
 
 # Specify a different repository
 pr-vibe pr 42 -r owner/repo
@@ -223,6 +242,70 @@ Bot: "console.log found in production code"
 
 Summary: Fixed 8 issues, explained 3 patterns, skipped 1
 Time saved: ~22 minutes
+```
+
+## Reporting & Review
+
+pr-vibe now generates detailed reports for every PR processed:
+
+### Comprehensive Reports
+- **Detailed decision log** - See exactly what was done and why
+- **Conversation transcripts** - Full dialogue history with bots
+- **Confidence scores** - Know how certain pr-vibe was about each decision
+- **Pattern tracking** - See which patterns were applied
+- **Time metrics** - Track processing time and time saved
+
+### Report Storage
+- Reports saved to `.pr-bot/reports/pr-{number}/`
+- Both Markdown and JSON formats
+- Automatic cleanup after 30 days (configurable)
+- Keep latest 5 reports per PR regardless of age
+
+```bash
+# View latest report
+pr-vibe report 42
+
+# List all available reports
+pr-vibe report 42 --list
+
+# Get JSON for programmatic access
+pr-vibe report 42 --json
+```
+
+## Pre-Merge Safety
+
+Never accidentally merge a PR with unresolved bot comments:
+
+### Check Command
+```bash
+# Returns exit 0 if ready, 1 if not
+pr-vibe check 42
+
+# Example output:
+✅ Bot Comment Status:
+  - CodeRabbit[bot]: 12/12 resolved ✓
+  - DeepSource[bot]: 3/3 resolved ✓
+  - Total: 15/15 (100%)
+
+✅ PR is ready to merge!
+```
+
+### GitHub Status Checks
+```bash
+# Post status to GitHub
+pr-vibe status 42 --post
+
+# Creates a status check that shows:
+# ✅ "All bot comments resolved (15/15)"
+# ❌ "3 bot comments need attention"
+```
+
+### CI Integration
+```yaml
+# .github/workflows/pr-check.yml
+- name: Check bot comments resolved
+  run: |
+    npx pr-vibe check ${{ github.event.pull_request.number }}
 ```
 
 ## Advanced Features

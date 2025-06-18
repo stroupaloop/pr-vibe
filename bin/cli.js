@@ -6,6 +6,7 @@ import inquirer from 'inquirer';
 import { writeFileSync, readFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 import updateNotifier from 'update-notifier';
 import { analyzeGitHubPR } from '../lib/github.js';
 import { analyzeComment } from '../lib/decision-engine.js';
@@ -16,6 +17,9 @@ import { GitHubProvider } from '../lib/providers/github-provider.js';
 import { displayThread } from '../lib/ui.js';
 import { patternManager } from '../lib/pattern-manager.js';
 import { runDemo } from '../lib/demo.js';
+import { createReportBuilder } from '../lib/report-builder.js';
+import { createReportStorage } from '../lib/report-storage.js';
+import { ConversationManager } from '../lib/conversation-manager.js';
 
 // Check for updates
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -87,6 +91,9 @@ program
       const llm = options.llm !== 'none' ? createLLMService(options.llm) : null;
       const fileModifier = createFileModifier(provider, prNumber);
       const commentPoster = createCommentPoster(provider);
+      const conversationManager = new ConversationManager(provider);
+      const reportBuilder = createReportBuilder().setPRNumber(prNumber);
+      const reportStorage = createReportStorage();
       
       // 1. Fetch PR and comments
       spinner.text = 'Fetching PR comments...';
@@ -115,6 +122,12 @@ program
       console.log(`  Bot reviewers: ${reviewers.join(', ')}`);
       console.log(`  Bot comments: ${comments.length}`);
       console.log(`  Bot threads: ${Object.keys(threads).length}\n`);
+      
+      // Track bot comments in report
+      comments.forEach(comment => {
+        const botName = comment.user?.login || comment.author?.login || 'unknown';
+        reportBuilder.addBotComment(botName, comment);
+      });
       
       const decisions = [];
       const projectContext = {
@@ -214,6 +227,10 @@ program
         }
         
         decisions.push({ comment: mainComment, decision: analysis, userAction });
+        
+        // Track in report builder
+        reportBuilder.addDecision(mainComment, analysis, userAction);
+        
         console.log(chalk.dim(`  → Action: ${userAction}\n`));
       }
       
@@ -326,6 +343,20 @@ program
       console.log(`  Replies posted: ${stats.replied}`);
       console.log(`  Skipped: ${stats.skipped}`);
       console.log(`  Added to backlog: ${stats.backlogged}`);
+      
+      // Generate and save report
+      reportBuilder.addConversationSummary(conversationManager);
+      reportBuilder.finalize(fileModifier.getChangesSummary());
+      
+      const reportFiles = reportStorage.saveReport(prNumber, reportBuilder);
+      console.log(chalk.green(`\n📊 Report saved to ${reportFiles.markdown}`));
+      
+      // Show preview of report
+      console.log(chalk.gray('\nReport preview:'));
+      const reportPreview = reportBuilder.toMarkdown().split('\n').slice(0, 15).join('\n');
+      console.log(chalk.gray(reportPreview));
+      console.log(chalk.gray('...\n'));
+      console.log(chalk.cyan(`View full report: pr-vibe report ${prNumber}`));
       
     } catch (error) {
       spinner.fail('Error during review');
@@ -584,6 +615,284 @@ program
       
       console.log(chalk.gray('Run with --full to see complete changelog'));
     }
+  });
+
+program
+  .command('check <prNumber>')
+  .description('Check if PR is ready to merge (all bot comments resolved)')
+  .option('-r, --repo <repo>', 'repository (owner/name)', 'stroupaloop/woodhouse-modern')
+  .option('-v, --verbose', 'show detailed output')
+  .action(async (prNumber, options) => {
+    const spinner = ora('Checking PR merge readiness...').start();
+    
+    try {
+      const provider = new GitHubProvider({ repo: options.repo });
+      const reportStorage = createReportStorage();
+      
+      // Check if we have a report for this PR
+      const reportStatus = reportStorage.checkPRStatus(prNumber);
+      
+      // Get current PR comments
+      spinner.text = 'Fetching current PR comments...';
+      const { pr, comments, threads } = await analyzeGitHubPR(prNumber, options.repo);
+      
+      // Filter for bot comments
+      const botComments = comments.filter(c => 
+        c.user?.login?.includes('[bot]') || c.author?.login?.includes('[bot]')
+      );
+      
+      // Group by bot
+      const botStats = {};
+      botComments.forEach(comment => {
+        const botName = comment.user?.login || comment.author?.login || 'unknown';
+        if (!botStats[botName]) {
+          botStats[botName] = { total: 0, resolved: 0 };
+        }
+        botStats[botName].total++;
+      });
+      
+      // Check resolved status from report if available
+      let resolvedCount = 0;
+      let unresolvedComments = [];
+      
+      if (reportStatus.hasReports && reportStatus.summary) {
+        // Use report data
+        Object.entries(reportStatus.summary.bots).forEach(([bot, stats]) => {
+          if (botStats[bot]) {
+            botStats[bot].resolved = stats.processed;
+            resolvedCount += stats.processed;
+          }
+        });
+        
+        // Find unresolved comments
+        unresolvedComments = botComments.filter(comment => {
+          const botName = comment.user?.login || comment.author?.login;
+          const botData = reportStatus.summary.bots[botName];
+          return !botData || botData.processed < botData.total;
+        });
+      }
+      
+      spinner.stop();
+      
+      // Display results
+      console.log(chalk.bold('\n🔍 PR #' + prNumber + ' Merge Readiness Check\n'));
+      
+      console.log(chalk.bold('✅ Bot Comment Status:'));
+      let allResolved = true;
+      Object.entries(botStats).forEach(([bot, stats]) => {
+        const resolved = stats.resolved || 0;
+        const icon = resolved === stats.total ? '✓' : '✗';
+        const color = resolved === stats.total ? chalk.green : chalk.red;
+        console.log(color(`  - ${bot}: ${resolved}/${stats.total} resolved ${icon}`));
+        if (resolved < stats.total) allResolved = false;
+      });
+      console.log(`  - Total: ${resolvedCount}/${botComments.length} (${Math.round(resolvedCount/botComments.length*100)}%)`);
+      
+      if (reportStatus.hasReports) {
+        const timeSince = Date.now() - new Date(reportStatus.lastReport).getTime();
+        const minutes = Math.round(timeSince / 60000);
+        console.log(chalk.gray(`\n⏰ Last Checked: ${minutes} minutes ago`));
+        console.log(chalk.gray(`📝 Last pr-vibe run: ${reportStatus.lastReportId}`));
+      }
+      
+      // Check for new comments since last run
+      let hasNewComments = false;
+      if (reportStatus.hasReports && reportStatus.lastReport) {
+        const newComments = botComments.filter(c => 
+          new Date(c.created_at || c.createdAt) > new Date(reportStatus.lastReport)
+        );
+        if (newComments.length > 0) {
+          hasNewComments = true;
+          console.log(chalk.yellow(`\n⚠️  New Activity:`));
+          console.log(chalk.yellow(`  - ${newComments.length} new bot comments since last run`));
+        }
+      }
+      
+      // Final status
+      console.log('');
+      if (allResolved && !hasNewComments) {
+        console.log(chalk.green.bold('✅ PR is ready to merge!\n'));
+        process.exit(0);
+      } else {
+        if (unresolvedComments.length > 0 && options.verbose) {
+          console.log(chalk.red.bold('❌ Unresolved Comments:\n'));
+          unresolvedComments.slice(0, 5).forEach(comment => {
+            const bot = comment.user?.login || comment.author?.login;
+            console.log(chalk.yellow(`  ${bot}:`));
+            console.log(chalk.gray(`    "${comment.body.substring(0, 100)}..."`));
+          });
+          if (unresolvedComments.length > 5) {
+            console.log(chalk.gray(`  ... and ${unresolvedComments.length - 5} more\n`));
+          }
+        }
+        
+        console.log(chalk.red.bold('❌ PR is not ready to merge'));
+        if (hasNewComments) {
+          console.log(chalk.yellow(`Run: pr-vibe pr ${prNumber}`));
+        }
+        console.log('');
+        process.exit(1);
+      }
+      
+    } catch (error) {
+      spinner.fail('Error checking PR status');
+      console.error(chalk.red(error.message));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('status <prNumber>')
+  .description('Post or check GitHub status check for PR')
+  .option('-r, --repo <repo>', 'repository (owner/name)', 'stroupaloop/woodhouse-modern')
+  .option('--post', 'post status check to GitHub')
+  .action(async (prNumber, options) => {
+    const spinner = ora('Checking PR status...').start();
+    
+    try {
+      const provider = new GitHubProvider({ repo: options.repo });
+      const reportStorage = createReportStorage();
+      const reportStatus = reportStorage.checkPRStatus(prNumber);
+      
+      // Get current bot comment status
+      const { pr, comments } = await analyzeGitHubPR(prNumber, options.repo);
+      const botComments = comments.filter(c => 
+        c.user?.login?.includes('[bot]') || c.author?.login?.includes('[bot]')
+      );
+      
+      let status = 'pending';
+      let description = 'Checking bot comments...';
+      
+      if (reportStatus.hasReports && reportStatus.isReadyToMerge) {
+        status = 'success';
+        description = `All bot comments resolved (${botComments.length}/${botComments.length})`;
+      } else if (reportStatus.hasReports) {
+        status = 'failure';
+        const unresolved = botComments.length - (reportStatus.summary?.actions?.total || 0);
+        description = `${unresolved} bot comments need attention`;
+      }
+      
+      spinner.stop();
+      
+      if (options.post) {
+        console.log(chalk.bold('📊 Posting status check to PR #' + prNumber + '...'));
+        
+        // Get the latest commit SHA
+        const commitData = execSync(
+          `gh pr view ${prNumber} --repo ${options.repo} --json commits --jq '.commits[-1].oid'`,
+          { encoding: 'utf-8' }
+        ).trim();
+        
+        // Post status check
+        execSync(
+          `gh api repos/${options.repo}/statuses/${commitData} ` +
+          `-f state="${status}" ` +
+          `-f description="${description}" ` +
+          `-f context="pr-vibe"`,
+          { stdio: 'pipe' }
+        );
+        
+        console.log(chalk.green(`✅ Status posted: "${description}"`));
+      } else {
+        console.log(chalk.bold('\n📊 PR #' + prNumber + ' Status\n'));
+        const statusIcon = status === 'success' ? '✅' : status === 'failure' ? '❌' : '⏳';
+        const statusColor = status === 'success' ? chalk.green : status === 'failure' ? chalk.red : chalk.yellow;
+        console.log(statusColor(`${statusIcon} ${description}`));
+        
+        if (reportStatus.hasReports) {
+          console.log(chalk.gray(`\nLast checked: ${new Date(reportStatus.lastReport).toLocaleString()}`));
+          console.log(chalk.gray(`Reports available: ${reportStatus.reportCount}`));
+        }
+        
+        console.log(chalk.gray('\nTo post this status to GitHub, run with --post flag'));
+      }
+      
+    } catch (error) {
+      spinner.fail('Error checking status');
+      console.error(chalk.red(error.message));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('report <prNumber>')
+  .description('View saved pr-vibe reports for a PR')
+  .option('-r, --repo <repo>', 'repository (owner/name)', 'stroupaloop/woodhouse-modern')
+  .option('-l, --list', 'list all available reports')
+  .option('-t, --timestamp <timestamp>', 'view specific report by timestamp')
+  .option('-j, --json', 'output in JSON format')
+  .action(async (prNumber, options) => {
+    const reportStorage = createReportStorage();
+    
+    if (options.list) {
+      const reports = reportStorage.listReportsForPR(prNumber);
+      
+      if (reports.length === 0) {
+        console.log(chalk.yellow(`\nNo reports found for PR #${prNumber}\n`));
+        return;
+      }
+      
+      console.log(chalk.bold(`\n📊 Reports for PR #${prNumber}:\n`));
+      reports.forEach((report, idx) => {
+        const isLatest = idx === 0;
+        const icon = isLatest ? '⭐' : '📄';
+        console.log(`${icon} ${report.timestamp}`);
+        console.log(chalk.gray(`   Created: ${report.created.toLocaleString()}`));
+        console.log(chalk.gray(`   Size: ${Math.round(report.size / 1024)}KB`));
+        if (isLatest) console.log(chalk.green('   (latest)'));
+        console.log('');
+      });
+      
+      console.log(chalk.gray(`Use --timestamp to view a specific report\n`));
+      return;
+    }
+    
+    const report = reportStorage.getReport(prNumber, options.timestamp);
+    
+    if (!report) {
+      console.log(chalk.red(`\nNo report found for PR #${prNumber}${options.timestamp ? ' at ' + options.timestamp : ''}\n`));
+      console.log(chalk.gray('Run `pr-vibe pr ' + prNumber + '` to generate a report\n'));
+      process.exit(1);
+    }
+    
+    if (options.json) {
+      const jsonPath = report.path.replace('.md', '.json');
+      try {
+        const jsonContent = readFileSync(jsonPath, 'utf-8');
+        console.log(jsonContent);
+      } catch (error) {
+        console.error(chalk.red('JSON report not found'));
+        process.exit(1);
+      }
+    } else {
+      console.log(report.content);
+      
+      if (!options.timestamp) {
+        console.log(chalk.gray('\n---'));
+        console.log(chalk.gray('This is the latest report. Use --list to see all available reports.'));
+      }
+    }
+  });
+
+program
+  .command('cleanup')
+  .description('Clean up old pr-vibe reports')
+  .option('--reports', 'clean up old reports (default)')
+  .option('--all', 'clean up all pr-vibe data')
+  .option('--dry-run', 'show what would be deleted without deleting')
+  .action(async (options) => {
+    const reportStorage = createReportStorage();
+    
+    console.log(chalk.bold('\n🧹 Running pr-vibe cleanup...\n'));
+    
+    if (options.dryRun) {
+      console.log(chalk.yellow('DRY RUN - no files will be deleted\n'));
+    }
+    
+    // For now, just run the report cleanup
+    reportStorage.runCleanup();
+    
+    console.log(chalk.green('\n✅ Cleanup complete!\n'));
   });
 
 program

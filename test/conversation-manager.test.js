@@ -140,11 +140,18 @@ describe('ConversationManager', () => {
       const comment = { id: 123 };
       const conversationId = `${prNumber}-${comment.id}`;
       
+      // Manually update metrics to match the test setup
+      manager.metrics.totalConversations = 1;
+      manager.metrics.totalRounds = 1;
+      
       manager.activeConversations.set(conversationId, {
         prNumber,
         originalComment: comment,
         rounds: [{ speaker: 'pr-vibe', message: 'test' }],
-        status: 'active'
+        status: 'active',
+        startTime: Date.now(),
+        rateLimited: false,
+        hadCorrection: false
       });
       
       const summary = manager.getConversationSummary();

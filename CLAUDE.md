@@ -1,5 +1,27 @@
 # pr-vibe Context for Claude 🎵
 
+## Pre-Merge Protocol
+IMPORTANT: Before merging ANY PR with bot comments:
+
+1. **Check Status**: 
+   ```bash
+   pr-vibe check <pr-number>
+   ```
+   
+2. **If Check Fails**:
+   - Run `pr-vibe pr <pr-number>` to process comments
+   - Review the generated report
+   - Address any escalated items
+   
+3. **Only Merge When**:
+   - `pr-vibe check` returns success (exit 0)
+   - OR user explicitly says "merge anyway" or "ignore remaining comments"
+
+4. **Report Access**:
+   - Reports auto-saved to `.pr-bot/reports/`
+   - View with `pr-vibe report <pr-number>`
+   - Reports expire after 30 days (configurable)
+
 ## Project Overview
 pr-vibe is an AI-powered PR review tool that orchestrates conversations between PR bots (CodeRabbit, DeepSource, etc.) and handles their feedback automatically. Built BY an AI (Claude) FOR AIs to collaborate on code reviews.
 
@@ -60,6 +82,15 @@ npm test
 
 # Quick PR review
 pr-vibe pr <number>
+
+# Check if PR is ready to merge
+pr-vibe check <number>
+
+# View saved reports
+pr-vibe report <number>
+
+# Post GitHub status check
+pr-vibe status <number> --post
 
 # Use pr-vibe on its own PRs
 pr-vibe pr <number> -r stroupaloop/pr-vibe
