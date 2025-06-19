@@ -150,13 +150,78 @@ pr-vibe pr <number> -r stroupaloop/pr-vibe
 - `.internal-docs/LAUNCH_TRACKING.md` - Launch monitoring dashboard
 - `lib/conversation-manager.js` - Core conversation logic
 - `lib/demo.js` - Demo implementation (critical for onboarding)
+- `lib/bot-detector.js` - Bot-specific detection and parsing (NEW)
 
 ## Security Notes
 - Never commit tokens or API keys
 - GitHub token auto-detection is read-only
 - All patterns stored locally in `.pr-bot/`
 
+## Confidence Levels Throughout pr-vibe
+
+pr-vibe now tracks confidence at multiple levels:
+
+### Bot Detection Confidence (bot-detector.js)
+- **95% confidence**: Known bots (CodeRabbit, DeepSource, SonarCloud, Snyk)
+- **90% confidence**: CodeClimate bots
+- **80% confidence**: Generic [bot] suffix
+- **95% confidence**: NOT a bot (human reviewers)
+
+### Decision Engine Confidence (decision-engine.js)
+- **95% confidence**: Valid patterns that should be rejected
+- **90-95% confidence**: Critical security issues
+- **85-90% confidence**: High priority security issues  
+- **70% confidence**: Architectural discussions
+- **50% confidence**: Unclear items needing more context
+
+### Comment Processing Confidence
+- **95% confidence**: Skip CodeRabbit summary comments
+- **90% confidence**: Skip comments with no actionable items
+- **85% confidence**: Process actionable bot content
+
+### Report Display
+- All decisions show confidence percentages
+- Average confidence calculated and displayed in summary
+- Low confidence items escalated to human review
+
 Remember: pr-vibe is about making AI tools vibe together on code reviews! 🎵
+
+## Session Summary (2025-06-19)
+
+**v0.4.1 Patch Release:**
+1. **Fixed CLI Changelog Bug**: 
+   - Issue: `pr-vibe changelog` was showing v0.2.0 as current instead of v0.4.0
+   - Created automated solution with `scripts/update-changelog-version.js`
+   - Updated GitHub Actions workflows to run changelog sync on every release
+   - Released v0.4.1 to fix the issue for users
+
+2. **Improved Release Process**:
+   - Added changelog version sync to CI/CD pipeline
+   - Documented in release checklist
+   - Future releases will automatically have correct version in CLI
+
+**Key Files Created/Modified:**
+- `scripts/update-changelog-version.js` - Automated changelog version sync
+- `.github/workflows/publish.yml` - Added changelog update step
+- `.github/workflows/publish-current.yml` - Added changelog update step
+- `CLAUDE.md` - Updated release process documentation
+
+**Release Details:**
+- PR #15: https://github.com/stroupaloop/pr-vibe/pull/15
+- Release: https://github.com/stroupaloop/pr-vibe/releases/tag/v0.4.1
+- Successfully used pr-vibe on its own PR
+- All tests passed, CodeRabbit review completed
+
+**Important Note on Changelog Update Script:**
+- The automated script (`scripts/update-changelog-version.js`) only handles major.minor versions
+- It doesn't know about patch-specific features (e.g., v0.4.1 shows v0.4.0 features)
+- This is semantically correct but could be enhanced in the future
+- For patch releases with specific changelog needs, consider manual updates
+
+**What Actually Got Published:**
+- v0.4.1 shows correct version number (fixed the main bug)
+- Shows v0.4.0 features instead of v0.4.1-specific fixes (limitation of current script)
+- Future releases will auto-update version numbers correctly
 
 ## Session Summary (2025-06-18)
 

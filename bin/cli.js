@@ -84,6 +84,7 @@ program
   .option('--dry-run', 'preview changes without applying')
   .option('--no-comments', 'skip posting comments to PR')
   .option('--experimental', 'enable experimental features (human review analysis)')
+  .option('--debug', 'show detailed debug information')
   .action(async (prNumber, options) => {
     console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
     
@@ -101,7 +102,7 @@ program
       
       // 1. Fetch PR and comments
       spinner.text = 'Fetching PR comments...';
-      const { pr, comments, threads, humanComments, humanThreads } = await analyzeGitHubPR(prNumber, options.repo);
+      const { pr, comments, threads, humanComments, humanThreads, debugInfo } = await analyzeGitHubPR(prNumber, options.repo, { debug: options.debug });
       spinner.succeed(`Found ${comments.length} bot comments and ${humanComments.length} human reviews on PR #${prNumber}`);
       
       // Show human reviews if present
@@ -116,7 +117,34 @@ program
       }
       
       if (comments.length === 0) {
-        console.log(chalk.yellow('\nNo bot review comments found. Nothing to auto-process! 🎉'));
+        // Show detailed information about what was found
+        if (debugInfo) {
+          console.log(chalk.yellow('\n📊 Comment Detection Summary:'));
+          console.log(chalk.gray(`  • Issue comments: ${debugInfo.issueComments}`));
+          console.log(chalk.gray(`  • Review comments: ${debugInfo.reviewComments}`));
+          console.log(chalk.gray(`  • PR reviews: ${debugInfo.prReviews}`));
+          
+          if (debugInfo.prReviews > 0) {
+            console.log(chalk.gray('\n  PR Review Details:'));
+            debugInfo.reviewDetails.forEach(review => {
+              console.log(chalk.gray(`    - ${review.author}: ${review.state} (${review.commentsCount} comments)`));
+            });
+          }
+          
+          if (debugInfo.skippedComments && debugInfo.skippedComments.length > 0) {
+            console.log(chalk.gray('\n  Skipped Comments:'));
+            debugInfo.skippedComments.forEach(skip => {
+              console.log(chalk.gray(`    - ${skip.username}: ${skip.reason} (${(skip.confidence * 100).toFixed(0)}% confidence)`));
+            });
+          }
+        }
+        
+        console.log(chalk.yellow('\n⚠️  No actionable bot comments found.'));
+        console.log(chalk.gray('This could mean:'));
+        console.log(chalk.gray('  • Bots haven\'t commented yet (use `pr-vibe watch` to wait)'));
+        console.log(chalk.gray('  • All bot comments are summaries or non-actionable'));
+        console.log(chalk.gray('  • The PR has no issues that bots can detect'));
+        console.log(chalk.gray('\nUse --debug flag for more details'));
         return;
       }
       
@@ -367,6 +395,153 @@ program
       console.error(chalk.red(error.message));
       console.error(chalk.gray(error.stack));
       process.exit(1);
+    }
+  });
+
+program
+  .command('watch <number>')
+  .description('Watch a PR for bot comments and auto-process when they appear')
+  .option('-r, --repo <repo>', 'repository (owner/name)', 'stroupaloop/woodhouse-modern')
+  .option('--timeout <minutes>', 'max time to wait (default: 10)', '10')
+  .option('--auto-fix', 'automatically apply safe fixes')
+  .option('--llm <provider>', 'LLM provider (openai/anthropic/none)', 'none')
+  .action(async (prNumber, options) => {
+    console.log(chalk.blue('\n👀 PR Watch Mode - Waiting for bot reviews...\n'));
+    
+    const timeout = parseInt(options.timeout) * 60 * 1000; // Convert to ms
+    const startTime = Date.now();
+    
+    // Polling intervals
+    const intervals = [
+      { duration: 30000, interval: 5000 },   // First 30s: check every 5s
+      { duration: 120000, interval: 15000 }, // Next 2min: check every 15s
+      { duration: Infinity, interval: 30000 } // After that: check every 30s
+    ];
+    
+    let lastCheckTime = null;
+    let foundBots = new Set();
+    let processedComments = new Set();
+    
+    const spinner = ora('Checking for bot activity...').start();
+    
+    while (Date.now() - startTime < timeout) {
+      const elapsed = Date.now() - startTime;
+      
+      // Determine current interval
+      let currentInterval = 30000;
+      for (const { duration, interval } of intervals) {
+        if (elapsed < duration) {
+          currentInterval = interval;
+          break;
+        }
+      }
+      
+      try {
+        // Fetch PR data with debug flag
+        const { pr, botComments, debugInfo } = await analyzeGitHubPR(prNumber, options.repo, { debug: false });
+        
+        // Track new bots
+        botComments.forEach(comment => {
+          const bot = comment.user?.login || comment.author?.login || 'unknown';
+          if (!foundBots.has(bot)) {
+            foundBots.add(bot);
+            spinner.succeed(`${bot} posted ${comment.type === 'pr_review' ? 'review' : 'comment'}`);
+            spinner.start('Waiting for more bots...');
+          }
+        });
+        
+        // Check for new comments since last check
+        const newComments = botComments.filter(c => {
+          const id = c.id || `${c.user?.login}-${c.created_at}`;
+          return !processedComments.has(id);
+        });
+        
+        if (newComments.length > 0) {
+          spinner.stop();
+          console.log(chalk.green(`\n✓ Found ${newComments.length} new bot comments from ${foundBots.size} bots\n`));
+          
+          // Show what we found
+          const botSummary = {};
+          newComments.forEach(comment => {
+            const bot = comment.user?.login || comment.author?.login || 'unknown';
+            const type = comment.type || 'comment';
+            if (!botSummary[bot]) botSummary[bot] = { reviews: 0, comments: 0 };
+            if (type === 'pr_review') {
+              botSummary[bot].reviews++;
+            } else {
+              botSummary[bot].comments++;
+            }
+          });
+          
+          console.log(chalk.bold('📊 Bot Activity Summary:'));
+          Object.entries(botSummary).forEach(([bot, stats]) => {
+            const parts = [];
+            if (stats.reviews > 0) parts.push(`${stats.reviews} review${stats.reviews > 1 ? 's' : ''}`);
+            if (stats.comments > 0) parts.push(`${stats.comments} comment${stats.comments > 1 ? 's' : ''}`);
+            console.log(`  • ${bot}: ${parts.join(', ')}`);
+          });
+          
+          // Ask user if they want to process now or wait for more
+          const { action } = await inquirer.prompt([{
+            type: 'list',
+            name: 'action',
+            message: '\nWhat would you like to do?',
+            choices: [
+              { name: 'Process these comments now', value: 'process' },
+              { name: 'Wait for more bots (continue watching)', value: 'wait' },
+              { name: 'Exit watch mode', value: 'exit' }
+            ]
+          }]);
+          
+          if (action === 'process') {
+            console.log(chalk.blue('\n🎵 Processing bot comments...\n'));
+            
+            // Run the normal pr command
+            await program.parseAsync(['node', 'pr-vibe', 'pr', prNumber, 
+              '-r', options.repo,
+              ...(options.autoFix ? ['--auto-fix'] : []),
+              ...(options.llm !== 'none' ? ['--llm', options.llm] : [])
+            ], { from: 'user' });
+            
+            break;
+          } else if (action === 'exit') {
+            console.log(chalk.gray('\nExiting watch mode...'));
+            break;
+          } else {
+            // Mark these as processed so we don't alert again
+            newComments.forEach(c => {
+              const id = c.id || `${c.user?.login}-${c.created_at}`;
+              processedComments.add(id);
+            });
+            spinner.start('Continuing to watch for more bots...');
+          }
+        }
+        
+        // Update spinner with elapsed time
+        const elapsedMin = Math.floor(elapsed / 60000);
+        const elapsedSec = Math.floor((elapsed % 60000) / 1000);
+        spinner.text = `Waiting for bot reviews... (${elapsedMin}:${elapsedSec.toString().padStart(2, '0')} elapsed, checking every ${currentInterval/1000}s)`;
+        
+        lastCheckTime = new Date();
+        
+      } catch (error) {
+        spinner.fail(`Error: ${error.message}`);
+        console.error(chalk.red('Failed to check PR. Retrying...'));
+        spinner.start('Retrying...');
+      }
+      
+      // Wait for next check
+      await new Promise(resolve => setTimeout(resolve, currentInterval));
+    }
+    
+    if (Date.now() - startTime >= timeout) {
+      spinner.fail(`Timeout reached (${options.timeout} minutes)`);
+      console.log(chalk.yellow('\n⏰ Watch timeout reached.'));
+      console.log(chalk.gray(`Found ${foundBots.size} bots during watch period.`));
+      
+      if (foundBots.size > 0) {
+        console.log(chalk.cyan(`\nRun 'pr-vibe pr ${prNumber}' to process the comments.`));
+      }
     }
   });
 

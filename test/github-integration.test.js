@@ -2,8 +2,14 @@ import { describe, test, expect, jest, beforeEach } from '@jest/globals';
 
 // Create mocks before imports
 const mockExecSync = jest.fn();
+const mockExecFileSync = jest.fn();
 jest.unstable_mockModule('child_process', () => ({
-  execSync: mockExecSync
+  execSync: mockExecSync,
+  execFileSync: mockExecFileSync
+}));
+jest.unstable_mockModule('node:child_process', () => ({
+  execSync: mockExecSync,
+  execFileSync: mockExecFileSync
 }));
 
 // Import after mocking
@@ -21,7 +27,7 @@ describe('GitHub Integration', () => {
         comments: [
           { 
             author: { login: 'coderabbit[bot]' }, 
-            body: 'Found issues',
+            body: 'Actionable comments posted: 3\n\nFound security vulnerability in authentication logic',
             createdAt: '2024-01-01T00:00:00Z'
           }
         ]
@@ -37,8 +43,15 @@ describe('GitHub Integration', () => {
         if (cmd.includes('gh pr view')) {
           return JSON.stringify(mockPR);
         }
-        if (cmd.includes('/comments')) {
+        if (cmd.includes('/pulls/123/comments')) {
           return JSON.stringify(mockReviewComments);
+        }
+        if (cmd.includes('/pulls/123/reviews')) {
+          // Return empty reviews array for now
+          return JSON.stringify([]);
+        }
+        if (cmd.includes('git remote get-url')) {
+          return 'https://github.com/owner/repo.git';
         }
         return '{}';
       });
@@ -65,6 +78,9 @@ describe('GitHub Integration', () => {
       mockExecSync.mockImplementation((cmd) => {
         if (cmd.includes('gh pr view')) {
           return JSON.stringify(mockPR);
+        }
+        if (cmd.includes('git remote get-url')) {
+          return 'https://github.com/owner/repo.git';
         }
         return '[]';
       });
