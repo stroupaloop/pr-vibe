@@ -87,6 +87,7 @@ program
   .option('--debug', 'show detailed debug information')
   .option('--skip-nits', 'skip nitpick/minor comments from bots')
   .option('--nits-only', 'only process nitpick comments')
+  .option('--create-issues', 'create GitHub issues for deferred items')
   .action(async (prNumber, options) => {
     console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
     
@@ -277,6 +278,51 @@ program
           }
         } else if (userAction === 'backlog') {
           analysis.action = 'DEFER';
+          
+          // Create GitHub issue if requested
+          if (options.createIssues && !options.dryRun) {
+            const botName = mainComment.user?.login || mainComment.author?.login || 'unknown-bot';
+            const truncatedBody = mainComment.body.length > 50 
+              ? mainComment.body.substring(0, 50) + '...' 
+              : mainComment.body;
+            
+            const issueTitle = `[Bot: ${botName}] ${truncatedBody}`;
+            const issueBody = `## Bot Feedback from PR #${prNumber}
+            
+**Bot:** ${botName}
+**PR:** #${prNumber}
+**Comment:** ${provider.repo}#${prNumber} (comment)
+
+### Original Comment
+${mainComment.body}
+
+${mainComment.path ? `**File:** \`${mainComment.path}\`${mainComment.line ? ` (line ${mainComment.line})` : ''}` : ''}
+
+### Context
+This feedback was deferred from PR review for future consideration.
+
+---
+*Created by [pr-vibe](https://github.com/stroupaloop/pr-vibe)*`;
+
+            try {
+              const issueResult = await provider.createIssue({
+                title: issueTitle,
+                body: issueBody,
+                labels: ['bot-feedback', 'pr-vibe', botName.toLowerCase().replace(/\[bot\]/, '')]
+              });
+              
+              if (issueResult.success) {
+                console.log(chalk.green(`  📝 Created issue #${issueResult.number}`));
+                // Store issue URL in the decision
+                analysis.issueUrl = issueResult.url;
+                analysis.issueNumber = issueResult.number;
+              } else {
+                console.log(chalk.yellow(`  ⚠️  Failed to create issue: ${issueResult.error}`));
+              }
+            } catch (error) {
+              console.log(chalk.yellow(`  ⚠️  Failed to create issue: ${error.message}`));
+            }
+          }
         }
         
         decisions.push({ comment: mainComment, decision: analysis, userAction });
@@ -1117,6 +1163,153 @@ program
     
     // Force check for updates
     notifier.notify({ defer: false });
+  });
+
+program
+  .command('issues <number>')
+  .description('Create GitHub issues for deferred items from a saved report')
+  .option('-r, --repo <repo>', 'repository (owner/name)')
+  .option('--dry-run', 'preview issues without creating them')
+  .action(async (prNumber, options) => {
+    console.log(chalk.blue('\n📋 Creating Issues from Deferred Items\n'));
+    
+    const spinner = ora('Loading report...').start();
+    
+    try {
+      // Initialize services
+      const provider = new GitHubProvider({ repo: options.repo });
+      const reportStorage = createReportStorage();
+      
+      // Load the latest report
+      const report = reportStorage.loadReport(prNumber);
+      
+      if (!report) {
+        spinner.fail('No report found for PR #' + prNumber);
+        console.log(chalk.gray('\nRun `pr-vibe pr ' + prNumber + '` first to generate a report.'));
+        process.exit(1);
+      }
+      
+      spinner.succeed('Report loaded');
+      
+      // Find deferred items without issues
+      const deferredItems = report.detailedActions?.deferred || [];
+      const itemsNeedingIssues = deferredItems.filter(item => !item.issue);
+      
+      if (itemsNeedingIssues.length === 0) {
+        console.log(chalk.green('\n✅ All deferred items already have issues created!\n'));
+        
+        if (deferredItems.length > 0) {
+          console.log(chalk.bold('Existing Issues:'));
+          deferredItems.filter(item => item.issue).forEach(item => {
+            console.log(`  - [#${item.issue.number}](${item.issue.url}) - ${item.bot}`);
+          });
+        }
+        return;
+      }
+      
+      console.log(chalk.bold(`\nFound ${itemsNeedingIssues.length} deferred items without issues:\n`));
+      
+      // Show what will be created
+      itemsNeedingIssues.forEach((item, idx) => {
+        console.log(chalk.cyan(`${idx + 1}. ${item.bot}:`));
+        console.log(`   ${item.comment.body.substring(0, 100)}...`);
+        if (item.comment.path) {
+          console.log(chalk.dim(`   📄 ${item.comment.path}${item.comment.line ? `:${item.comment.line}` : ''}`));
+        }
+        console.log();
+      });
+      
+      if (options.dryRun) {
+        console.log(chalk.yellow('\n🔍 Dry run - no issues will be created\n'));
+        return;
+      }
+      
+      // Confirm creation
+      const { confirm } = await inquirer.prompt([{
+        type: 'confirm',
+        name: 'confirm',
+        message: `Create ${itemsNeedingIssues.length} GitHub issues?`,
+        default: true
+      }]);
+      
+      if (!confirm) {
+        console.log(chalk.gray('\nCancelled.'));
+        return;
+      }
+      
+      // Create issues
+      const createdIssues = [];
+      const createSpinner = ora('Creating issues...').start();
+      
+      for (const item of itemsNeedingIssues) {
+        const botName = item.bot;
+        const truncatedBody = item.comment.fullBody?.substring(0, 50) || 
+                            item.comment.body.substring(0, 50);
+        
+        const issueTitle = `[Bot: ${botName}] ${truncatedBody}...`;
+        const issueBody = `## Bot Feedback from PR #${prNumber}
+
+**Bot:** ${botName}
+**PR:** #${prNumber}
+**Comment:** ${provider.repo}#${prNumber} (comment)
+
+### Original Comment
+${item.comment.fullBody || item.comment.body}
+
+${item.comment.path ? `**File:** \`${item.comment.path}\`${item.comment.line ? ` (line ${item.comment.line})` : ''}` : ''}
+
+### Context
+This feedback was deferred from PR review for future consideration.
+
+### Decision Details
+- **Action:** ${item.decision.action}
+- **Reason:** ${item.decision.reason}
+${item.decision.confidence ? `- **Confidence:** ${Math.round(item.decision.confidence * 100)}%` : ''}
+
+---
+*Created by [pr-vibe](https://github.com/stroupaloop/pr-vibe)*`;
+
+        try {
+          const issueResult = await provider.createIssue({
+            title: issueTitle,
+            body: issueBody,
+            labels: ['bot-feedback', 'pr-vibe', botName.toLowerCase().replace(/\[bot\]/, '')]
+          });
+          
+          if (issueResult.success) {
+            createdIssues.push({
+              ...issueResult,
+              bot: botName
+            });
+            createSpinner.text = `Created issue #${issueResult.number}`;
+          } else {
+            createSpinner.warn(`Failed to create issue for ${botName}: ${issueResult.error}`);
+          }
+        } catch (error) {
+          createSpinner.warn(`Failed to create issue for ${botName}: ${error.message}`);
+        }
+      }
+      
+      createSpinner.succeed(`Created ${createdIssues.length} issues`);
+      
+      // Show created issues
+      if (createdIssues.length > 0) {
+        console.log(chalk.green('\n✅ Issues Created:'));
+        createdIssues.forEach(issue => {
+          console.log(`  - [#${issue.number}](${issue.url}) - ${issue.bot} feedback`);
+        });
+        
+        console.log(chalk.gray('\nThese issues are now ready for triage and prioritization.'));
+      }
+      
+    } catch (error) {
+      spinner.fail('Error creating issues');
+      console.error(chalk.red(error.message));
+      if (options.debug) {
+        console.error(chalk.gray(error.stack));
+      }
+      process.exit(1);
+    }
   });
 
 program.parse();

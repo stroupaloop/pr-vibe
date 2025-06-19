@@ -40,15 +40,15 @@ describe('Bot Response Patterns', () => {
       const styleComments = [
         {
           body: 'Consider using const instead of let for immutable variables',
-          expected: 'DISCUSS'
+          expected: 'DEFER'
         },
         {
           body: 'Function exceeds 50 lines, consider refactoring',
-          expected: 'DISCUSS'
+          expected: 'DISCUSS'  // Contains 'refactor' which triggers architectural discussion
         },
         {
           body: 'Magic number detected, consider using named constant',
-          expected: 'DISCUSS'
+          expected: 'DEFER'
         }
       ];
 

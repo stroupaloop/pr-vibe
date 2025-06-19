@@ -1,5 +1,32 @@
 # pr-vibe Context for Claude 🎵
 
+## Response Standards - Confidence & Clarity
+
+When working on pr-vibe, always follow these standards:
+
+### Always Provide Confidence Percentages
+- Include confidence % for all key assertions (e.g., "95% confidence")
+- Be specific about your certainty level
+- Update confidence as new information becomes available
+
+### Clearly Label Statement Types
+Mark your statements as one of:
+- **FACT**: Directly verifiable from files, tool outputs, or explicit user statements
+- **INFERENCE**: Logical conclusions drawn from available evidence
+- **GUESS**: Speculation or assumptions without strong evidence
+
+### Example Response Format
+- "The test is failing due to a TypeError" (100% confidence - FACT from test output)
+- "This is likely caused by the recent API change" (75% confidence - INFERENCE from git history)
+- "You might need to update the mock data" (40% confidence - GUESS based on common patterns)
+
+### Apply This Especially When:
+- Analyzing code or debugging issues
+- Making recommendations or suggestions
+- Explaining system behavior or architecture
+- Proposing solutions or approaches
+- Reviewing pull requests or code changes
+
 ## Pre-Merge Protocol
 IMPORTANT: Before merging ANY PR with bot comments:
 
@@ -25,10 +52,11 @@ IMPORTANT: Before merging ANY PR with bot comments:
 ## Project Overview
 pr-vibe is an AI-powered PR review tool that orchestrates conversations between PR bots (CodeRabbit, DeepSource, etc.) and handles their feedback automatically. Built BY an AI (Claude) FOR AIs to collaborate on code reviews.
 
-## Current Status (2025-06-18)
-- **Version**: v0.4.0 (comprehensive reporting & pre-merge safety)
-- **Launch**: ProductHunt scheduled for 2025-06-19 ~3am ET
-- **Pre-launch**: Posted on HN, Reddit (r/ClaudeAI), Medium, X, LinkedIn
+## Current Status (2025-06-19)
+- **Version**: v0.6.0 (intelligent nit comment filtering) - FACT (100% confidence)
+- **Launch**: ProductHunt scheduled for 2025-06-19 ~3am ET - FACT from docs (100% confidence)
+- **Pre-launch**: Posted on HN, Reddit (r/ClaudeAI), Medium, X, LinkedIn - FACT (100% confidence)
+- **Latest Release**: v0.6.0 published to npm with nit filtering features - FACT (100% confidence)
 
 ## Key Features Implemented
 1. **Conversation Management** (v0.3.0) - Full multi-round dialogue handling with bots
@@ -308,9 +336,24 @@ Using pr-vibe on its own PRs proved invaluable - CodeRabbit caught a critical se
 1. **ALWAYS create PRs for changes** - Never push directly to main
 2. **ALWAYS use pr-vibe on its own PRs** - Run `pr-vibe pr <number> -r stroupaloop/pr-vibe`
 3. **ALWAYS run pr-vibe check before merging** - Ensures all bot comments resolved
-4. **ALWAYS use GitHub releases for npm publish** - Never publish locally
-5. **ALWAYS verify tests pass** - GitHub Actions must be green
-6. **ALWAYS update changelog** - Either run `node scripts/update-changelog-version.js` or let CI handle it
+4. **ALWAYS verify GitHub Actions tests pass** - All CI checks must be green before merge
+5. **ALWAYS validate new features work** - Test locally and create validation scripts
+6. **ALWAYS use GitHub releases for npm publish** - Never publish locally
+7. **ALWAYS update changelog** - Either run `node scripts/update-changelog-version.js` or let CI handle it
+
+## Mandatory PR Workflow
+Before creating any PR:
+1. Create feature branch: `git checkout -b feature/description`
+2. Make changes and test locally
+3. Run tests: `npm test` (must pass)
+4. Create validation script if adding new features
+5. Commit with descriptive message
+6. Push branch and create PR
+7. Run pr-vibe on the PR: `pr-vibe pr <number> -r stroupaloop/pr-vibe`
+8. Address any bot feedback
+9. Verify GitHub Actions pass
+10. Run `pr-vibe check <number>` before merging
+11. Only merge when check returns success
 
 ## Next Session Priorities
 1. Verify ProductHunt launch is actually submitted/scheduled
