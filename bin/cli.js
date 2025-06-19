@@ -102,7 +102,7 @@ program
       
       // 1. Fetch PR and comments
       spinner.text = 'Fetching PR comments...';
-      const { pr, comments, threads, humanComments, humanThreads, debugInfo } = await analyzeGitHubPR(prNumber, options.repo, { debug: options.debug });
+      const { comments, threads, humanComments, humanThreads, debugInfo } = await analyzeGitHubPR(prNumber, options.repo, { debug: options.debug });
       spinner.succeed(`Found ${comments.length} bot comments and ${humanComments.length} human reviews on PR #${prNumber}`);
       
       // Show human reviews if present
@@ -418,9 +418,8 @@ program
       { duration: Infinity, interval: 30000 } // After that: check every 30s
     ];
     
-    let lastCheckTime = null;
-    let foundBots = new Set();
-    let processedComments = new Set();
+    const foundBots = new Set();
+    const processedComments = new Set();
     
     const spinner = ora('Checking for bot activity...').start();
     
@@ -438,7 +437,7 @@ program
       
       try {
         // Fetch PR data with debug flag
-        const { pr, botComments, debugInfo } = await analyzeGitHubPR(prNumber, options.repo, { debug: false });
+        const { botComments } = await analyzeGitHubPR(prNumber, options.repo, { debug: false });
         
         // Track new bots
         botComments.forEach(comment => {
@@ -521,8 +520,6 @@ program
         const elapsedMin = Math.floor(elapsed / 60000);
         const elapsedSec = Math.floor((elapsed % 60000) / 1000);
         spinner.text = `Waiting for bot reviews... (${elapsedMin}:${elapsedSec.toString().padStart(2, '0')} elapsed, checking every ${currentInterval/1000}s)`;
-        
-        lastCheckTime = new Date();
         
       } catch (error) {
         spinner.fail(`Error: ${error.message}`);
