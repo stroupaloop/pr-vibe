@@ -78,13 +78,15 @@ program
 program
   .command('pr <number>')
   .description('Review a pull request')
-  .option('-r, --repo <repo>', 'repository (owner/name)', 'stroupaloop/woodhouse-modern')
+  .option('-r, --repo <repo>', 'repository (owner/name)')
   .option('--auto-fix', 'automatically apply safe fixes')
   .option('--llm <provider>', 'LLM provider (openai/anthropic/none)', 'none')
   .option('--dry-run', 'preview changes without applying')
   .option('--no-comments', 'skip posting comments to PR')
   .option('--experimental', 'enable experimental features (human review analysis)')
   .option('--debug', 'show detailed debug information')
+  .option('--skip-nits', 'skip nitpick/minor comments from bots')
+  .option('--nits-only', 'only process nitpick comments')
   .action(async (prNumber, options) => {
     console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
     
@@ -102,8 +104,20 @@ program
       
       // 1. Fetch PR and comments
       spinner.text = 'Fetching PR comments...';
-      const { comments, threads, humanComments, humanThreads, debugInfo } = await analyzeGitHubPR(prNumber, options.repo, { debug: options.debug });
-      spinner.succeed(`Found ${comments.length} bot comments and ${humanComments.length} human reviews on PR #${prNumber}`);
+      const { comments, threads, humanComments, humanThreads, debugInfo } = await analyzeGitHubPR(prNumber, options.repo, { 
+        debug: options.debug,
+        skipNits: options.skipNits,
+        nitsOnly: options.nitsOnly
+      });
+      
+      // Update success message based on nit filtering
+      let successMsg = `Found ${comments.length} bot comments and ${humanComments.length} human reviews on PR #${prNumber}`;
+      if (options.skipNits) {
+        successMsg += ' (nits excluded)';
+      } else if (options.nitsOnly) {
+        successMsg += ' (nits only)';
+      }
+      spinner.succeed(successMsg);
       
       // Show human reviews if present
       if (humanComments.length > 0) {
@@ -133,7 +147,14 @@ program
           
           if (debugInfo.skippedComments && debugInfo.skippedComments.length > 0) {
             console.log(chalk.gray('\n  Skipped Comments:'));
-            debugInfo.skippedComments.forEach(skip => {
+            const nitSkips = debugInfo.skippedComments.filter(s => s.isNit);
+            const otherSkips = debugInfo.skippedComments.filter(s => !s.isNit);
+            
+            if (nitSkips.length > 0) {
+              console.log(chalk.gray(`    Nits skipped: ${nitSkips.length}`));
+            }
+            
+            otherSkips.forEach(skip => {
               console.log(chalk.gray(`    - ${skip.username}: ${skip.reason} (${(skip.confidence * 100).toFixed(0)}% confidence)`));
             });
           }

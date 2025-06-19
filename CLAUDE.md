@@ -186,6 +186,52 @@ pr-vibe now tracks confidence at multiple levels:
 
 Remember: pr-vibe is about making AI tools vibe together on code reviews! 🎵
 
+## Session Summary (2025-06-19) - v0.5.0 Release
+
+**Major Bot Detection Improvements Released!**
+
+### What We Built
+1. **PR Review Detection** (95% confidence)
+   - Added `getReviews()` to GitHubProvider
+   - Now detects CodeRabbit reviews (not just comments)
+   - Successfully tested on PR #16
+
+2. **Smart Watch Mode** (90% confidence)
+   - `pr-vibe watch <pr>` with intelligent polling
+   - Perfect for fresh PRs
+   - Auto-processes when bots arrive
+
+3. **Bot-Specific Detection** (95% confidence)
+   - Created `bot-detector.js` module
+   - Detects all major bots with confidence scoring
+   - Filters non-actionable content
+
+4. **Enhanced UX**
+   - Better error messages showing what was found
+   - `--debug` flag for troubleshooting
+   - Confidence scores throughout
+
+### Release Details
+- PR #16: Successfully detected CodeRabbit's 6 actionable comments
+- Fixed all CodeRabbit feedback (linting, validation)
+- v0.5.0 published to npm successfully
+- GitHub Actions automated the release
+
+### Key Validation
+```bash
+npx pr-vibe@latest --version  # Shows 0.5.0
+npx pr-vibe@latest help watch  # New command available
+npx pr-vibe@latest changelog   # Shows v0.5.0 as current
+```
+
+### Critical Learning
+Our improvements successfully detected CodeRabbit PR reviews that were previously missed. The debug output showed:
+- 2 PR reviews from CodeRabbit
+- 6 review comments
+- Correct bot type detection
+
+This directly addresses the user feedback that started this session!
+
 ## Session Summary (2025-06-19)
 
 **v0.4.1 Patch Release:**

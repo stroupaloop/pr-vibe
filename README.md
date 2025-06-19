@@ -118,6 +118,10 @@ pr-vibe init
 # Review bot comments interactively
 pr-vibe pr 42
 
+# Filter nitpick comments
+pr-vibe pr 42 --skip-nits  # Focus on critical issues only
+pr-vibe pr 42 --nits-only  # Review only style/formatting comments
+
 # Check if PR is ready to merge (all bot comments resolved)
 pr-vibe check 42
 

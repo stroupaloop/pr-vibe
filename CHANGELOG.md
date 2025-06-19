@@ -5,6 +5,27 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-06-19
+
+### 🎉 Major Features
+- **Nit Comment Filtering** - Focus on what matters with intelligent nit detection
+  - `--skip-nits` flag to exclude minor style/formatting comments
+  - `--nits-only` flag to review only nitpick comments
+  - Detects common nit patterns: "nit:", "minor", "consider", "style", etc.
+  - Recognizes CodeRabbit's "review details" and "additional comments" sections
+  - 90%+ confidence in nit detection
+  - New `NIT` action type in decision engine with lower priority
+
+### 🔧 Improvements
+- Enhanced bot detection to track whether comments are nitpicks
+- Updated UI to show [NIT] indicator for nitpick comments
+- Added comprehensive test suite for nit detection
+- Created example demo script showing nit filtering in action
+
+### 📚 Documentation
+- Added nit filtering options to README
+- Created `examples/nit-filtering-demo.js` to demonstrate the feature
+
 ## [0.5.0] - 2025-06-19
 
 ### 🎉 Major Features
@@ -18,6 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Live progress updates showing elapsed time
   - Auto-processes when bots arrive
   - Perfect for use right after creating a PR
+
+- **Nit Comment Filtering** - Focus on what matters with intelligent nit detection
+  - `--skip-nits` flag to exclude minor style/formatting comments
+  - `--nits-only` flag to review only nitpick comments
+  - Detects common nit patterns: "nit:", "minor", "consider", "style", etc.
+  - Recognizes CodeRabbit's "review details" and "additional comments" sections
+  - 90%+ confidence in nit detection
 
 - **Bot-Specific Detection** - New `bot-detector.js` with confidence-based detection
   - Detects CodeRabbit, DeepSource, SonarCloud, CodeClimate, Snyk
