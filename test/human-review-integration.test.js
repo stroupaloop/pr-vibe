@@ -3,8 +3,14 @@ import { patternManager } from '../lib/pattern-manager.js';
 
 // Mock execSync for GitHub tests
 const mockExecSync = jest.fn();
+const mockExecFileSync = jest.fn();
 jest.unstable_mockModule('child_process', () => ({
-  execSync: mockExecSync
+  execSync: mockExecSync,
+  execFileSync: mockExecFileSync
+}));
+jest.unstable_mockModule('node:child_process', () => ({
+  execSync: mockExecSync,
+  execFileSync: mockExecFileSync
 }));
 
 describe('Human Review Integration', () => {
@@ -153,7 +159,7 @@ describe('Human Review Integration', () => {
         comments: [
           {
             author: { login: 'coderabbit[bot]' },
-            body: 'Remove console.log',
+            body: 'Actionable comments posted: 1\n\nRemove console.log statement from production code',
             createdAt: '2024-01-01T00:00:00Z'
           },
           {
@@ -167,6 +173,9 @@ describe('Human Review Integration', () => {
       mockExecSync.mockImplementation((cmd) => {
         if (cmd.includes('gh pr view')) {
           return JSON.stringify(mockPR);
+        }
+        if (cmd.includes('git remote get-url')) {
+          return 'https://github.com/owner/repo.git';
         }
         return '[]';
       });

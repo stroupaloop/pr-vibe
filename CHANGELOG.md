@@ -5,6 +5,51 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-06-19
+
+### 🎉 Major Features
+- **PR Review Detection** - Now detects CodeRabbit and other bots that post as PR reviews
+  - Added `getReviews()` method to fetch GitHub PR reviews
+  - Processes both inline comments AND PR reviews
+  - Parses CodeRabbit's structured format ("Actionable comments posted: N")
+
+- **Smart Watch Mode** - New `pr-vibe watch <pr>` command for seamless workflow
+  - Intelligent polling: 5s intervals for first 30s, then 15s, then 30s
+  - Live progress updates showing elapsed time
+  - Auto-processes when bots arrive
+  - Perfect for use right after creating a PR
+
+- **Bot-Specific Detection** - New `bot-detector.js` with confidence-based detection
+  - Detects CodeRabbit, DeepSource, SonarCloud, CodeClimate, Snyk
+  - Filters out non-actionable content (summaries, metadata)
+  - 95% confidence for known bots
+  - Parses bot-specific review formats
+
+### 🔧 Improvements
+- **Better Error Messages** - Shows exactly what was found
+  - Displays comment counts by type (issue, review, PR review)
+  - Lists which bots were detected or skipped
+  - Explains why comments weren't processed
+  - Suggests using watch mode for fresh PRs
+
+- **Debug Mode** - New `--debug` flag for troubleshooting
+  - Shows all API calls and responses
+  - Displays detection logic and confidence scores
+  - Helps diagnose why bots aren't being detected
+
+- **Confidence Tracking** - Every decision now includes confidence levels
+  - 95% confidence for pattern matching
+  - 90-95% for security issues
+  - 70% for architectural discussions
+  - Reports show average confidence
+
+### 🚀 Usage
+```bash
+# New seamless workflow
+gh pr create ...
+pr-vibe watch 123  # Waits for and processes bot reviews automatically
+```
+
 ## [0.4.1] - 2025-06-19
 
 ### 🐛 Fixed
