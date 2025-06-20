@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Validation script for issue creation feature
- * Tests that the DEFER action and issue creation work as expected
+ * Validation script for issue creation and categorization features
+ * Tests that the DEFER action, issue creation, and categorization work as expected
  */
 
-import { analyzeComment } from '../lib/decision-engine.js';
+import { analyzeComment, categorizeIssue, generateCommitMessageForCategory, generateAccurateDescription } from '../lib/decision-engine.js';
+import { botDetector } from '../lib/bot-detector.js';
 import chalk from 'chalk';
 
 console.log(chalk.blue('\n🔍 Validating Issue Creation Feature\n'));
@@ -86,3 +87,89 @@ console.log(chalk.gray('# Create issues from existing report:'));
 console.log('pr-vibe issues 123\n');
 console.log(chalk.gray('# Preview issues without creating:'));
 console.log('pr-vibe issues 123 --dry-run\n');
+
+// Additional validation for categorization fix
+console.log(chalk.blue('\n🔍 Validating Categorization Fix for False Security Positives\n'));
+
+const categorizationTests = [
+  {
+    name: 'Type Import Issue',
+    comment: 'Prefer type-only import for TypeBox types. Using regular imports for types can lead to unnecessary runtime dependencies.',
+    expectedCategory: 'STYLE',
+    shouldNotBe: 'SECURITY'
+  },
+  {
+    name: 'Empty Catch Block',
+    comment: 'Avoid empty catch blocks. Empty catch blocks can hide errors.',
+    expectedCategory: 'CODE_QUALITY',
+    shouldNotBe: 'SECURITY'
+  },
+  {
+    name: 'Console.log Statement',
+    comment: 'Remove console.log statements or replace with proper logging.',
+    expectedCategory: 'DEBUG',
+    shouldNotBe: 'SECURITY'
+  },
+  {
+    name: 'Actual Security Issue',
+    comment: 'Hardcoded API key detected. This exposes sensitive credentials.',
+    expectedCategory: 'SECURITY',
+    shouldNotBe: 'STYLE'
+  }
+];
+
+console.log(chalk.bold('Testing Categorization Logic:\n'));
+
+let categorizationPassed = 0;
+let categorizationFailed = 0;
+
+categorizationTests.forEach(({ name, comment, expectedCategory, shouldNotBe }) => {
+  const category = categorizeIssue(comment);
+  const commitMessage = generateCommitMessageForCategory(category);
+  const description = generateAccurateDescription(category, comment);
+  
+  const categoryCorrect = category === expectedCategory && category !== shouldNotBe;
+  const commitCorrect = !commitMessage.toLowerCase().includes('security') || category === 'SECURITY';
+  const descCorrect = !description.toLowerCase().includes('vulnerability') || category === 'SECURITY';
+  
+  const allCorrect = categoryCorrect && commitCorrect && descCorrect;
+  
+  if (allCorrect) {
+    console.log(chalk.green(`✅ ${name}`));
+    categorizationPassed++;
+  } else {
+    console.log(chalk.red(`❌ ${name}`));
+    categorizationFailed++;
+  }
+  
+  console.log(chalk.gray(`   Category: ${category} (expected: ${expectedCategory})`));
+  console.log(chalk.gray(`   Commit: ${commitMessage}`));
+  console.log(chalk.gray(`   Description: ${description}`));
+  
+  if (!categoryCorrect) {
+    console.log(chalk.red(`   ERROR: Wrong category! Got ${category}, expected ${expectedCategory}`));
+  }
+  if (!commitCorrect && category !== 'SECURITY') {
+    console.log(chalk.red(`   ERROR: Commit message mentions security for non-security issue!`));
+  }
+  console.log();
+});
+
+console.log(chalk.bold('\nCategorization Fix Summary:'));
+console.log(chalk.green(`✅ Passed: ${categorizationPassed}`));
+if (categorizationFailed > 0) {
+  console.log(chalk.red(`❌ Failed: ${categorizationFailed}`));
+  console.log(chalk.red('\n⚠️  Categorization fix needs adjustment!'));
+} else {
+  console.log(chalk.green('\n🎉 Categorization fix is working correctly!'));
+  console.log(chalk.green('   Type imports → STYLE (not SECURITY)'));
+  console.log(chalk.green('   Empty catch → CODE_QUALITY (not SECURITY)'));
+  console.log(chalk.green('   Console.log → DEBUG (not SECURITY)'));
+  console.log(chalk.green('   API keys → SECURITY (correctly identified)'));
+}
+
+// Overall exit code
+const totalFailed = failed + categorizationFailed;
+if (totalFailed > 0) {
+  process.exit(1);
+}
