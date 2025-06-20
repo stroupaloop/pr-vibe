@@ -5,6 +5,27 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 🎉 Major Features
+- **GitHub Issue Creation for Deferred Items** - Never lose important bot feedback
+  - `--create-issues` flag to automatically create issues when deferring items
+  - New `pr-vibe issues <pr>` command to create issues from saved reports
+  - Issues include full context: bot name, PR link, file/line info, decision reasoning
+  - Automatic labeling with `bot-feedback`, `pr-vibe`, and bot-specific labels
+  - Track created issues in reports and PR summaries
+  - `--dry-run` support to preview issues before creation
+  
+### 🔧 Improvements
+- Enhanced ReportBuilder to track issue URLs for deferred items
+- Updated PR summary to show count of issues created
+- Added dedicated "Deferred to Backlog" section in reports
+- New "Created Issues" section in PR comment summary
+
+### 📚 Documentation
+- Added issue creation commands to README
+- Created `examples/issue-creation-demo.js` to showcase the feature
+
 ## [0.6.0] - 2025-06-19
 
 ### 🎉 Major Features

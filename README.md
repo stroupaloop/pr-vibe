@@ -122,6 +122,11 @@ pr-vibe pr 42
 pr-vibe pr 42 --skip-nits  # Focus on critical issues only
 pr-vibe pr 42 --nits-only  # Review only style/formatting comments
 
+# Create GitHub issues for deferred feedback
+pr-vibe pr 42 --create-issues  # Auto-create issues when deferring
+pr-vibe issues 42              # Create issues from saved report
+pr-vibe issues 42 --dry-run    # Preview without creating
+
 # Check if PR is ready to merge (all bot comments resolved)
 pr-vibe check 42
 
