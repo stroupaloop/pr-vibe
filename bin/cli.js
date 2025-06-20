@@ -50,9 +50,9 @@ function getUpdateHighlight(current, latest) {
     // Specific highlights for known versions
     if (latest.startsWith('0.4')) {
       return 'Comprehensive reporting and pre-merge safety checks';
-    } else if (latest.startsWith('0.3')) {
+    } else     if (latest.startsWith('0.3')) {
       return 'Conversation management and security fixes';
-    } else if (latest.startsWith('0.2')) {
+    } else     if (latest.startsWith('0.2')) {
       return 'Human review support with --include-human-reviews flag';
     }
     return 'New features and improvements';
@@ -844,15 +844,25 @@ program
       }
     } else {
       // Show recent highlights
-      console.log(chalk.cyan('## Version 0.4.1 (Current)'));
-      console.log('  🐛 Fixed CLI changelog showing outdated version');
-      console.log('  🔧 Automated changelog version updates in CI/CD\n');
+            console.log(chalk.cyan('## Version 0.6.1 (Current)'));
+      console.log('  🐛 Fixed false security categorization for ESLint warnings');
+      console.log('  🎯 Style issues no longer flagged as vulnerabilities');
+      console.log('  ✨ New STYLE and DEBUG categories for better classification\n');
       
-      console.log(chalk.cyan('## Version 0.4.0'));
+      console.log(chalk.cyan('## Version 0.6.0'));
+      console.log('  🎯 Intelligent nit comment filtering (--skip-nits, --nits-only)');
+      console.log('  🔍 Enhanced bot detection with severity indicators');
+      console.log('  📊 Improved debug output for troubleshooting\n');
+      
+      console.log(chalk.cyan('## Version 0.5.0'));
+      console.log('  🚀 Major bot detection improvements');
+      console.log('  👀 Smart watch mode with intelligent polling');
+      console.log('  🎯 Bot-specific detection with confidence scoring\n');
+      
+      console.log(chalk.cyan('## Version 0.4.x'));
       console.log('  📊 Comprehensive reporting with decision logs');
       console.log('  🛡️ Pre-merge safety checks (check, status, report commands)');
-      console.log('  📝 Persistent report storage with 30-day TTL');
-      console.log('  🐛 Fixed critical file replacement bug\n');
+      console.log('  📝 Persistent report storage with 30-day TTL\n');
       
       console.log(chalk.cyan('## Version 0.3.x'));
       console.log('  🤝 Full conversation management with bots');
@@ -866,7 +876,7 @@ program
       console.log('  🐛 Case-insensitive bot detection');
       console.log('  📊 Pattern learning from team feedback\n');
       
-      console.log(chalk.gray('Run with --full to see complete changelog'));
+console.log(chalk.gray('Run with --full to see complete changelog'));
     }
   });
 
