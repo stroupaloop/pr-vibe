@@ -5,6 +5,21 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2025-06-20
+
+### 🐛 Fixed
+- **Fixed false positive security categorization** - ESLint style warnings no longer flagged as security vulnerabilities
+  - Type imports (e.g., "prefer type-only import") now correctly categorized as STYLE, not SECURITY
+  - Empty catch blocks now correctly categorized as CODE_QUALITY, not SECURITY
+  - Console.log statements now correctly categorized as DEBUG, not SECURITY
+  - Added context-aware categorization that checks style patterns before security patterns
+  - Commit messages now accurate: "style: Apply code formatting" instead of "SECURITY: Fixed vulnerability"
+
+### 🔧 Improvements
+- Added new issue categories: STYLE and DEBUG for better classification
+- Enhanced bot comment parsing to understand CodeRabbit severity indicators (⚠️ ≠ security)
+- Added comprehensive test suite for categorization logic
+
 ## [Unreleased]
 
 ### 🎉 Major Features
