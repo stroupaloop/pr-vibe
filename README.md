@@ -118,9 +118,10 @@ pr-vibe init
 # Review bot comments interactively
 pr-vibe pr 42
 
-# Filter nitpick comments
+# Filter comments by priority
 pr-vibe pr 42 --skip-nits  # Focus on critical issues only
 pr-vibe pr 42 --nits-only  # Review only style/formatting comments
+pr-vibe pr 42 --show-all   # Show all comments including non-critical
 
 # Create GitHub issues for deferred feedback
 pr-vibe pr 42 --create-issues  # Auto-create issues when deferring
@@ -153,6 +154,34 @@ pr-vibe pr 42 -r owner/repo
 
 # Show what's new
 pr-vibe changelog
+```
+
+## Enhanced Output
+
+pr-vibe now provides richer information about your PR:
+
+- **Bot Approval Status**: See which bots approved your PR
+- **Priority Breakdown**: Comments categorized as must-fix, suggestions, or nitpicks
+- **PR URL**: Direct clickable link to your PR
+- **Non-Critical Suggestions**: Optional improvements shown with `--show-all`
+
+Example output:
+```
+🔍 Analyzing PR #42...
+📎 https://github.com/owner/repo/pull/42
+
+🤖 Bot Approval Status
+✅ CodeRabbit: Approved - 3 suggestions, 2 nitpicks
+❌ DeepSource: Changes Requested - 1 must-fix, 2 suggestions
+
+✨ Summary
+  Total comments: 8
+  By Priority:
+    Must Fix: 1
+    Suggestions: 5
+    Nitpicks: 2
+    
+  (2 non-critical suggestions hidden - use --show-all to view)
 
 # Check for updates
 pr-vibe update
