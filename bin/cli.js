@@ -866,7 +866,13 @@ program
       }
     } else {
       // Show recent highlights
-            console.log(chalk.cyan('## Version 0.6.1 (Current)'));
+            console.log(chalk.cyan('## Version 0.7.0 (Current)'));
+      console.log('  🎯 Priority-based categorization (must-fix vs suggestions vs nitpicks)');
+      console.log('  📊 Bot approval status summary');
+      console.log('  🔗 PR URL with terminal hyperlink support');
+      console.log('  👁️ --show-all flag for non-critical suggestions\n');
+      
+      console.log(chalk.cyan('## Version 0.6.1'));
       console.log('  🐛 Fixed false security categorization for ESLint warnings');
       console.log('  🎯 Style issues no longer flagged as vulnerabilities');
       console.log('  ✨ New STYLE and DEBUG categories for better classification\n');
