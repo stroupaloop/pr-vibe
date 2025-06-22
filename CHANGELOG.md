@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced bot comment parsing to understand CodeRabbit severity indicators (⚠️ ≠ security)
 - Added comprehensive test suite for categorization logic
 
-## [0.7.0] - TBD
+## [0.7.0] - 2025-06-22
 
 ### 🎉 Major Features
 - **Enhanced Comment Categorization** - Better visibility into all bot feedback

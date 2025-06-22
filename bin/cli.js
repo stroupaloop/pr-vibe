@@ -48,11 +48,17 @@ function getUpdateHighlight(current, latest) {
     return 'Major update with new features!';
   } else if (latestMinor > currMinor) {
     // Specific highlights for known versions
-    if (latest.startsWith('0.4')) {
+    if (latest.startsWith('0.7')) {
+      return 'Enhanced categorization and bot approval summary';
+    } else if (latest.startsWith('0.6')) {
+      return 'Intelligent nit filtering and better categorization';
+    } else if (latest.startsWith('0.5')) {
+      return 'Major bot detection improvements and watch mode';
+    } else if (latest.startsWith('0.4')) {
       return 'Comprehensive reporting and pre-merge safety checks';
-    } else     if (latest.startsWith('0.3')) {
+    } else if (latest.startsWith('0.3')) {
       return 'Conversation management and security fixes';
-    } else     if (latest.startsWith('0.2')) {
+    } else if (latest.startsWith('0.2')) {
       return 'Human review support with --include-human-reviews flag';
     }
     return 'New features and improvements';

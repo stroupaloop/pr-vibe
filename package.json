@@ -1,6 +1,6 @@
 {
   "name": "pr-vibe",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "AI-powered PR review responder that vibes with CodeRabbit, DeepSource, and other bots to automate repetitive feedback",
   "keywords": [
     "ai",
