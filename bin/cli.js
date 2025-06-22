@@ -443,6 +443,22 @@ This feedback was deferred from PR review for future consideration.
       console.log(`  Skipped: ${stats.skipped}`);
       console.log(`  Added to backlog: ${stats.backlogged}`);
       
+      // Show priority breakdown
+      const byPriority = reportBuilder.report.summary.byPriority || {};
+      if (byPriority['must-fix'] > 0 || byPriority.suggestion > 0 || byPriority.nitpick > 0) {
+        console.log(`\n  By Priority:`);
+        if (byPriority['must-fix'] > 0) console.log(`    Must Fix: ${byPriority['must-fix']}`);
+        if (byPriority.suggestion > 0) console.log(`    Suggestions: ${byPriority.suggestion}`);
+        if (byPriority.nitpick > 0) console.log(`    Nitpicks: ${byPriority.nitpick}`);
+      }
+      
+      const nonCriticalCount = (reportBuilder.report.detailedActions.nonCritical || []).length;
+      if (options.showAll && nonCriticalCount > 0) {
+        console.log(`\n  ${chalk.yellow(`ℹ️  Showing ${nonCriticalCount} non-critical suggestions`)}`);
+      } else if (!options.showAll && nonCriticalCount > 0) {
+        console.log(`\n  ${chalk.gray(`(${nonCriticalCount} non-critical suggestions hidden - use --show-all to view)`)}`);
+      }
+      
       // Generate and save report
       reportBuilder.addConversationSummary(conversationManager);
       reportBuilder.finalize(fileModifier.getChangesSummary());

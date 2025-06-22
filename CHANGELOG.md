@@ -20,6 +20,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced bot comment parsing to understand CodeRabbit severity indicators (⚠️ ≠ security)
 - Added comprehensive test suite for categorization logic
 
+## [0.7.0] - TBD
+
+### 🎉 Major Features
+- **Enhanced Comment Categorization** - Better visibility into all bot feedback
+  - Priority-based categorization: must-fix vs suggestions vs nitpicks
+  - Bot approval status shown in summary (e.g., "CodeRabbit: Approved")
+  - `--show-all` flag to display non-critical suggestions
+  - PR URL included in output with terminal hyperlink support
+  - Comments grouped by priority in reports
+  
+### 🤖 Bot Review Summary
+- Shows which bots approved your PR at a glance
+- Displays breakdown of comment types per bot
+- Clear indication of actionable vs non-actionable items
+
+### 📊 Enhanced Reports
+- New "Bot Review Summary" section at top of reports
+- "Non-Critical Suggestions" section for optional improvements
+- Priority breakdown in summary statistics
+- Better organization of comments by severity
+
+### 🔧 Improvements
+- Added `PRIORITY_LEVELS` export for consistent categorization
+- Enhanced decision engine to include priority in all analyses
+- Terminal hyperlink support for PR URLs (supported terminals only)
+- Report builder tracks bot approvals and priority counts
+
+### 📚 Documentation
+- Updated README with enhanced output examples
+- Added priority filtering documentation
+- Documented new bot approval summary feature
+
 ## [Unreleased]
 
 ### 🎉 Major Features
