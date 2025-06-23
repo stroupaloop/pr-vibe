@@ -9,7 +9,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/stroupaloop/pr-vibe.svg?style=social)](https://github.com/stroupaloop/pr-vibe)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/stroupaloop/pr-vibe/pulls)
 
-> 🎵 When AI tools vibe together on your PRs. Let CodeRabbit and Claude Code handle the repetitive feedback while you ship features.
+> 🎵 When AI tools vibe together on your PRs. Let CodeRabbit, Claude Code, and other bots handle the repetitive feedback while you ship features.
 
 Built BY an AI (Claude) FOR AIs to orchestrate - the first tool designed for AI-to-AI collaboration on code reviews.
 
@@ -24,18 +24,19 @@ Visit our [interactive demo](https://stroupaloop.github.io/pr-vibe/) to see pr-v
 
 ## Why pr-vibe?
 
-PR review bots like CodeRabbit and DeepSource are great, but they don't understand *your* project. You find yourself:
+PR review bots like CodeRabbit, Claude Code, and DeepSource are great, but they don't understand *your* project. You find yourself:
 - Explaining why `console.log` is valid in Lambda functions... again
 - Rejecting the same "any types" warnings for complex webhooks
 - Manually fixing the same security issues they flag
 - Waiting for bot responses and handling rate limits
 
 pr-vibe bridges this gap by:
-- 🤝 **Working WITH bots** - Enhances CodeRabbit, DeepSource, etc. rather than replacing them
+- 🤝 **Working WITH bots** - Enhances CodeRabbit, Claude Code, DeepSource, etc. rather than replacing them
 - 💬 **Full Conversations** - Handles multi-round dialogues until resolution
 - 🧠 **Learning your patterns** - Remembers your project's conventions and valid exceptions
 - ⚡ **Automating responses** - Fixes what should be fixed, explains what's intentional
 - 🎯 **Saving time** - Handle bot comments in seconds, not minutes
+- 🤖 **Claude Code Support** - Special integration for Claude Code's confidence levels and categorization
 
 ## Features
 
@@ -189,12 +190,28 @@ pr-vibe update
 
 ## How It Works
 
-1. **Fetches** bot comments from your PR (CodeRabbit, DeepSource, etc.)
+1. **Fetches** bot comments from your PR (CodeRabbit, Claude Code, DeepSource, etc.)
 2. **Analyzes** each comment with pattern matching and optional LLM
 3. **Suggests** actions: fix, explain, defer, or escalate
 4. **Handles** full conversations including follow-ups and rate limits
 5. **Learns** from your decisions to get smarter over time
 6. **Saves** you 20+ minutes per PR with heavy bot activity
+
+### Claude Code Integration
+
+pr-vibe has special support for Claude Code reviews:
+
+- **Confidence Levels**: Extracts and uses Claude's confidence percentages (e.g., "95% confidence")
+- **Categories**: Understands Claude's MUST_FIX, SUGGESTION, NITPICK categories
+- **Smart Handling**: Skips re-analysis when Claude has already categorized issues
+- **Priority Mapping**: Maps Claude's priorities to pr-vibe's action system
+- **Approval Detection**: Recognizes when Claude approves changes
+
+Example Claude Code comment handling:
+```
+Claude Code: "MUST_FIX: SQL injection vulnerability (95% confidence - FACT)"
+pr-vibe: Automatically marks for fixing without re-analysis
+```
 
 ## Pattern Learning
 
