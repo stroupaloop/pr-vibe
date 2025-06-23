@@ -5,6 +5,33 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-06-23
+
+### 🤖 Claude Code Integration
+- **Full Claude Code Support** - Special handling for Claude Code GitHub app reviews
+  - Detects Claude Code bot comments and reviews automatically
+  - Extracts confidence levels (e.g., "95% confidence - FACT")
+  - Understands Claude's categories: MUST_FIX, SUGGESTION, NITPICK
+  - Maps Claude's priorities to pr-vibe's action system
+  - Skips redundant LLM analysis when Claude has already categorized
+  
+### 🎯 Smart Analysis
+- Claude Code comments are trusted as high-quality analysis
+- Automatically uses Claude's confidence scores
+- Recognizes Claude Code approvals (LGTM, approve)
+- Handles @claude mentions in comments
+
+### 🔧 Technical Improvements
+- Added `claudeCode` bot type to bot-detector.js
+- New `parseClaudeCodeReview()` method for parsing Claude's format
+- Decision engine now checks for Claude's existing analysis
+- Conversation manager handles Claude Code's specific responses
+
+### 📚 Documentation
+- Updated README with Claude Code integration details
+- Added examples of Claude Code comment handling
+- New test suite for Claude Code integration
+
 ## [0.6.1] - 2025-06-20
 
 ### 🐛 Fixed
