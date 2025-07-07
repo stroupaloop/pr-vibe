@@ -5,6 +5,43 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2025-07-07
+
+### 🎉 Smart Watch Mode
+- **Intelligent PR monitoring** - Watch for bots with adaptive polling intervals
+- **Bot completion detection** - Recognizes when bots finish their analysis
+- **Expected bot tracking** - Learns which bots typically review your PRs
+- **Auto-process option** - `--auto-process` flag to automatically handle comments when all bots complete
+
+### 🔧 Technical Improvements
+- **Adaptive polling intervals**:
+  - 0-30s: Check every 5 seconds (rapid bot response period)
+  - 30s-2m: Check every 10 seconds (most bots have responded)
+  - 2-5m: Check every 20 seconds (waiting for slower bots)
+  - 5m+: Check every 30 seconds (long-running analysis)
+- **Completion signal patterns** - Detects "review complete", "analysis finished", "approved", "LGTM"
+- **Bot response time tracking** - Learns average response times for each bot
+- **Smart status updates** - Spinner shows which specific bots are still pending
+
+### 📊 Enhanced UX
+- Shows bot completion status in real-time
+- Displays which bots have been detected vs still waiting
+- Clear messaging when all bots complete
+- Option to process immediately, wait for more, or exit
+
+### Example Usage
+```bash
+# Start watching after creating PR
+gh pr create ...
+pr-vibe watch 123
+
+# Auto-process when ready
+pr-vibe watch 123 --auto-process
+
+# Custom timeout
+pr-vibe watch 123 --timeout 30
+```
+
 ## [0.10.0] - 2025-07-07
 
 ### 📋 Merge Readiness Integration

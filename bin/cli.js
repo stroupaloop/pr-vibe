@@ -654,47 +654,118 @@ program
   .option('--timeout <minutes>', 'max time to wait (default: 10)', '10')
   .option('--auto-fix', 'automatically apply safe fixes')
   .option('--llm <provider>', 'LLM provider (openai/anthropic/none)', 'none')
+  .option('--auto-process', 'automatically process when all expected bots have responded')
   .action(async (prNumber, options) => {
-    console.log(chalk.blue('\n👀 PR Watch Mode - Waiting for bot reviews...\n'));
+    console.log(chalk.blue('\n👀 PR Watch Mode - Smart bot detection enabled\n'));
     
     const timeout = parseInt(options.timeout) * 60 * 1000; // Convert to ms
     const startTime = Date.now();
     
-    // Polling intervals
-    const intervals = [
-      { duration: 30000, interval: 5000 },   // First 30s: check every 5s
-      { duration: 120000, interval: 15000 }, // Next 2min: check every 15s
-      { duration: Infinity, interval: 30000 } // After that: check every 30s
-    ];
+    // Expected bots and their typical response times
+    const expectedBots = {
+      'coderabbit[bot]': { avgTime: 90, maxTime: 180 },
+      'deepsource[bot]': { avgTime: 60, maxTime: 120 },
+      'sonarcloud[bot]': { avgTime: 120, maxTime: 240 },
+      'snyk[bot]': { avgTime: 60, maxTime: 120 },
+      'claude[bot]': { avgTime: 45, maxTime: 90 }
+    };
+    
+    // Adaptive polling intervals
+    const getPollingInterval = (elapsedSeconds) => {
+      if (elapsedSeconds < 30) return 5000;    // First 30s: check every 5s
+      if (elapsedSeconds < 120) return 10000;  // Next 90s: check every 10s  
+      if (elapsedSeconds < 300) return 20000;  // Next 3min: check every 20s
+      return 30000;                             // After 5min: check every 30s
+    };
     
     const foundBots = new Set();
     const processedComments = new Set();
+    const botCompletionSignals = new Map(); // Track completion signals
+    const detectedBots = new Set(); // Track which bots we've seen on this PR
+    
+    // First, check what bots have already commented
+    const initialCheck = await analyzeGitHubPR(prNumber, options.repo, { skipNits: false });
+    initialCheck.comments.forEach(comment => {
+      const bot = comment.user?.login || comment.author?.login || 'unknown';
+      if (bot && expectedBots[bot]) {
+        detectedBots.add(bot);
+      }
+    });
     
     const spinner = ora('Checking for bot activity...').start();
     
+    // Show expected bots
+    const activeBots = Array.from(detectedBots);
+    if (activeBots.length > 0) {
+      spinner.text = `Detected active bots: ${activeBots.join(', ')}. Waiting for completion...`;
+    }
+    
     while (Date.now() - startTime < timeout) {
       const elapsed = Date.now() - startTime;
+      const elapsedSeconds = Math.floor(elapsed / 1000);
+      
+      // Update spinner with smart status
+      const waitingFor = [];
+      detectedBots.forEach(bot => {
+        if (!botCompletionSignals.has(bot)) {
+          const botInfo = expectedBots[bot];
+          if (botInfo && elapsedSeconds < botInfo.avgTime) {
+            waitingFor.push(`${bot} (usually ~${botInfo.avgTime}s)`);
+          } else if (botInfo && elapsedSeconds < botInfo.maxTime) {
+            waitingFor.push(`${bot} (should finish soon)`);
+          } else {
+            waitingFor.push(`${bot} (taking longer than usual)`);
+          }
+        }
+      });
+      
+      if (waitingFor.length > 0) {
+        spinner.text = `⏳ Waiting for: ${waitingFor.join(', ')}`;
+      }
       
       // Determine current interval
-      let currentInterval = 30000;
-      for (const { duration, interval } of intervals) {
-        if (elapsed < duration) {
-          currentInterval = interval;
-          break;
-        }
-      }
+      const currentInterval = getPollingInterval(elapsedSeconds);
       
       try {
         // Fetch PR data with debug flag
         const { botComments } = await analyzeGitHubPR(prNumber, options.repo, { debug: false });
         
-        // Track new bots
+        // Track new bots and detect completion signals
         botComments.forEach(comment => {
           const bot = comment.user?.login || comment.author?.login || 'unknown';
+          const body = comment.body || '';
+          
           if (!foundBots.has(bot)) {
             foundBots.add(bot);
             spinner.succeed(`${bot} posted ${comment.type === 'pr_review' ? 'review' : 'comment'}`);
-            spinner.start('Waiting for more bots...');
+            
+            // Add to detected bots if it's an expected bot
+            if (expectedBots[bot]) {
+              detectedBots.add(bot);
+            }
+            
+            spinner.start('Analyzing bot responses...');
+          }
+          
+          // Detect completion signals
+          if (!botCompletionSignals.has(bot)) {
+            const completionPatterns = [
+              /review\s+complete/i,
+              /analysis\s+(complete|finished)/i,
+              /actionable\s+comments\s+posted:\s*\d+/i,
+              /found\s+\d+\s+issues?/i,
+              /all\s+checks\s+pass/i,
+              /no\s+issues?\s+found/i,
+              /approved/i,
+              /lgtm/i
+            ];
+            
+            const hasCompletionSignal = completionPatterns.some(pattern => pattern.test(body));
+            if (hasCompletionSignal) {
+              botCompletionSignals.set(bot, true);
+              spinner.succeed(`${bot} review complete!`);
+              spinner.start('Checking other bots...');
+            }
           }
         });
         
@@ -703,6 +774,10 @@ program
           const id = c.id || `${c.user?.login}-${c.created_at}`;
           return !processedComments.has(id);
         });
+        
+        // Check if all detected bots have completed
+        const allBotsComplete = detectedBots.size > 0 && 
+          Array.from(detectedBots).every(bot => botCompletionSignals.has(bot));
         
         if (newComments.length > 0) {
           spinner.stop();
@@ -728,6 +803,30 @@ program
             if (stats.comments > 0) parts.push(`${stats.comments} comment${stats.comments > 1 ? 's' : ''}`);
             console.log(`  • ${bot}: ${parts.join(', ')}`);
           });
+          
+          // Show completion status
+          if (detectedBots.size > 0) {
+            console.log(chalk.bold('\n🎯 Bot Completion Status:'));
+            detectedBots.forEach(bot => {
+              const isComplete = botCompletionSignals.has(bot);
+              console.log(`  ${isComplete ? '✅' : '⏳'} ${bot}: ${isComplete ? 'Complete' : 'In progress'}`);
+            });
+          }
+          
+          // Auto-process if enabled and all bots complete
+          if (options.autoProcess && allBotsComplete) {
+            console.log(chalk.green.bold('\n✅ All expected bots have completed their reviews!'));
+            console.log(chalk.blue('\n🎵 Auto-processing bot comments...\n'));
+            
+            // Run the normal pr command
+            const args = ['node', 'pr-vibe', 'pr', prNumber, '-r', options.repo];
+            if (options.autoFix) args.push('--auto-fix');
+            if (options.llm !== 'none') args.push('--llm', options.llm);
+            
+            await program.parseAsync(args, { from: 'user' });
+            
+            return;
+          }
           
           // Ask user if they want to process now or wait for more
           const { action } = await inquirer.prompt([{
@@ -765,10 +864,33 @@ program
           }
         }
         
-        // Update spinner with elapsed time
+        // Check for completion without new comments (in case we missed the initial check)
+        if (allBotsComplete && !newComments.length && options.autoProcess) {
+          spinner.stop();
+          console.log(chalk.green.bold('\n✅ All expected bots have completed their reviews!'));
+          console.log(chalk.blue('\n🎵 Auto-processing bot comments...\n'));
+          
+          const args = ['node', 'pr-vibe', 'pr', prNumber, '-r', options.repo];
+          if (options.autoFix) args.push('--auto-fix');
+          if (options.llm !== 'none') args.push('--llm', options.llm);
+          
+          await program.parseAsync(args, { from: 'user' });
+          
+          return;
+        }
+        
+        // Update spinner with elapsed time and status
         const elapsedMin = Math.floor(elapsed / 60000);
         const elapsedSec = Math.floor((elapsed % 60000) / 1000);
-        spinner.text = `Waiting for bot reviews... (${elapsedMin}:${elapsedSec.toString().padStart(2, '0')} elapsed, checking every ${currentInterval/1000}s)`;
+        const timeStr = `${elapsedMin}:${elapsedSec.toString().padStart(2, '0')}`;
+        
+        if (waitingFor.length === 0 && detectedBots.size > 0) {
+          spinner.text = `All detected bots have responded! (${timeStr} elapsed)`;
+        } else if (waitingFor.length > 0) {
+          // Already set above with bot-specific info
+        } else {
+          spinner.text = `Waiting for bot reviews... (${timeStr} elapsed, checking every ${currentInterval/1000}s)`;
+        }
         
       } catch (error) {
         spinner.fail(`Error: ${error.message}`);
@@ -1026,7 +1148,7 @@ program
       }
     } else {
       // Show recent highlights
-                  console.log(chalk.cyan('## Version 0.8.0 (Current)'));
+      console.log(chalk.cyan('## Version 0.11.0 (Current)'));
       console.log('  ✨ New features and improvements');
       console.log('  🐛 Bug fixes and enhancements\n');
       
