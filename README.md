@@ -128,6 +128,7 @@ pr-vibe pr 42 --show-all   # Show all comments including non-critical
 pr-vibe pr 42 --critical-only           # Only must-fix issues (security, bugs)
 pr-vibe pr 42 --priority-threshold suggestion  # Show must-fix + suggestions
 pr-vibe pr 42 --priority-threshold nitpick     # Show all (default)
+# Note: --critical-only is equivalent to --priority-threshold must-fix
 
 # Smart watch mode - wait for bots to arrive
 pr-vibe watch 42                # Watch for bot reviews with smart polling
@@ -284,7 +285,7 @@ pr-vibe pr 42 --priority-threshold nitpick  # Shows everything
 
 ### Priority Summary
 Every pr-vibe run shows a priority breakdown:
-```
+```text
 By Priority:
   Must Fix: 2
   Suggestions: 5

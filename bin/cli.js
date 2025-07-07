@@ -287,8 +287,8 @@ program
           const ciText = ciStatus.failing > 0 
             ? `CI checks failing (${ciStatus.failing}/${ciStatus.total})`
             : ciStatus.pending > 0
-            ? `CI checks pending (${ciStatus.pending}/${ciStatus.total})`
-            : `CI checks passing (${ciStatus.passing}/${ciStatus.total})`;
+              ? `CI checks pending (${ciStatus.pending}/${ciStatus.total})`
+              : `CI checks passing (${ciStatus.passing}/${ciStatus.total})`;
           console.log(`  ${ciPassing ? checkMark : crossMark} ${ciText}`);
           
           if (ciPassing) {
@@ -616,7 +616,7 @@ This feedback was deferred from PR review for future consideration.
       if (priorityFilter) {
         const totalFiltered = Object.values(filteredCounts).reduce((sum, count) => sum + count, 0);
         if (totalFiltered > 0) {
-          console.log(chalk.yellow(`\n  📋 Filtered by priority:`));
+          console.log(chalk.yellow('\n  📋 Filtered by priority:'));
           if (filteredCounts[PRIORITY_LEVELS.MUST_FIX] > 0) {
             console.log(`    Must Fix: ${filteredCounts[PRIORITY_LEVELS.MUST_FIX]} (hidden)`);
           }
