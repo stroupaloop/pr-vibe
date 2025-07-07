@@ -5,6 +5,29 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-07-07
+
+### ✨ Enhanced "No Issues Found" Experience
+- **Positive messaging** - Replace warning "⚠️ No actionable bot comments found" with celebratory "✅ All bot reviews passed!"
+- **Bot approval detection** - Detect and display approval status for each bot (LGTM, approved, no issues found)
+- **Issue breakdown** - Show summary counts like "3 suggestions, 2 nitpicks" when bots provide details
+- **CI status display** - Show GitHub check runs with "3/5 checks passing (2 pending)" format
+- **PR URL with hyperlinks** - Display clickable PR URL using terminal hyperlink support
+- **Progressive disclosure** - New `--show-all` flag to optionally view non-critical suggestions
+
+### 🔧 Technical Improvements
+- Added `detectApproval()` method to BotDetector for recognizing approval signals
+- Added `extractIssueSummary()` method to parse issue counts from bot comments
+- Implemented missing `setBotApproval()` method in ReportBuilder
+- Added `getPRChecks()` method to GitHubProvider for CI status
+- Track non-critical suggestions separately with `addNonCriticalSuggestion()`
+- Enhanced report structure with bot approvals and non-critical sections
+
+### 📚 Testing
+- Added comprehensive test coverage for bot approval detection
+- Added tests for CI status structure validation
+- Added tests for CLI enhancement behaviors
+
 ## [0.8.0] - 2025-06-23
 
 ### 🤖 Claude Code Integration

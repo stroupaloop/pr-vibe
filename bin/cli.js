@@ -20,6 +20,7 @@ import { runDemo } from '../lib/demo.js';
 import { createReportBuilder } from '../lib/report-builder.js';
 import { createReportStorage } from '../lib/report-storage.js';
 import { ConversationManager } from '../lib/conversation-manager.js';
+import { botDetector } from '../lib/bot-detector.js';
 
 // Check for updates
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -48,17 +49,11 @@ function getUpdateHighlight(current, latest) {
     return 'Major update with new features!';
   } else if (latestMinor > currMinor) {
     // Specific highlights for known versions
-    if (latest.startsWith('0.7')) {
-      return 'Enhanced categorization and bot approval summary';
-    } else if (latest.startsWith('0.6')) {
-      return 'Intelligent nit filtering and better categorization';
-    } else if (latest.startsWith('0.5')) {
-      return 'Major bot detection improvements and watch mode';
-    } else if (latest.startsWith('0.4')) {
+    if (latest.startsWith('0.4')) {
       return 'Comprehensive reporting and pre-merge safety checks';
-    } else if (latest.startsWith('0.3')) {
+    } else     if (latest.startsWith('0.3')) {
       return 'Conversation management and security fixes';
-    } else if (latest.startsWith('0.2')) {
+    } else     if (latest.startsWith('0.2')) {
       return 'Human review support with --include-human-reviews flag';
     }
     return 'New features and improvements';
@@ -94,8 +89,22 @@ program
   .option('--skip-nits', 'skip nitpick/minor comments from bots')
   .option('--nits-only', 'only process nitpick comments')
   .option('--create-issues', 'create GitHub issues for deferred items')
+  .option('--show-all', 'show all suggestions including non-critical ones')
   .action(async (prNumber, options) => {
     console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
+    
+    // Display PR URL with hyperlink if terminal supports it
+    const repoName = options.repo || 'owner/repo';
+    const prUrl = `https://github.com/${repoName}/pull/${prNumber}`;
+    const supportsHyperlinks = process.stdout.isTTY && process.env.TERM_PROGRAM !== 'Apple_Terminal';
+    
+    if (supportsHyperlinks) {
+      console.log(`Analyzing PR #${prNumber} on ${repoName}...`);
+      console.log(`🔗 \x1b]8;;${prUrl}\x1b\\${prUrl}\x1b]8;;\x1b\\\n`);
+    } else {
+      console.log(`Analyzing PR #${prNumber} on ${repoName}...`);
+      console.log(`🔗 ${prUrl}\n`);
+    }
     
     const spinner = ora('Initializing services...').start();
     
@@ -138,41 +147,107 @@ program
       }
       
       if (comments.length === 0) {
-        // Show detailed information about what was found
-        if (debugInfo) {
-          console.log(chalk.yellow('\n📊 Comment Detection Summary:'));
-          console.log(chalk.gray(`  • Issue comments: ${debugInfo.issueComments}`));
-          console.log(chalk.gray(`  • Review comments: ${debugInfo.reviewComments}`));
-          console.log(chalk.gray(`  • PR reviews: ${debugInfo.prReviews}`));
+        // Positive messaging when no issues found
+        console.log(chalk.green('\n✅ All bot reviews passed! No issues found.\n'));
+        
+        // Show bot review summary
+        console.log(chalk.bold('Bot Review Summary:'));
+        
+        // Analyze bot approvals from debug info
+        if (debugInfo && debugInfo.reviewDetails) {
+          const botApprovals = [];
           
-          if (debugInfo.prReviews > 0) {
-            console.log(chalk.gray('\n  PR Review Details:'));
-            debugInfo.reviewDetails.forEach(review => {
-              console.log(chalk.gray(`    - ${review.author}: ${review.state} (${review.commentsCount} comments)`));
-            });
+          for (const review of debugInfo.reviewDetails) {
+            if (review.author && review.hasBody) {
+              // Try to detect approval from review body
+              const approval = botDetector.detectApproval(review.author, review.body || '');
+              const summary = botDetector.extractIssueSummary(review.author, review.body || '');
+              
+              botApprovals.push({
+                bot: review.author,
+                approved: approval.hasApproval,
+                signals: approval.signals,
+                summary: summary
+              });
+            }
           }
           
-          if (debugInfo.skippedComments && debugInfo.skippedComments.length > 0) {
-            console.log(chalk.gray('\n  Skipped Comments:'));
-            const nitSkips = debugInfo.skippedComments.filter(s => s.isNit);
-            const otherSkips = debugInfo.skippedComments.filter(s => !s.isNit);
+          // Display bot reviews
+          botApprovals.forEach(({ bot, approved, signals, summary }) => {
+            const icon = approved ? '✅' : '❌';
+            let statusText = `${icon} ${bot}: ${approved ? 'Approved' : 'Reviewed'}`;
             
-            if (nitSkips.length > 0) {
-              console.log(chalk.gray(`    Nits skipped: ${nitSkips.length}`));
+            if (summary && summary.total > 0) {
+              const parts = [];
+              if (summary.mustFix > 0) parts.push(`${summary.mustFix} must-fix`);
+              if (summary.suggestions > 0) parts.push(`${summary.suggestions} suggestions`);
+              if (summary.nitpicks > 0) parts.push(`${summary.nitpicks} nitpicks`);
+              statusText += ` (${parts.join(', ')})`;
+            } else if (approved && signals.length > 0) {
+              statusText += ` - ${signals[0]}`;
             }
             
-            otherSkips.forEach(skip => {
-              console.log(chalk.gray(`    - ${skip.username}: ${skip.reason} (${(skip.confidence * 100).toFixed(0)}% confidence)`));
-            });
+            console.log(`- ${statusText}`);
+          });
+          
+          // If no bot reviews found
+          if (botApprovals.length === 0) {
+            console.log(chalk.gray('- No bot reviews detected'));
           }
         }
         
-        console.log(chalk.yellow('\n⚠️  No actionable bot comments found.'));
-        console.log(chalk.gray('This could mean:'));
-        console.log(chalk.gray('  • Bots haven\'t commented yet (use `pr-vibe watch` to wait)'));
-        console.log(chalk.gray('  • All bot comments are summaries or non-actionable'));
-        console.log(chalk.gray('  • The PR has no issues that bots can detect'));
-        console.log(chalk.gray('\nUse --debug flag for more details'));
+        // Add DeepSource placeholder if not configured
+        if (!debugInfo?.reviewDetails?.some(r => r.author?.toLowerCase().includes('deepsource'))) {
+          console.log('- DeepSource: ✅ Not configured');
+        }
+        
+        // Show human reviews
+        console.log(`- Human reviews: ${humanComments.length} ${humanComments.length > 0 ? 'pending' : 'pending'}`);
+        
+        // Show CI status
+        try {
+          spinner.start('Checking CI status...');
+          const ciStatus = await provider.getPRChecks(prNumber);
+          spinner.stop();
+          
+          if (ciStatus && ciStatus.total > 0) {
+            let ciText = `\nCI Status: ${ciStatus.passing}/${ciStatus.total} checks passing`;
+            if (ciStatus.pending > 0) {
+              ciText += ` (${ciStatus.pending} pending)`;
+            }
+            if (ciStatus.failing > 0) {
+              ciText += chalk.red(` (${ciStatus.failing} failing)`);
+            }
+            console.log(ciText);
+          }
+        } catch (error) {
+          spinner.stop();
+          // Silently ignore CI status errors
+        }
+        
+        // Show non-critical suggestions if any
+        if (debugInfo && debugInfo.skippedComments) {
+          const nitSkips = debugInfo.skippedComments.filter(s => s.isNit);
+          if (nitSkips.length > 0) {
+            console.log(chalk.gray(`\n💡 ${nitSkips.length} non-critical suggestions available (use --show-all to view)`));
+            
+            if (options.showAll) {
+              console.log(chalk.bold('\nNon-Critical Suggestions:'));
+              nitSkips.forEach((skip, idx) => {
+                console.log(`${idx + 1}. ${skip.username}: ${skip.body?.substring(0, 100)}...`);
+              });
+            }
+          }
+        }
+        
+        // Only show debug info if --debug flag is used
+        if (options.debug && debugInfo) {
+          console.log(chalk.yellow('\n📊 Debug: Comment Detection Summary:'));
+          console.log(chalk.gray(`  • Issue comments: ${debugInfo.issueComments}`));
+          console.log(chalk.gray(`  • Review comments: ${debugInfo.reviewComments}`));
+          console.log(chalk.gray(`  • PR reviews: ${debugInfo.prReviews}`));
+        }
+        
         return;
       }
       
@@ -334,7 +409,13 @@ This feedback was deferred from PR review for future consideration.
         decisions.push({ comment: mainComment, decision: analysis, userAction });
         
         // Track in report builder
-        reportBuilder.addDecision(mainComment, analysis, userAction);
+        // Check if this is a non-critical suggestion
+        if (!options.showAll && (analysis.priority === 'low' || analysis.category === 'NITPICK' || analysis.category === 'STYLE')) {
+          // Track as non-critical but don't process further
+          reportBuilder.addNonCriticalSuggestion(mainComment, analysis);
+        } else {
+          reportBuilder.addDecision(mainComment, analysis, userAction);
+        }
         
         console.log(chalk.dim(`  → Action: ${userAction}\n`));
       }
@@ -866,31 +947,9 @@ program
       }
     } else {
       // Show recent highlights
-            console.log(chalk.cyan('## Version 0.7.0 (Current)'));
-      console.log('  🎯 Priority-based categorization (must-fix vs suggestions vs nitpicks)');
-      console.log('  📊 Bot approval status summary');
-      console.log('  🔗 PR URL with terminal hyperlink support');
-      console.log('  👁️ --show-all flag for non-critical suggestions\n');
-      
-      console.log(chalk.cyan('## Version 0.6.1'));
-      console.log('  🐛 Fixed false security categorization for ESLint warnings');
-      console.log('  🎯 Style issues no longer flagged as vulnerabilities');
-      console.log('  ✨ New STYLE and DEBUG categories for better classification\n');
-      
-      console.log(chalk.cyan('## Version 0.6.0'));
-      console.log('  🎯 Intelligent nit comment filtering (--skip-nits, --nits-only)');
-      console.log('  🔍 Enhanced bot detection with severity indicators');
-      console.log('  📊 Improved debug output for troubleshooting\n');
-      
-      console.log(chalk.cyan('## Version 0.5.0'));
-      console.log('  🚀 Major bot detection improvements');
-      console.log('  👀 Smart watch mode with intelligent polling');
-      console.log('  🎯 Bot-specific detection with confidence scoring\n');
-      
-      console.log(chalk.cyan('## Version 0.4.x'));
-      console.log('  📊 Comprehensive reporting with decision logs');
-      console.log('  🛡️ Pre-merge safety checks (check, status, report commands)');
-      console.log('  📝 Persistent report storage with 30-day TTL\n');
+                  console.log(chalk.cyan('## Version 0.8.0 (Current)'));
+      console.log('  ✨ New features and improvements');
+      console.log('  🐛 Bug fixes and enhancements\n');
       
       console.log(chalk.cyan('## Version 0.3.x'));
       console.log('  🤝 Full conversation management with bots');
