@@ -1210,7 +1210,7 @@ program
       }
     } else {
       // Show recent highlights
-      console.log(chalk.cyan('## Version 0.11.0 (Current)'));
+            console.log(chalk.cyan('## Version 0.12.0 (Current)'));
       console.log('  ✨ New features and improvements');
       console.log('  🐛 Bug fixes and enhancements\n');
       
