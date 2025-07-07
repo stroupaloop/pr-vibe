@@ -5,6 +5,29 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2025-07-07
+
+### 📋 Merge Readiness Integration
+- **Merge readiness summary** - Shows clear checklist at the end of every `pr` command
+- **Smart status detection** - Combines bot approvals, critical issues, and CI status
+- **Visual indicators** - ✅/❌ marks show what's passing or blocking merge
+- **Clear guidance** - "Ready to merge!" or specific reasons why not
+
+### 🔧 Improvements
+- **Professional polish** - Fixed potential NaN% confidence displays
+- **Consistent experience** - Merge readiness shown for both issue and no-issue cases
+- **CI integration** - Automatically checks GitHub Actions/checks status
+
+### Example Output
+```
+📋 Merge Readiness:
+  ✅ All bot reviews passed
+  ✅ No critical issues found
+  ✅ CI checks passing (5/5)
+
+  ✅ Ready to merge!
+```
+
 ## [0.9.0] - 2025-07-07
 
 ### ✨ Enhanced "No Issues Found" Experience

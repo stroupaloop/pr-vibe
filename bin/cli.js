@@ -248,6 +248,33 @@ program
           console.log(chalk.gray(`  • PR reviews: ${debugInfo.prReviews}`));
         }
         
+        // Show merge readiness when no issues found
+        console.log(chalk.bold('\n📋 Merge Readiness:'));
+        const checkMark = chalk.green('✅');
+        const crossMark = chalk.red('❌');
+        
+        console.log(`  ${checkMark} All bot reviews passed`);
+        console.log(`  ${checkMark} No critical issues found`);
+        
+        // Check CI status if available
+        if (ciStatus) {
+          const ciPassing = ciStatus.failing === 0 && ciStatus.pending === 0;
+          const ciText = ciStatus.failing > 0 
+            ? `CI checks failing (${ciStatus.failing}/${ciStatus.total})`
+            : ciStatus.pending > 0
+            ? `CI checks pending (${ciStatus.pending}/${ciStatus.total})`
+            : `CI checks passing (${ciStatus.passing}/${ciStatus.total})`;
+          console.log(`  ${ciPassing ? checkMark : crossMark} ${ciText}`);
+          
+          if (ciPassing) {
+            console.log(chalk.green.bold('\n  ✅ Ready to merge!'));
+          } else {
+            console.log(chalk.yellow.bold('\n  ⚠️  Not ready to merge - CI checks must pass'));
+          }
+        } else {
+          console.log(chalk.green.bold('\n  ✅ Ready to merge!'));
+        }
+        
         return;
       }
       
@@ -559,6 +586,57 @@ This feedback was deferred from PR review for future consideration.
       console.log(chalk.gray(reportPreview));
       console.log(chalk.gray('...\n'));
       console.log(chalk.cyan(`View full report: pr-vibe report ${prNumber}`));
+      
+      // Show merge readiness summary
+      console.log(chalk.bold('\n📋 Merge Readiness:'));
+      
+      // Check bot approvals
+      const botApprovals = reportBuilder.report.summary.botApprovals || {};
+      const allBotsApproved = Object.values(botApprovals).every(approval => approval.approved);
+      const botCount = Object.keys(botApprovals).length;
+      
+      // Check critical issues
+      const hasCriticalIssues = reportBuilder.report.summary.actions.escalated > 0 || 
+                                reportBuilder.report.summary.actions.fixed > 0;
+      
+      // Get CI status if available
+      let ciStatus = null;
+      let ciPassing = false;
+      try {
+        ciStatus = await provider.getPRChecks(prNumber);
+        ciPassing = ciStatus && ciStatus.total > 0 && 
+                    ciStatus.failing === 0 && 
+                    ciStatus.pending === 0;
+      } catch (error) {
+        // Silently ignore CI status errors
+      }
+      
+      // Display checklist
+      const checkMark = chalk.green('✅');
+      const crossMark = chalk.red('❌');
+      
+      console.log(`  ${allBotsApproved || botCount === 0 ? checkMark : crossMark} All bot reviews passed`);
+      console.log(`  ${!hasCriticalIssues ? checkMark : crossMark} No critical issues found`);
+      
+      if (ciStatus) {
+        const ciText = ciStatus.failing > 0 
+          ? `CI checks failing (${ciStatus.failing}/${ciStatus.total})`
+          : ciStatus.pending > 0
+          ? `CI checks pending (${ciStatus.pending}/${ciStatus.total})`
+          : `CI checks passing (${ciStatus.passing}/${ciStatus.total})`;
+        console.log(`  ${ciPassing ? checkMark : crossMark} ${ciText}`);
+      }
+      
+      // Overall readiness
+      const isReadyToMerge = (allBotsApproved || botCount === 0) && 
+                             !hasCriticalIssues && 
+                             (ciPassing || !ciStatus);
+      
+      if (isReadyToMerge) {
+        console.log(chalk.green.bold('\n  ✅ Ready to merge!'));
+      } else {
+        console.log(chalk.yellow.bold('\n  ⚠️  Not ready to merge - address the issues above'));
+      }
       
     } catch (error) {
       spinner.fail('Error during review');
