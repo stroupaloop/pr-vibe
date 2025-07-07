@@ -205,9 +205,10 @@ program
         console.log(`- Human reviews: ${humanComments.length} ${humanComments.length > 0 ? 'pending' : 'pending'}`);
         
         // Show CI status
+        let ciStatus = null;
         try {
           spinner.start('Checking CI status...');
-          const ciStatus = await provider.getPRChecks(prNumber);
+          ciStatus = await provider.getPRChecks(prNumber);
           spinner.stop();
           
           if (ciStatus && ciStatus.total > 0) {
