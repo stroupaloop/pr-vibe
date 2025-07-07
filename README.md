@@ -124,6 +124,11 @@ pr-vibe pr 42 --skip-nits  # Focus on critical issues only
 pr-vibe pr 42 --nits-only  # Review only style/formatting comments
 pr-vibe pr 42 --show-all   # Show all comments including non-critical
 
+# Smart watch mode - wait for bots to arrive
+pr-vibe watch 42                # Watch for bot reviews with smart polling
+pr-vibe watch 42 --auto-process # Auto-process when all bots complete
+pr-vibe watch 42 --timeout 30   # Custom timeout (default 10 minutes)
+
 # Create GitHub issues for deferred feedback
 pr-vibe pr 42 --create-issues  # Auto-create issues when deferring
 pr-vibe issues 42              # Create issues from saved report
@@ -244,6 +249,33 @@ pr-vibe pr 42 --llm openai
 # No LLM needed - pattern matching works great!
 pr-vibe pr 42
 ```
+
+## Smart Watch Mode
+
+pr-vibe includes an intelligent watch mode that monitors your PR for bot activity:
+
+- **Adaptive Polling**: Starts with 5s intervals, gradually increases to 60s
+- **Bot Completion Detection**: Recognizes when bots finish their analysis
+- **Expected Bot Tracking**: Learns which bots typically review your PRs
+- **Auto-Process Option**: Automatically process comments when all bots complete
+
+```bash
+# Start watching immediately after creating a PR
+gh pr create ...
+pr-vibe watch 123
+
+# Auto-process when all bots complete their reviews
+pr-vibe watch 123 --auto-process
+
+# Watch with custom timeout and auto-fix
+pr-vibe watch 123 --auto-process --auto-fix --timeout 20
+```
+
+Smart polling intervals:
+- 0-30s: Check every 5s (bots respond quickly)
+- 30s-2m: Check every 15s (most bots have arrived)
+- 2-5m: Check every 30s (waiting for slower bots)
+- 5m+: Check every 60s (long-running analysis)
 
 ## Conversation Management
 
