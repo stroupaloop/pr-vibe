@@ -819,11 +819,11 @@ program
             console.log(chalk.blue('\n🎵 Auto-processing bot comments...\n'));
             
             // Run the normal pr command
-            await program.parseAsync(['node', 'pr-vibe', 'pr', prNumber, 
-              '-r', options.repo,
-              options.autoFix ? '--auto-fix' : '',
-              '--llm', options.llm
-            ].filter(Boolean), { from: 'user' });
+            const args = ['node', 'pr-vibe', 'pr', prNumber, '-r', options.repo];
+            if (options.autoFix) args.push('--auto-fix');
+            if (options.llm !== 'none') args.push('--llm', options.llm);
+            
+            await program.parseAsync(args, { from: 'user' });
             
             return;
           }
@@ -870,11 +870,11 @@ program
           console.log(chalk.green.bold('\n✅ All expected bots have completed their reviews!'));
           console.log(chalk.blue('\n🎵 Auto-processing bot comments...\n'));
           
-          await program.parseAsync(['node', 'pr-vibe', 'pr', prNumber, 
-            '-r', options.repo,
-            options.autoFix ? '--auto-fix' : '',
-            '--llm', options.llm
-          ].filter(Boolean), { from: 'user' });
+          const args = ['node', 'pr-vibe', 'pr', prNumber, '-r', options.repo];
+          if (options.autoFix) args.push('--auto-fix');
+          if (options.llm !== 'none') args.push('--llm', options.llm);
+          
+          await program.parseAsync(args, { from: 'user' });
           
           return;
         }
@@ -1148,7 +1148,7 @@ program
       }
     } else {
       // Show recent highlights
-                        console.log(chalk.cyan('## Version 0.11.0 (Current)'));
+      console.log(chalk.cyan('## Version 0.11.0 (Current)'));
       console.log('  ✨ New features and improvements');
       console.log('  🐛 Bug fixes and enhancements\n');
       

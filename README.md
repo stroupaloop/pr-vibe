@@ -273,9 +273,9 @@ pr-vibe watch 123 --auto-process --auto-fix --timeout 20
 
 Smart polling intervals:
 - 0-30s: Check every 5s (bots respond quickly)
-- 30s-2m: Check every 15s (most bots have arrived)
-- 2-5m: Check every 30s (waiting for slower bots)
-- 5m+: Check every 60s (long-running analysis)
+- 30s-2m: Check every 10s (most bots have arrived)
+- 2-5m: Check every 20s (waiting for slower bots)
+- 5m+: Check every 30s (long-running analysis)
 
 ## Conversation Management
 

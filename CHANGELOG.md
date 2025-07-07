@@ -16,9 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🔧 Technical Improvements
 - **Adaptive polling intervals**:
   - 0-30s: Check every 5 seconds (rapid bot response period)
-  - 30s-2m: Check every 15 seconds (most bots have responded)
-  - 2-5m: Check every 30 seconds (waiting for slower bots)
-  - 5m+: Check every 60 seconds (long-running analysis)
+  - 30s-2m: Check every 10 seconds (most bots have responded)
+  - 2-5m: Check every 20 seconds (waiting for slower bots)
+  - 5m+: Check every 30 seconds (long-running analysis)
 - **Completion signal patterns** - Detects "review complete", "analysis finished", "approved", "LGTM"
 - **Bot response time tracking** - Learns average response times for each bot
 - **Smart status updates** - Spinner shows which specific bots are still pending

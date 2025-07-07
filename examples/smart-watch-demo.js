@@ -52,9 +52,9 @@ completionExamples.forEach(({ bot, body, isComplete }) => {
 console.log(chalk.bold('\n⏱️  Adaptive Polling Intervals:'));
 const intervals = [
   { elapsed: '0-30s', interval: '5s', reason: 'Bots typically respond quickly' },
-  { elapsed: '30s-2m', interval: '15s', reason: 'Most bots have responded' },
-  { elapsed: '2-5m', interval: '30s', reason: 'Waiting for slower bots' },
-  { elapsed: '5m+', interval: '60s', reason: 'Long-running analysis' }
+  { elapsed: '30s-2m', interval: '10s', reason: 'Most bots have responded' },
+  { elapsed: '2-5m', interval: '20s', reason: 'Waiting for slower bots' },
+  { elapsed: '5m+', interval: '30s', reason: 'Long-running analysis' }
 ];
 
 intervals.forEach(({ elapsed, interval, reason }) => {

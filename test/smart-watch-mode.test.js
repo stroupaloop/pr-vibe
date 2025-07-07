@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
 import { execSync } from 'child_process';
-import { botDetector } from '../lib/bot-detector.js';
 
 describe('Smart watch mode', () => {
   let mockExecSync;
@@ -85,17 +84,17 @@ describe('Smart watch mode', () => {
     test('should use correct intervals based on elapsed time', () => {
       const getPollingInterval = (elapsed) => {
         if (elapsed < 30000) return 5000;        // 5s for first 30s
-        if (elapsed < 120000) return 15000;      // 15s for 30s-2min
-        if (elapsed < 300000) return 30000;      // 30s for 2-5min
-        return 60000;                             // 60s after 5min
+        if (elapsed < 120000) return 10000;      // 10s for 30s-2min
+        if (elapsed < 300000) return 20000;      // 20s for 2-5min
+        return 30000;                             // 30s after 5min
       };
       
       expect(getPollingInterval(0)).toBe(5000);
       expect(getPollingInterval(15000)).toBe(5000);
-      expect(getPollingInterval(30000)).toBe(15000);
-      expect(getPollingInterval(120000)).toBe(30000);
-      expect(getPollingInterval(300000)).toBe(60000);
-      expect(getPollingInterval(600000)).toBe(60000);
+      expect(getPollingInterval(30000)).toBe(10000);
+      expect(getPollingInterval(120000)).toBe(20000);
+      expect(getPollingInterval(300000)).toBe(30000);
+      expect(getPollingInterval(600000)).toBe(30000);
     });
   });
 
@@ -145,26 +144,30 @@ describe('Smart watch mode', () => {
   });
 
   describe('Bot response time tracking', () => {
-    test('should calculate correct response times', () => {
+    test('should calculate correct response times', async () => {
       const startTime = Date.now();
       const botResponseTimes = new Map();
       
       // Simulate bot responses at different times
-      setTimeout(() => {
-        botResponseTimes.set('coderabbit[bot]', Date.now() - startTime);
-      }, 100);
+      await new Promise(resolve => {
+        setTimeout(() => {
+          botResponseTimes.set('coderabbit[bot]', Date.now() - startTime);
+          resolve();
+        }, 100);
+      });
       
-      setTimeout(() => {
-        botResponseTimes.set('deepsource[bot]', Date.now() - startTime);
-      }, 200);
+      await new Promise(resolve => {
+        setTimeout(() => {
+          botResponseTimes.set('deepsource[bot]', Date.now() - startTime);
+          resolve();
+        }, 100);
+      });
       
-      // After 300ms, check response times
-      setTimeout(() => {
-        expect(botResponseTimes.get('coderabbit[bot]')).toBeGreaterThanOrEqual(100);
-        expect(botResponseTimes.get('coderabbit[bot]')).toBeLessThan(150);
-        expect(botResponseTimes.get('deepsource[bot]')).toBeGreaterThanOrEqual(200);
-        expect(botResponseTimes.get('deepsource[bot]')).toBeLessThan(250);
-      }, 300);
+      // Check response times
+      expect(botResponseTimes.get('coderabbit[bot]')).toBeGreaterThanOrEqual(100);
+      expect(botResponseTimes.get('coderabbit[bot]')).toBeLessThan(150);
+      expect(botResponseTimes.get('deepsource[bot]')).toBeGreaterThanOrEqual(200);
+      expect(botResponseTimes.get('deepsource[bot]')).toBeLessThan(250);
     });
   });
 
