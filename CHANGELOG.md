@@ -5,6 +5,38 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2025-07-07
+
+### 🎯 Priority-Based Filtering
+- **--critical-only flag** - Focus on must-fix issues only (security, bugs, breaking changes)
+- **--priority-threshold option** - Filter by priority level: must-fix, suggestion, or nitpick
+- **Priority breakdown in summary** - Shows count of comments by priority level
+- **Filtered count display** - Shows how many comments were hidden by priority filter
+
+### 🔧 Technical Improvements
+- Priority levels exported from decision-engine: MUST_FIX, SUGGESTION, NITPICK
+- All comments now include priority assignment based on category
+- Priority filtering logic with configurable thresholds
+- Validation to prevent conflicting filter options
+
+### 📊 Enhanced Output
+- AI Analysis now shows priority level for each comment
+- Final summary includes priority breakdown
+- Filtered items are tracked and displayed
+- Clear indication when comments are skipped due to filtering
+
+### Example Usage
+```bash
+# Focus on critical issues only
+pr-vibe pr 123 --critical-only
+
+# Show must-fix and suggestions
+pr-vibe pr 123 --priority-threshold suggestion
+
+# Combine with auto-fix for rapid resolution
+pr-vibe pr 123 --critical-only --auto-fix
+```
+
 ## [0.11.0] - 2025-07-07
 
 ### 🎉 Smart Watch Mode

@@ -124,6 +124,12 @@ pr-vibe pr 42 --skip-nits  # Focus on critical issues only
 pr-vibe pr 42 --nits-only  # Review only style/formatting comments
 pr-vibe pr 42 --show-all   # Show all comments including non-critical
 
+# Priority-based filtering (NEW in v0.12.0)
+pr-vibe pr 42 --critical-only           # Only must-fix issues (security, bugs)
+pr-vibe pr 42 --priority-threshold suggestion  # Show must-fix + suggestions
+pr-vibe pr 42 --priority-threshold nitpick     # Show all (default)
+# Note: --critical-only is equivalent to --priority-threshold must-fix
+
 # Smart watch mode - wait for bots to arrive
 pr-vibe watch 42                # Watch for bot reviews with smart polling
 pr-vibe watch 42 --auto-process # Auto-process when all bots complete
@@ -248,6 +254,45 @@ pr-vibe pr 42 --llm openai
 
 # No LLM needed - pattern matching works great!
 pr-vibe pr 42
+```
+
+## Priority-Based Filtering
+
+Focus on what matters most with intelligent priority filtering:
+
+### Priority Levels
+- **Must Fix** 🔴: Security vulnerabilities, bugs, breaking changes
+- **Suggestion** 🟡: Code quality, performance, type safety improvements
+- **Nitpick** ⚪: Style, formatting, minor cosmetic issues
+
+### Filtering Options
+```bash
+# Only show critical issues that must be fixed
+pr-vibe pr 42 --critical-only
+
+# Show must-fix and suggestions (hide nitpicks)
+pr-vibe pr 42 --priority-threshold suggestion
+
+# Custom threshold - show all at or above specified level
+pr-vibe pr 42 --priority-threshold nitpick  # Shows everything
+```
+
+### Use Cases
+1. **Pre-release Review**: Use `--critical-only` to focus on blockers
+2. **Regular Development**: Use `--priority-threshold suggestion` for balanced review
+3. **Code Quality Sprint**: Review all comments including nitpicks
+4. **Quick Fix Mode**: Combine `--critical-only --auto-fix` for rapid resolution
+
+### Priority Summary
+Every pr-vibe run shows a priority breakdown:
+```text
+By Priority:
+  Must Fix: 2
+  Suggestions: 5
+  Nitpicks: 3
+
+📋 Filtered by priority:
+  Nitpicks: 3 (hidden)
 ```
 
 ## Smart Watch Mode
