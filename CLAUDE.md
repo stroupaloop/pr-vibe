@@ -52,11 +52,11 @@ IMPORTANT: Before merging ANY PR with bot comments:
 ## Project Overview
 pr-vibe is an AI-powered PR review tool that orchestrates conversations between PR bots (CodeRabbit, DeepSource, etc.) and handles their feedback automatically. Built BY an AI (Claude) FOR AIs to collaborate on code reviews.
 
-## Current Status (2025-06-19)
-- **Version**: v0.6.0 (intelligent nit comment filtering) - FACT (100% confidence)
-- **Launch**: ProductHunt scheduled for 2025-06-19 ~3am ET - FACT from docs (100% confidence)
-- **Pre-launch**: Posted on HN, Reddit (r/ClaudeAI), Medium, X, LinkedIn - FACT (100% confidence)
-- **Latest Release**: v0.6.0 published to npm with nit filtering features - FACT (100% confidence)
+## Current Status (2025-07-07)
+- **Version**: v0.12.1 (bot detection fix) - FACT (100% confidence)
+- **Latest Features**: Smart watch mode, priority-based filtering, bot detection improvements - FACT (100% confidence)
+- **Dependencies**: All production deps updated to latest versions - FACT (100% confidence)
+- **Launch Status**: ProductHunt launch completed, product in active use - INFERENCE (90% confidence)
 
 ## Key Features Implemented
 1. **Conversation Management** (v0.3.0) - Full multi-round dialogue handling with bots
@@ -407,10 +407,61 @@ Before creating any PR:
 10. Run `pr-vibe check <number>` before merging
 11. Only merge when check returns success
 
+## Session Summary (2025-07-07) - Major Improvements
+
+### What We Built Today
+
+#### 1. **Smart Watch Mode** (v0.11.0) ✅
+- Adaptive polling intervals (5s→10s→20s→30s)
+- Bot completion detection with pattern matching
+- Expected bot tracking and time estimates
+- `--auto-process` flag for hands-free operation
+- Comprehensive test coverage
+
+#### 2. **Priority-Based Filtering** (v0.12.0) ✅
+- `--critical-only` flag for security/bugs only
+- `--priority-threshold` option for custom filtering
+- Priority breakdown in output summary
+- Filtered counts display
+- Full integration with existing features
+
+#### 3. **Bot Detection Fix** (v0.12.1) ✅
+- Fixed inability to detect CodeRabbit PR review comments
+- Special handling for `pr_review_comment` type
+- Now properly processes nested review comments
+- Added comprehensive unit tests
+
+#### 4. **Dependency Updates** ✅
+- Updated 4 production dependencies to latest versions
+- dotenv: 16.5.0 → 17.0.1
+- @anthropic-ai/sdk: 0.30.1 → 0.56.0
+- openai: 4.104.0 → 5.8.2
+- @octokit/rest: 21.1.1 → 22.0.0
+
+### Key Technical Decisions
+1. **Polling Strategy**: Exponential backoff reduces API calls while maintaining responsiveness
+2. **Priority Levels**: Three-tier system (must-fix, suggestion, nitpick) provides clear categorization
+3. **Bot Detection**: Fixed architectural issue where nested comments were being skipped
+4. **Dependency Management**: Kept dependencies current while ensuring compatibility
+
+### Validation & Testing
+- All features have comprehensive test coverage
+- Successfully used pr-vibe on its own PRs (#32, #33, #34)
+- CI/CD pipeline working smoothly
+- npm auto-publishing via GitHub Actions
+
+### Known Issues & Future Work
+1. **pr-vibe Output Ordering**: Success message sometimes appears out of order (cosmetic issue)
+2. **Dev Dependencies**: ESLint v9 and Jest v30 require migration work
+3. **Team Patterns Feature**: Next major feature to implement
+4. **Browser Extension**: Under consideration for future development
+
+### Critical Learning
+The bot detection issue revealed that different bots structure their feedback differently. CodeRabbit posts review comments nested within PR reviews, which required special handling. This highlights the importance of thorough testing with real-world bot interactions.
+
 ## Next Session Priorities
-1. Verify ProductHunt launch is actually submitted/scheduled
-2. Monitor launch metrics using tracking tools
-3. Respond to user feedback across all channels
-4. Address any critical bugs from early adopters
-5. Consider implementing browser extension
-6. Continue dogfooding pr-vibe on its own development
+1. Monitor user feedback and address any critical issues
+2. Consider implementing team patterns feature
+3. Work on ESLint v9 and Jest v30 migration
+4. Investigate browser extension feasibility
+5. Continue dogfooding pr-vibe on its own development
