@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import updateNotifier from 'update-notifier';
 import { analyzeGitHubPR } from '../lib/github.js';
-import { analyzeComment } from '../lib/decision-engine.js';
+import { analyzeComment, PRIORITY_LEVELS } from '../lib/decision-engine.js';
 import { createLLMService } from '../lib/llm-integration.js';
 import { createFileModifier } from '../lib/file-modifier.js';
 import { createCommentPoster } from '../lib/comment-poster.js';
@@ -90,6 +90,8 @@ program
   .option('--nits-only', 'only process nitpick comments')
   .option('--create-issues', 'create GitHub issues for deferred items')
   .option('--show-all', 'show all suggestions including non-critical ones')
+  .option('--critical-only', 'only show must-fix issues (security, bugs, breaking changes)')
+  .option('--priority-threshold <level>', 'filter by priority: must-fix, suggestion, or nitpick')
   .action(async (prNumber, options) => {
     console.log(chalk.blue('\n🔍 PR Review Assistant - Prototype\n'));
     
@@ -104,6 +106,28 @@ program
     } else {
       console.log(`Analyzing PR #${prNumber} on ${repoName}...`);
       console.log(`🔗 ${prUrl}\n`);
+    }
+    
+    // Validate priority options
+    if (options.criticalOnly && options.priorityThreshold) {
+      console.log(chalk.red('Error: Cannot use both --critical-only and --priority-threshold'));
+      process.exit(1);
+    }
+    
+    if (options.priorityThreshold) {
+      const validLevels = Object.values(PRIORITY_LEVELS);
+      if (!validLevels.includes(options.priorityThreshold)) {
+        console.log(chalk.red(`Error: Invalid priority threshold. Must be one of: ${validLevels.join(', ')}`));
+        process.exit(1);
+      }
+    }
+    
+    // Determine priority filter
+    let priorityFilter = null;
+    if (options.criticalOnly) {
+      priorityFilter = PRIORITY_LEVELS.MUST_FIX;
+    } else if (options.priorityThreshold) {
+      priorityFilter = options.priorityThreshold;
     }
     
     const spinner = ora('Initializing services...').start();
@@ -293,6 +317,11 @@ program
       });
       
       const decisions = [];
+      const filteredCounts = {
+        [PRIORITY_LEVELS.MUST_FIX]: 0,
+        [PRIORITY_LEVELS.SUGGESTION]: 0,
+        [PRIORITY_LEVELS.NITPICK]: 0
+      };
       const projectContext = {
         projectName: options.repo,
         validPatterns: [
@@ -327,10 +356,26 @@ program
         }
         spinner.stop();
         
+        // Apply priority filtering
+        if (priorityFilter) {
+          const commentPriority = analysis.priority || PRIORITY_LEVELS.SUGGESTION;
+          const priorityOrder = [PRIORITY_LEVELS.MUST_FIX, PRIORITY_LEVELS.SUGGESTION, PRIORITY_LEVELS.NITPICK];
+          const filterIndex = priorityOrder.indexOf(priorityFilter);
+          const commentIndex = priorityOrder.indexOf(commentPriority);
+          
+          // Skip if comment priority is lower than filter threshold
+          if (commentIndex > filterIndex) {
+            console.log(chalk.gray(`\n⏭️  Skipping ${commentPriority} (filtered by --${options.criticalOnly ? 'critical-only' : 'priority-threshold'})`));
+            filteredCounts[commentPriority]++;
+            continue;
+          }
+        }
+        
         // Show AI analysis
         console.log(chalk.bold('\n🤖 AI Analysis:'));
         console.log(`  Decision: ${chalk.cyan(analysis.action)}`);
         console.log(`  Reason: ${analysis.reason}`);
+        console.log(`  Priority: ${chalk.yellow(analysis.priority || PRIORITY_LEVELS.SUGGESTION)}`);
         if (analysis.confidence) {
           console.log(`  Confidence: ${(analysis.confidence * 100).toFixed(0)}%`);
         }
@@ -565,6 +610,23 @@ This feedback was deferred from PR review for future consideration.
         if (byPriority['must-fix'] > 0) console.log(`    Must Fix: ${byPriority['must-fix']}`);
         if (byPriority.suggestion > 0) console.log(`    Suggestions: ${byPriority.suggestion}`);
         if (byPriority.nitpick > 0) console.log(`    Nitpicks: ${byPriority.nitpick}`);
+      }
+      
+      // Show filtered counts if priority filtering is active
+      if (priorityFilter) {
+        const totalFiltered = Object.values(filteredCounts).reduce((sum, count) => sum + count, 0);
+        if (totalFiltered > 0) {
+          console.log(chalk.yellow(`\n  📋 Filtered by priority:`));
+          if (filteredCounts[PRIORITY_LEVELS.MUST_FIX] > 0) {
+            console.log(`    Must Fix: ${filteredCounts[PRIORITY_LEVELS.MUST_FIX]} (hidden)`);
+          }
+          if (filteredCounts[PRIORITY_LEVELS.SUGGESTION] > 0) {
+            console.log(`    Suggestions: ${filteredCounts[PRIORITY_LEVELS.SUGGESTION]} (hidden)`);
+          }
+          if (filteredCounts[PRIORITY_LEVELS.NITPICK] > 0) {
+            console.log(`    Nitpicks: ${filteredCounts[PRIORITY_LEVELS.NITPICK]} (hidden)`);
+          }
+        }
       }
       
       const nonCriticalCount = (reportBuilder.report.detailedActions.nonCritical || []).length;
