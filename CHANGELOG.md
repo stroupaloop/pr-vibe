@@ -5,6 +5,25 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1] - 2025-07-07
+
+### 🐛 Fixed
+- **Bot Detection Gap** - Fixed pr-vibe's inability to detect CodeRabbit PR review comments
+  - Added special handling for `pr_review_comment` type in bot detector
+  - These comments are now processed even if parent review says "0 actionable comments"
+  - Fixes issue where pr-vibe couldn't detect its own PR reviews
+  
+### 🔧 Technical Details
+- CodeRabbit posts review comments attached to a PR review that says "Actionable comments posted: 0"
+- The actual actionable comments are in the review.comments array
+- Added unit tests to prevent regression
+
+### 🚀 Dependencies Updated
+- dotenv: 16.5.0 → 17.0.1
+- @anthropic-ai/sdk: 0.30.1 → 0.56.0  
+- openai: 4.104.0 → 5.8.2
+- @octokit/rest: 21.1.1 → 22.0.0
+
 ## [0.12.0] - 2025-07-07
 
 ### 🎯 Priority-Based Filtering
