@@ -5,6 +5,33 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2025-07-22
+
+### 🐛 Fixed
+- **Enhanced Bot Comment Detection** - Fixed issue where pr-vibe would miss inline review comments from bots
+  - Now properly detects nested PR review comments even when parent review says "0 actionable comments"
+  - Fixed handling of empty/undefined comment bodies
+  - Added comprehensive debug logging to trace comment processing
+
+### ✨ New Features  
+- **Expanded AI Tool Support** - Added detection for more AI code review tools:
+  - GitHub Copilot
+  - Codacy
+  - CodeGeeX
+  - ReviewDog
+  - PR Bot
+  - Generic bot detection for any tool with [bot] suffix
+
+### 📚 Documentation
+- Added "Supported Bots" section to README
+- Listed all supported bot types with descriptions
+- Clarified inline review comment handling
+
+### 🔧 Technical Improvements
+- Enhanced bot detector to handle edge cases (null/undefined bodies)
+- Added comprehensive test coverage for bot comment structures
+- Improved PR review comment association logic
+
 ## [0.12.1] - 2025-07-07
 
 ### 🐛 Fixed
