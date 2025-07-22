@@ -54,6 +54,35 @@ pr-vibe bridges this gap by:
 - 🔌 **LLM Flexibility** - Works with Claude, GPT-4, Gemini, or without any LLM
 - ⚡ **CLI First** - Full control with human-in-the-loop design
 
+## Supported Bots
+
+pr-vibe works with all major PR review bots and AI code review tools:
+
+### Primary Support
+- **CodeRabbit** - Full conversation support, handles inline review comments
+- **Claude Code Review** - Special integration for confidence levels and categorization
+- **DeepSource** - Security and code quality analysis
+- **SonarCloud** - Code quality and security scanning
+- **Snyk** - Vulnerability detection
+- **CodeClimate** - Code quality metrics
+
+### AI Code Review Tools
+- **GitHub Copilot** - AI-powered code suggestions
+- **Codacy** - Automated code review
+- **DeepCode/Snyk Code** - AI-based security analysis
+- **CodeGeeX** - AI code review assistant
+- **ReviewDog** - Automated code review
+- **PR Bot** - Generic PR automation
+
+### Generic Support
+- Any bot with `[bot]` suffix in username
+- Custom review bots following standard GitHub comment patterns
+
+pr-vibe automatically detects bot comments, including:
+- Standard PR comments
+- Inline code review comments
+- Nested review comments (even when parent review shows "0 actionable")
+
 ## Installation
 
 ```bash
