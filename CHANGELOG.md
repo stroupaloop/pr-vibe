@@ -5,6 +5,48 @@ All notable changes to pr-vibe will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2025-09-19
+
+### 🚀 Major Features
+- **Human Reviewer Integration** - Process human reviewer feedback alongside bot comments
+  - Intelligent priority detection (critical, high, medium, low)
+  - Smart categorization (security, request, suggestion, blocking, etc.)
+  - Context awareness: detects code blocks, file mentions, technical depth
+  - Actionable vs informational classification
+  - No flags required - works by default
+
+### 🐛 Critical Fixes
+- **CodeRabbit Review Comment Detection** - Fixed missing review comments issue
+  - Removed restrictive filtering that excluded reviews without body text
+  - Now processes ALL review states (PENDING, CHANGES_REQUESTED, etc.)
+  - Enhanced debug logging for review processing
+  - Comprehensive error handling for failed comment fetches
+
+### ✨ Enhanced Features
+- **Advanced Human Comment Analysis**:
+  - Security vulnerability detection → Critical priority
+  - Blocking feedback detection → Critical priority
+  - Direct requests → High priority
+  - Questions → Medium priority (clarification needed)
+  - Approval comments → Informational (no action)
+  - Urgency detection via exclamation marks
+- **Improved Reporting**:
+  - Human Reviews section in reports
+  - Action tracking (addressed/tracked/acknowledged)
+  - Priority breakdown and statistics
+  - Resolution status monitoring
+
+### 📚 Documentation
+- Added comprehensive "Human Reviewer Support" section to README
+- Updated feature descriptions to include human comment processing
+- Enhanced supported bots documentation
+
+### 🔧 Technical Improvements
+- New `analyzeHumanComment()` function with pattern recognition
+- Enhanced `ReportBuilder` with `addHumanReview()` method
+- Comprehensive test coverage for human comment scenarios
+- Improved comment threading and organization
+
 ## [0.13.0] - 2025-07-22
 
 ### 🐛 Fixed

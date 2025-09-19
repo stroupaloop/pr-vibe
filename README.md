@@ -44,6 +44,7 @@ pr-vibe bridges this gap by:
 - 💬 **Full Conversation Support** - Handles multi-round dialogues with bots, including rate limits
 - 🔐 **Smart Auth Detection** - Finds GitHub tokens from gh CLI, env vars, VS Code automatically
 - 🔍 **Bot Comment Analysis** - Parses and understands comments from all major PR review bots
+- 👥 **Human Review Integration** - Processes human reviewer feedback alongside bot comments with priority detection
 - 🛠️ **Smart Actions** - Auto-fix simple issues, explain valid patterns, or escalate edge cases
 - 🧠 **Project Memory** - Learns and remembers your project-specific patterns
 - ⏱️ **Rate Limit Handling** - Detects and waits for bot rate limits automatically
@@ -82,6 +83,31 @@ pr-vibe automatically detects bot comments, including:
 - Standard PR comments
 - Inline code review comments
 - Nested review comments (even when parent review shows "0 actionable")
+
+## Human Reviewer Support
+
+pr-vibe now processes **human reviewer feedback alongside bot comments** with intelligent priority detection:
+
+### What Gets Detected
+- **Critical Issues**: "This has a security vulnerability" → High priority
+- **Blocking Feedback**: "Cannot merge until API versioning is fixed" → Critical priority
+- **Direct Requests**: "Please update the error handling" → High priority
+- **Questions**: "Why did you choose this approach?" → Medium priority (clarification needed)
+- **Suggestions**: "Consider using a more descriptive name" → Medium priority
+- **Approval**: "LGTM! Great work" → Informational (no action needed)
+
+### Smart Analysis
+- **Context Awareness**: Detects code blocks, file mentions, technical depth
+- **Urgency Detection**: Multiple exclamation marks indicate higher priority
+- **Pattern Recognition**: Learns from team feedback patterns over time
+
+### Integration
+- Human feedback is processed **by default** (no flags needed)
+- Appears in reports alongside bot feedback
+- Higher priority than bot suggestions
+- Tracks resolution status (addressed/tracked/acknowledged)
+
+Human reviewers like senior developers, architects, and security experts provide critical feedback that complements automated analysis. pr-vibe ensures this feedback is never overlooked.
 
 ## Installation
 

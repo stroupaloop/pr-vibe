@@ -22,6 +22,110 @@ import { createReportStorage } from '../lib/report-storage.js';
 import { ConversationManager } from '../lib/conversation-manager.js';
 import { botDetector } from '../lib/bot-detector.js';
 
+/**
+ * Analyze human comment to determine if it contains actionable feedback
+ */
+function analyzeHumanComment(comment) {
+  const body = comment.body || '';
+  const lowerBody = body.toLowerCase();
+
+  // Patterns that indicate actionable feedback
+  const actionablePatterns = [
+    // Direct requests
+    { pattern: /\b(please|must|need to|should|have to)\s+(fix|change|update|remove|add)/i, priority: 'high', category: 'request' },
+    { pattern: /\b(can you|could you)\s+(fix|change|update)/i, priority: 'medium', category: 'request' },
+
+    // Issues and problems
+    { pattern: /\b(issue|problem|bug|error|broken|wrong)/i, priority: 'high', category: 'issue' },
+    { pattern: /\b(security|vulnerability|exploit)/i, priority: 'critical', category: 'security' },
+
+    // Code quality concerns
+    { pattern: /\b(review|concern|worry|worried|problematic)/i, priority: 'medium', category: 'quality' },
+    { pattern: /\b(performance|slow|inefficient)/i, priority: 'medium', category: 'performance' },
+
+    // Blocking feedback
+    { pattern: /\b(block|blocking|cannot merge|don't merge|hold)/i, priority: 'critical', category: 'blocking' },
+    { pattern: /\b(nack|reject|not approved)/i, priority: 'high', category: 'blocking' },
+
+    // Suggestions with urgency
+    { pattern: /\b(recommend|suggest|should consider).*\b(before|prior to|urgent)/i, priority: 'high', category: 'suggestion' }
+  ];
+
+  // Patterns that indicate non-actionable comments
+  const informationalPatterns = [
+    /\b(lgtm|looks good|nice work|great job|well done)/i,
+    /\b(thanks|thank you|appreciate)/i,
+    /\b(fyi|for your information|just noting)/i,
+    /\b(optional|consider|might want|could also)/i
+  ];
+
+  let isActionable = false;
+  let priority = 'low';
+  let category = 'general';
+  let confidence = 0.5;
+
+  // Check for actionable patterns
+  for (const { pattern, priority: patternPriority, category: patternCategory } of actionablePatterns) {
+    if (pattern.test(body)) {
+      isActionable = true;
+      priority = patternPriority;
+      category = patternCategory;
+      confidence = 0.8;
+      break;
+    }
+  }
+
+  // Check for informational patterns (override actionable if found)
+  for (const pattern of informationalPatterns) {
+    if (pattern.test(body)) {
+      isActionable = false;
+      priority = 'info';
+      category = 'informational';
+      confidence = 0.9;
+      break;
+    }
+  }
+
+  // Additional context analysis
+  const hasQuestionMarks = (body.match(/\?/g) || []).length;
+  const hasExclamationMarks = (body.match(/!/g) || []).length;
+  const hasCodeBlocks = /```/.test(body);
+  const mentionsFiles = /\.(js|ts|py|java|go|rs|cpp|c|h|rb|php)/.test(body);
+
+  // Boost confidence if comment has technical context
+  if (hasCodeBlocks || mentionsFiles) {
+    confidence = Math.min(confidence + 0.1, 0.95);
+  }
+
+  // Questions often indicate actionable items
+  if (hasQuestionMarks > 0 && !isActionable) {
+    isActionable = true;
+    priority = 'medium';
+    category = 'clarification';
+    confidence = 0.7;
+  }
+
+  // Exclamation marks often indicate urgency
+  if (hasExclamationMarks > 1 && isActionable) {
+    if (priority === 'medium') priority = 'high';
+    if (priority === 'low') priority = 'medium';
+  }
+
+  return {
+    isActionable,
+    priority,
+    category,
+    confidence,
+    analysis: {
+      hasQuestionMarks,
+      hasExclamationMarks,
+      hasCodeBlocks,
+      mentionsFiles,
+      wordCount: body.split(/\s+/).length
+    }
+  };
+}
+
 // Check for updates
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf-8'));
@@ -493,62 +597,71 @@ This feedback was deferred from PR review for future consideration.
         console.log(chalk.dim(`  → Action: ${userAction}\n`));
       }
       
-      // 4. Process human reviews (experimental)
-      if (options.experimental && humanComments.length > 0) {
-        console.log(chalk.bold('\n🧪 EXPERIMENTAL: Processing Human Reviews\n'));
+      // 4. Process human reviews
+      if (humanComments.length > 0) {
+        console.log(chalk.bold('\n👥 Human Reviews\n'));
         console.log(chalk.gray('─'.repeat(50)));
-        
+
         for (const [threadId, threadComments] of Object.entries(humanThreads)) {
           const mainComment = threadComments[0];
           const author = mainComment.user?.login || 'Unknown';
-          
-          console.log(chalk.bold(`\n👤 ${author} commented:`));
+
+          console.log(chalk.bold(`\n👤 ${author}:`));
           console.log(chalk.white(mainComment.body));
-          
+
           if (mainComment.path) {
             console.log(chalk.dim(`  📄 ${mainComment.path}${mainComment.line ? `:${mainComment.line}` : ''}`));
           }
-          
-          // Ask what to do with human feedback
-          console.log(chalk.yellow('\n🤔 pr-vibe is learning from human reviews...'));
-          console.log(chalk.gray('  This feedback will help pr-vibe understand your team\'s standards.'));
-          
-          // For now, just acknowledge - pattern learning comes next
-          const { humanAction } = await inquirer.prompt([
-            {
-              type: 'list',
-              name: 'humanAction',
-              message: 'How should pr-vibe interpret this feedback?',
-              choices: [
-                { name: 'Learn pattern (will remember for future)', value: 'learn' },
-                { name: 'Just acknowledge (one-time feedback)', value: 'acknowledge' },
-                { name: 'Skip for now', value: 'skip' }
-              ]
+
+          // Analyze human feedback for actionable items
+          const humanAnalysis = analyzeHumanComment(mainComment);
+
+          if (humanAnalysis.isActionable) {
+            console.log(chalk.yellow(`\n🎯 Actionable feedback detected (${humanAnalysis.priority} priority)`));
+
+            if (humanAnalysis.category) {
+              console.log(chalk.dim(`   Category: ${humanAnalysis.category}`));
             }
-          ]);
-          
-          if (humanAction === 'learn') {
-            // Learn from this human review
-            const learningResult = await patternManager.learnFromHumanReview(
-              mainComment,
-              'human_feedback',
-              { pr: prNumber, repo: options.repo }
-            );
-            
-            console.log(chalk.green(`  ✅ Pattern learned from ${learningResult.reviewer}!`));
-            console.log(chalk.dim(`     Confidence: ${(learningResult.confidence * 100).toFixed(0)}%`));
-            console.log(chalk.dim(`     Patterns updated: ${learningResult.patternsUpdated}`));
-            
-            // Check if this matches existing patterns
-            const match = patternManager.matchHumanPattern(mainComment);
-            if (match.matched) {
-              console.log(chalk.cyan(`  🔍 This matches a pattern learned from: ${match.learnedFrom.join(', ')}`));
+
+            // Ask what to do with human feedback
+            const { humanAction } = await inquirer.prompt([
+              {
+                type: 'list',
+                name: 'humanAction',
+                message: 'How would you like to handle this feedback?',
+                choices: [
+                  { name: '✅ Mark as addressed', value: 'addressed' },
+                  { name: '📝 Track for follow-up', value: 'track' },
+                  { name: '🎓 Learn pattern for future', value: 'learn' },
+                  { name: '⏭️ Skip for now', value: 'skip' }
+                ]
+              }
+            ]);
+
+            if (humanAction === 'learn') {
+              // Learn from this human review
+              const learningResult = await patternManager.learnFromHumanReview(
+                mainComment,
+                'human_feedback',
+                { pr: prNumber, repo: options.repo }
+              );
+
+              console.log(chalk.green(`  ✅ Pattern learned from ${learningResult.reviewer}!`));
+              console.log(chalk.dim(`     Confidence: ${(learningResult.confidence * 100).toFixed(0)}%`));
+              console.log(chalk.dim(`     Patterns updated: ${learningResult.patternsUpdated}`));
+            } else if (humanAction === 'addressed') {
+              console.log(chalk.green('  ✅ Marked as addressed'));
+              reportBuilder.addHumanReview(mainComment, 'addressed', humanAnalysis);
+            } else if (humanAction === 'track') {
+              console.log(chalk.blue('  📝 Tracking for follow-up'));
+              reportBuilder.addHumanReview(mainComment, 'tracked', humanAnalysis);
             }
-          } else if (humanAction === 'acknowledge') {
-            console.log(chalk.blue('  👍 Acknowledged'));
+          } else {
+            console.log(chalk.dim('\n💬 Informational comment - no action required'));
+            reportBuilder.addHumanReview(mainComment, 'acknowledged', humanAnalysis);
           }
         }
-        
+
         console.log(chalk.gray('\n─'.repeat(50)));
       }
       
@@ -1210,7 +1323,7 @@ program
       }
     } else {
       // Show recent highlights
-            console.log(chalk.cyan('## Version 0.12.0 (Current)'));
+                  console.log(chalk.cyan('## Version 0.14.0 (Current)'));
       console.log('  ✨ New features and improvements');
       console.log('  🐛 Bug fixes and enhancements\n');
       
